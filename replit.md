@@ -41,8 +41,8 @@ The application follows a monorepo structure with clear separation between clien
 
 ### Backend Architecture
 - **API Structure**: RESTful endpoints for data analysis
-- **Storage Layer**: Abstracted storage interface with in-memory implementation
-- **AI Integration**: OpenAI service for generating recommendations
+- **Storage Layer**: Abstracted storage interface with PostgreSQL database implementation
+- **AI Integration**: Intelligent local algorithm for generating recommendations
 - **Error Handling**: Centralized error handling middleware
 
 ### Database Schema
