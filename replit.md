@@ -8,6 +8,8 @@ InvestWise is a full-stack web application that provides personalized investment
 
 **January 19, 2025**: Updated recommendation engine to use intelligent local algorithm instead of OpenAI API to accommodate users without API credits. The new system provides sophisticated analysis based on multiple factors including age, risk tolerance, investment amount, goals, and preferences.
 
+**January 19, 2025**: Enhanced recommendation system to provide detailed, specific investment opportunities instead of just percentage allocations. Added comprehensive investment database with real estate projects, stocks, bonds, gold options, and savings products. Each recommendation includes specific prices, expected returns, payment plans, risk levels, and detailed features.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { userDataSchema } from "@shared/schema";
+import { userDataSchema, type DetailedRecommendation } from "@shared/schema";
+import { getRecommendationsByCategory, getAllRecommendations } from "./investment-data";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -88,11 +89,15 @@ function generateIntelligentRecommendations(userData: any) {
   // Determine risk level
   const riskLevel = getRiskLevel(riskTolerance);
   
+  // Generate detailed recommendations
+  const detailedRecommendations = generateDetailedInvestmentRecommendations(userData, allocation);
+  
   return {
     allocation,
     summary,
     expectedReturn,
-    riskLevel
+    riskLevel,
+    detailedRecommendations
   };
 }
 
@@ -341,4 +346,97 @@ function getRiskLevel(riskTolerance: string): string {
     case 'high': return 'عالي';
     default: return 'متوسط';
   }
+}
+
+function generateDetailedInvestmentRecommendations(userData: any, allocation: Record<string, number>): DetailedRecommendation[] {
+  const { investmentAmount, riskTolerance, preferences } = userData;
+  const recommendations: DetailedRecommendation[] = [];
+  
+  // Convert investment amount to number for calculations
+  const getInvestmentRange = (amount: string) => {
+    switch (amount) {
+      case '<10000': return 5000;
+      case '10000-50000': return 30000;
+      case '50000-100000': return 75000;
+      case '100000-500000': return 300000;
+      case '500000+': return 750000;
+      default: return 50000;
+    }
+  };
+  
+  const investmentBudget = getInvestmentRange(investmentAmount);
+  
+  // Map preferences to categories
+  const preferenceMap: Record<string, string> = {
+    'real-estate': 'real-estate',
+    'stocks': 'stocks',
+    'gold': 'gold',
+    'bonds': 'bonds',
+    'crypto': 'crypto',
+    'savings': 'savings'
+  };
+  
+  // Get recommendations for each allocation category
+  Object.entries(allocation).forEach(([arabicType, percentage]) => {
+    const categoryAmount = (investmentBudget * percentage) / 100;
+    
+    // Map Arabic types to English categories
+    const categoryMap: Record<string, string> = {
+      'العقارات': 'real-estate',
+      'الأسهم': 'stocks',
+      'الذهب': 'gold',
+      'السندات': 'bonds',
+      'العملات الرقمية': 'crypto',
+      'حسابات الادخار': 'savings'
+    };
+    
+    const category = categoryMap[arabicType];
+    if (!category) return;
+    
+    const categoryRecommendations = getRecommendationsByCategory(category);
+    
+    // Filter based on risk tolerance and budget
+    const filteredRecommendations = categoryRecommendations.filter(rec => {
+      const minInvestment = parseInt(rec.minimumInvestment.replace(/[^\d]/g, ''));
+      const isAffordable = minInvestment <= categoryAmount;
+      
+      const riskMatch = 
+        (riskTolerance === 'low' && rec.riskLevel === 'منخفض') ||
+        (riskTolerance === 'medium' && ['منخفض', 'متوسط'].includes(rec.riskLevel)) ||
+        (riskTolerance === 'high');
+      
+      return isAffordable && riskMatch;
+    });
+    
+    // Select best recommendations (max 2 per category)
+    const selectedRecommendations = filteredRecommendations
+      .sort((a, b) => {
+        // Sort by recommendation strength and expected return
+        const strengthOrder = { 'شراء قوي': 3, 'شراء': 2, 'شراء متوسط': 1, 'انتظار': 0, 'تجنب': -1 };
+        const aStrength = strengthOrder[a.recommendation] || 0;
+        const bStrength = strengthOrder[b.recommendation] || 0;
+        
+        if (aStrength !== bStrength) return bStrength - aStrength;
+        
+        // Then by expected return
+        const aReturn = parseFloat(a.expectedReturn.replace(/[^\d.]/g, ''));
+        const bReturn = parseFloat(b.expectedReturn.replace(/[^\d.]/g, ''));
+        return bReturn - aReturn;
+      })
+      .slice(0, 2);
+    
+    recommendations.push(...selectedRecommendations);
+  });
+  
+  // If no recommendations found, add safe defaults
+  if (recommendations.length === 0) {
+    const safeRecommendations = getAllRecommendations().filter(rec => 
+      rec.riskLevel === 'منخفض' && 
+      parseInt(rec.minimumInvestment.replace(/[^\d]/g, '')) <= investmentBudget / 2
+    ).slice(0, 3);
+    
+    recommendations.push(...safeRecommendations);
+  }
+  
+  return recommendations.slice(0, 6); // Limit to 6 recommendations max
 }

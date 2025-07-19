@@ -15,8 +15,28 @@ export const investmentAnalyses = pgTable("investment_analyses", {
     summary: string;
     expectedReturn: string;
     riskLevel: string;
+    detailedRecommendations: DetailedRecommendation[];
   }>().notNull(),
 });
+
+export type DetailedRecommendation = {
+  id: string;
+  type: string;
+  category: 'real-estate' | 'stocks' | 'gold' | 'bonds' | 'crypto' | 'savings';
+  title: string;
+  description: string;
+  price: string;
+  expectedReturn: string;
+  paymentPlan?: string;
+  riskLevel: 'منخفض' | 'متوسط' | 'عالي';
+  timeline: string;
+  recommendation: 'شراء قوي' | 'شراء' | 'شراء متوسط' | 'انتظار' | 'تجنب';
+  location?: string;
+  currentPrice?: string;
+  targetPrice?: string;
+  minimumInvestment: string;
+  features?: string[];
+};
 
 export const insertInvestmentAnalysisSchema = createInsertSchema(investmentAnalyses).omit({
   id: true,

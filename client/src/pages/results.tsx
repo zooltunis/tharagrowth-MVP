@@ -2,7 +2,9 @@ import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, RotateCcw, Download, Loader2, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function ResultsPage() {
@@ -98,7 +100,7 @@ export default function ResultsPage() {
     );
   }
 
-  const { allocation, summary, expectedReturn, riskLevel } = analysis.recommendations;
+  const { allocation, summary, expectedReturn, riskLevel, detailedRecommendations } = analysis.recommendations;
   const colors = [
     '#1E40AF', '#059669', '#DC2626', '#F59E0B', 
     '#8B5CF6', '#06B6D4', '#10B981', '#F97316'
@@ -176,6 +178,124 @@ export default function ResultsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Detailed Recommendations Section */}
+        {detailedRecommendations && detailedRecommendations.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">التوصيات التفصيلية</h2>
+            <div className="grid lg:grid-cols-2 gap-6">
+              {detailedRecommendations.map((recommendation, index) => (
+                <Card key={recommendation.id} className="shadow-lg border-gray-100 hover:shadow-xl transition-shadow">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <CardTitle className="text-lg">{recommendation.title}</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">{recommendation.type}</p>
+                      </div>
+                      <Badge 
+                        variant={
+                          recommendation.recommendation === 'شراء قوي' ? 'default' :
+                          recommendation.recommendation === 'شراء' ? 'secondary' : 'outline'
+                        }
+                        className="shrink-0"
+                      >
+                        {recommendation.recommendation}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <p className="text-gray-700 text-sm leading-relaxed">{recommendation.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center text-sm">
+                        <DollarSign className="h-4 w-4 text-green-500 ml-2" />
+                        <div>
+                          <p className="font-medium">السعر</p>
+                          <p className="text-gray-600">{recommendation.price}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center text-sm">
+                        <TrendingUp className="h-4 w-4 text-blue-500 ml-2" />
+                        <div>
+                          <p className="font-medium">العائد المتوقع</p>
+                          <p className="text-gray-600">{recommendation.expectedReturn}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center text-sm">
+                        <Shield className="h-4 w-4 text-orange-500 ml-2" />
+                        <div>
+                          <p className="font-medium">مستوى المخاطر</p>
+                          <p className="text-gray-600">{recommendation.riskLevel}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center text-sm">
+                        <Clock className="h-4 w-4 text-purple-500 ml-2" />
+                        <div>
+                          <p className="font-medium">المدة المتوقعة</p>
+                          <p className="text-gray-600">{recommendation.timeline}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {recommendation.location && (
+                      <div className="flex items-center text-sm">
+                        <MapPin className="h-4 w-4 text-red-500 ml-2" />
+                        <div>
+                          <p className="font-medium">الموقع</p>
+                          <p className="text-gray-600">{recommendation.location}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {recommendation.paymentPlan && (
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-blue-900 mb-1">خطة الدفع</p>
+                        <p className="text-sm text-blue-700">{recommendation.paymentPlan}</p>
+                      </div>
+                    )}
+                    
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm font-medium text-gray-900 mb-1">الحد الأدنى للاستثمار</p>
+                      <p className="text-sm text-gray-700">{recommendation.minimumInvestment}</p>
+                    </div>
+                    
+                    {recommendation.features && recommendation.features.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 mb-2">المميزات الرئيسية</p>
+                        <div className="flex flex-wrap gap-1">
+                          {recommendation.features.map((feature, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {recommendation.currentPrice && recommendation.targetPrice && (
+                      <div className="bg-green-50 p-3 rounded-lg">
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <p className="font-medium text-green-900">السعر الحالي</p>
+                            <p className="text-green-700">{recommendation.currentPrice}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-green-900">السعر المستهدف</p>
+                            <p className="text-green-700">{recommendation.targetPrice}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="text-center space-x-4">
