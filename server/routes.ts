@@ -54,125 +54,291 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateInvestmentRecommendations(userData: any) {
-  const prompt = `
-أنت خبير مالي متخصص في الاستثمار. قم بتحليل البيانات التالية وقدم توصيات استثمارية مخصصة:
-
-بيانات المستخدم:
-- العمر: ${userData.age}
-- الدخل الشهري: ${userData.income}
-- المبلغ المتاح للاستثمار: ${userData.investmentAmount}
-- أهداف الاستثمار: ${userData.goals.join(', ')}
-- مستوى تحمل المخاطر: ${userData.riskTolerance}
-- تفضيلات الاستثمار: ${userData.preferences.join(', ')}
-
-قم بإنشاء توصيات استثمارية تتضمن:
-1. توزيع المحفظة بالنسب المئوية (يجب أن يكون المجموع 100%)
-2. ملخص نصي مفصل باللغة العربية
-3. العائد المتوقع السنوي
-4. تقييم مستوى المخاطر
-
-يرجى تقديم الرد بصيغة JSON مع الهيكل التالي:
-{
-  "allocation": {
-    "العقارات": 35,
-    "الأسهم": 25,
-    "الذهب": 20,
-    "السندات": 15,
-    "حسابات الادخار": 5
-  },
-  "summary": "ملخص مفصل باللغة العربية...",
-  "expectedReturn": "8.5",
-  "riskLevel": "متوسط"
+  // Use intelligent local recommendations instead of OpenAI
+  return generateIntelligentRecommendations(userData);
 }
 
-تأكد من أن:
-- النسب المئوية في allocation تصل لمجموع 100%
-- الملخص مفصل ومفيد باللغة العربية
-- العائد المتوقع رقم عشري كنص
-- مستوى المخاطر باللغة العربية (منخفض/متوسط/عالي)
-`;
-
-  try {
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "أنت خبير مالي متخصص في تقديم نصائح الاستثمار المخصصة. قدم توصيات مدروسة ومتوازنة تناسب الملف الاستثماري للمستخدم."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    
-    // Validate and normalize the allocation to ensure it sums to 100%
-    if (result.allocation) {
-      const total = Object.values(result.allocation).reduce((sum: number, val: any) => sum + Number(val), 0);
-      Object.keys(result.allocation).forEach(key => {
-        result.allocation[key] = Math.round((Number(result.allocation[key]) / total) * 100);
-      });
-    }
-    
-    return result;
-  } catch (error) {
-    console.error("OpenAI API error:", error);
-    // Fallback to mock recommendations if API fails
-    return generateMockRecommendations(userData);
-  }
+function generateIntelligentRecommendations(userData: any) {
+  const { age, income, investmentAmount, goals, riskTolerance, preferences } = userData;
+  
+  // Calculate base allocation based on risk tolerance
+  let baseAllocation = getBaseAllocation(riskTolerance);
+  
+  // Adjust based on age (younger = more aggressive)
+  baseAllocation = adjustForAge(baseAllocation, age);
+  
+  // Adjust based on investment amount
+  baseAllocation = adjustForAmount(baseAllocation, investmentAmount);
+  
+  // Adjust based on goals
+  baseAllocation = adjustForGoals(baseAllocation, goals);
+  
+  // Filter based on user preferences
+  baseAllocation = filterByPreferences(baseAllocation, preferences);
+  
+  // Normalize to ensure sum is 100%
+  const allocation = normalizeAllocation(baseAllocation);
+  
+  // Generate detailed summary
+  const summary = generateDetailedSummary(userData, allocation);
+  
+  // Calculate expected return
+  const expectedReturn = calculateExpectedReturn(allocation, riskTolerance);
+  
+  // Determine risk level
+  const riskLevel = getRiskLevel(riskTolerance);
+  
+  return {
+    allocation,
+    summary,
+    expectedReturn,
+    riskLevel
+  };
 }
 
-function generateMockRecommendations(userData: any) {
-  const { riskTolerance } = userData;
-  
-  let allocation: Record<string, number> = {};
-  
+function getBaseAllocation(riskTolerance: string): Record<string, number> {
   switch (riskTolerance) {
     case 'low':
-      allocation = {
-        'حسابات الادخار': 40,
+      return {
+        'حسابات الادخار': 35,
         'السندات': 30,
         'الذهب': 20,
-        'العقارات': 10
+        'العقارات': 15
       };
-      break;
     case 'medium':
-      allocation = {
-        'العقارات': 35,
+      return {
+        'العقارات': 30,
         'الأسهم': 25,
         'الذهب': 20,
         'السندات': 15,
-        'حسابات الادخار': 5
+        'حسابات الادخار': 10
       };
-      break;
     case 'high':
-      allocation = {
-        'الأسهم': 45,
+      return {
+        'الأسهم': 40,
         'العقارات': 25,
         'العملات الرقمية': 15,
-        'الذهب': 10,
-        'السندات': 5
+        'الذهب': 12,
+        'السندات': 8
       };
-      break;
     default:
-      allocation = {
+      return {
         'العقارات': 30,
-        'الأسهم': 30,
+        'الأسهم': 25,
         'الذهب': 25,
-        'السندات': 15
+        'السندات': 20
       };
   }
+}
 
-  return {
-    allocation,
-    summary: `بناءً على ملفك الاستثماري، نوصي بالتوزيع المعروض أعلاه. هذا التوزيع يتناسب مع مستوى تحملك للمخاطر ويحقق التوازن بين العائد والأمان. نوصي بمراجعة هذا التوزيع كل 6 أشهر وإعادة التوازن عند الحاجة.`,
-    expectedReturn: riskTolerance === 'low' ? '5.5' : riskTolerance === 'medium' ? '7.8' : '10.2',
-    riskLevel: riskTolerance === 'low' ? 'منخفض' : riskTolerance === 'medium' ? 'متوسط' : 'عالي'
+function adjustForAge(allocation: Record<string, number>, age: string): Record<string, number> {
+  const adjusted = { ...allocation };
+  
+  if (age === '18-25' || age === '26-35') {
+    // Younger investors - more growth-oriented
+    if (adjusted['الأسهم']) adjusted['الأسهم'] += 5;
+    if (adjusted['العقارات']) adjusted['العقارات'] += 5;
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] -= 10;
+  } else if (age === '46-55' || age === '55+') {
+    // Older investors - more conservative
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] += 10;
+    if (adjusted['السندات']) adjusted['السندات'] += 5;
+    if (adjusted['الأسهم']) adjusted['الأسهم'] -= 10;
+    if (adjusted['العملات الرقمية']) adjusted['العملات الرقمية'] -= 5;
+  }
+  
+  return adjusted;
+}
+
+function adjustForAmount(allocation: Record<string, number>, amount: string): Record<string, number> {
+  const adjusted = { ...allocation };
+  
+  if (amount === '<10000' || amount === '10000-50000') {
+    // Smaller amounts - reduce real estate, increase stocks
+    if (adjusted['العقارات']) adjusted['العقارات'] -= 10;
+    if (adjusted['الأسهم']) adjusted['الأسهم'] += 5;
+    if (adjusted['الذهب']) adjusted['الذهب'] += 5;
+  } else if (amount === '500000+') {
+    // Larger amounts - more real estate
+    if (adjusted['العقارات']) adjusted['العقارات'] += 10;
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] -= 5;
+    if (adjusted['السندات']) adjusted['السندات'] -= 5;
+  }
+  
+  return adjusted;
+}
+
+function adjustForGoals(allocation: Record<string, number>, goals: string[]): Record<string, number> {
+  const adjusted = { ...allocation };
+  
+  if (goals.includes('passive-income')) {
+    // Focus on income-generating assets
+    if (adjusted['العقارات']) adjusted['العقارات'] += 10;
+    if (adjusted['السندات']) adjusted['السندات'] += 5;
+    if (adjusted['الأسهم']) adjusted['الأسهم'] -= 5;
+    if (adjusted['الذهب']) adjusted['الذهب'] -= 10;
+  }
+  
+  if (goals.includes('growth')) {
+    // Focus on growth assets
+    if (adjusted['الأسهم']) adjusted['الأسهم'] += 15;
+    if (adjusted['العملات الرقمية']) adjusted['العملات الرقمية'] += 5;
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] -= 10;
+    if (adjusted['السندات']) adjusted['السندات'] -= 10;
+  }
+  
+  if (goals.includes('retirement')) {
+    // Balanced approach for retirement
+    if (adjusted['السندات']) adjusted['السندات'] += 10;
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] += 5;
+    if (adjusted['العملات الرقمية']) adjusted['العملات الرقمية'] -= 10;
+    if (adjusted['الأسهم']) adjusted['الأسهم'] -= 5;
+  }
+  
+  return adjusted;
+}
+
+function filterByPreferences(allocation: Record<string, number>, preferences: string[]): Record<string, number> {
+  const filtered: Record<string, number> = {};
+  
+  // Map preferences to allocation keys
+  const preferenceMap: Record<string, string> = {
+    'real-estate': 'العقارات',
+    'stocks': 'الأسهم',
+    'gold': 'الذهب',
+    'bonds': 'السندات',
+    'crypto': 'العملات الرقمية',
+    'savings': 'حسابات الادخار'
   };
+  
+  // Only include preferred investment types
+  preferences.forEach(pref => {
+    const key = preferenceMap[pref];
+    if (key && allocation[key]) {
+      filtered[key] = allocation[key];
+    }
+  });
+  
+  // If no preferences match existing allocation, use safer defaults
+  if (Object.keys(filtered).length === 0) {
+    filtered['حسابات الادخار'] = 50;
+    filtered['الذهب'] = 30;
+    filtered['السندات'] = 20;
+  }
+  
+  return filtered;
+}
+
+function normalizeAllocation(allocation: Record<string, number>): Record<string, number> {
+  const total = Object.values(allocation).reduce((sum, val) => sum + val, 0);
+  const normalized: Record<string, number> = {};
+  
+  Object.entries(allocation).forEach(([key, value]) => {
+    normalized[key] = Math.round((value / total) * 100);
+  });
+  
+  // Ensure total is exactly 100%
+  const normalizedTotal = Object.values(normalized).reduce((sum, val) => sum + val, 0);
+  if (normalizedTotal !== 100) {
+    const largestKey = Object.keys(normalized).reduce((a, b) => 
+      normalized[a] > normalized[b] ? a : b
+    );
+    normalized[largestKey] += (100 - normalizedTotal);
+  }
+  
+  return normalized;
+}
+
+function generateDetailedSummary(userData: any, allocation: Record<string, number>): string {
+  const { age, riskTolerance, goals, investmentAmount } = userData;
+  
+  let summary = `بناءً على تحليل دقيق لملفك الاستثماري، تم تصميم هذه المحفظة خصيصاً لتناسب:\n\n`;
+  
+  // Age consideration
+  if (age === '18-25' || age === '26-35') {
+    summary += `✓ عمرك (${age}) يتيح لك اتخاذ مخاطر محسوبة للاستفادة من النمو طويل المدى\n`;
+  } else if (age === '46-55' || age === '55+') {
+    summary += `✓ مرحلتك العمرية (${age}) تتطلب استراتيجية أكثر حذراً للحفاظ على رأس المال\n`;
+  }
+  
+  // Risk tolerance
+  const riskText = riskTolerance === 'low' ? 'المنخفض' : riskTolerance === 'medium' ? 'المتوسط' : 'العالي';
+  summary += `✓ مستوى تحملك للمخاطر ${riskText} تم مراعاته في توزيع الاستثمارات\n`;
+  
+  // Investment amount
+  summary += `✓ المبلغ المتاح (${investmentAmount}) تم تحسين التوزيع وفقاً له\n\n`;
+  
+  // Goals
+  summary += `أهدافك الاستثمارية:\n`;
+  if (goals.includes('savings')) summary += `• بناء ثروة طويلة المدى من خلال استثمارات متنوعة\n`;
+  if (goals.includes('passive-income')) summary += `• توليد دخل منتظم من العقارات والسندات\n`;
+  if (goals.includes('retirement')) summary += `• التحضير للتقاعد بمحفظة متوازنة وآمنة\n`;
+  if (goals.includes('growth')) summary += `• تحقيق نمو سريع من خلال الأسهم والاستثمارات عالية العائد\n`;
+  
+  summary += `\n📈 توزيع المحفظة:\n`;
+  Object.entries(allocation).forEach(([type, percentage]) => {
+    summary += `• ${type}: ${percentage}% - `;
+    switch (type) {
+      case 'العقارات':
+        summary += `استثمار آمن مع دخل منتظم وحماية من التضخم\n`;
+        break;
+      case 'الأسهم':
+        summary += `نمو رأس المال مع إمكانيات عوائد عالية\n`;
+        break;
+      case 'الذهب':
+        summary += `حماية من التضخم واستقرار في الأزمات\n`;
+        break;
+      case 'السندات':
+        summary += `استثمار آمن مع عوائد ثابتة ومنتظمة\n`;
+        break;
+      case 'العملات الرقمية':
+        summary += `فرصة نمو عالية مع مخاطر محسوبة\n`;
+        break;
+      case 'حسابات الادخار':
+        summary += `سيولة فورية وأمان كامل لرأس المال\n`;
+        break;
+    }
+  });
+  
+  summary += `\n💡 توصيات إضافية:\n`;
+  summary += `• قم بمراجعة المحفظة كل 6 أشهر وأعد توزيعها حسب الحاجة\n`;
+  summary += `• ابدأ بمبالغ صغيرة واتعلم من كل استثمار\n`;
+  summary += `• لا تضع كل أموالك في استثمار واحد\n`;
+  summary += `• استشر خبيراً مالياً للقرارات الكبيرة\n`;
+  
+  return summary;
+}
+
+function calculateExpectedReturn(allocation: Record<string, number>, riskTolerance: string): string {
+  const returns: Record<string, number> = {
+    'العقارات': 8.5,
+    'الأسهم': 12.0,
+    'الذهب': 6.0,
+    'السندات': 4.5,
+    'العملات الرقمية': 18.0,
+    'حسابات الادخار': 2.5
+  };
+  
+  let weightedReturn = 0;
+  Object.entries(allocation).forEach(([type, percentage]) => {
+    weightedReturn += (returns[type] || 5) * (percentage / 100);
+  });
+  
+  // Adjust based on risk tolerance
+  if (riskTolerance === 'low') {
+    weightedReturn *= 0.8; // More conservative estimate
+  } else if (riskTolerance === 'high') {
+    weightedReturn *= 1.1; // More optimistic estimate
+  }
+  
+  return weightedReturn.toFixed(1);
+}
+
+function getRiskLevel(riskTolerance: string): string {
+  switch (riskTolerance) {
+    case 'low': return 'منخفض';
+    case 'medium': return 'متوسط';
+    case 'high': return 'عالي';
+    default: return 'متوسط';
+  }
 }

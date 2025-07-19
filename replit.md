@@ -2,7 +2,11 @@
 
 ## Overview
 
-InvestWise is a full-stack web application that provides personalized investment recommendations using artificial intelligence. The application collects user financial data through a multi-step form and generates customized investment advice with visual portfolio allocation charts.
+InvestWise is a full-stack web application that provides personalized investment recommendations using an intelligent local algorithm. The application collects user financial data through a multi-step form and generates customized investment advice with visual portfolio allocation charts.
+
+## Recent Changes
+
+**January 19, 2025**: Updated recommendation engine to use intelligent local algorithm instead of OpenAI API to accommodate users without API credits. The new system provides sophisticated analysis based on multiple factors including age, risk tolerance, investment amount, goals, and preferences.
 
 ## User Preferences
 
