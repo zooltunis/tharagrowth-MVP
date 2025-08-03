@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import WelcomePage from "@/pages/welcome";
 import DataCollectionPage from "@/pages/data-collection";
 import ResultsPage from "@/pages/results";
+import MarketDashboardPage from "@/pages/market-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={WelcomePage} />
       <Route path="/collect-data" component={DataCollectionPage} />
       <Route path="/results/:id" component={ResultsPage} />
+      <Route path="/market" component={MarketDashboardPage} />
       <Route component={NotFound} />
     </Switch>
   );

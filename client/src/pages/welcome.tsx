@@ -54,13 +54,20 @@ export default function WelcomePage() {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center">
-          <Link href="/collect-data">
-            <Button size="lg" className="text-lg px-8 py-4 h-auto">
-              ابدأ رحلة الاستثمار
-            </Button>
-          </Link>
-          <p className="text-gray-500 text-sm mt-4">مجاني تماماً • لا يتطلب تسجيل دخول</p>
+        <div className="text-center space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/collect-data">
+              <Button size="lg" className="text-lg px-8 py-4 h-auto">
+                ابدأ رحلة الاستثمار
+              </Button>
+            </Link>
+            <Link href="/market">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto">
+                السوق المباشر
+              </Button>
+            </Link>
+          </div>
+          <p className="text-gray-500 text-sm">مجاني تماماً • لا يتطلب تسجيل دخول</p>
         </div>
       </div>
     </div>

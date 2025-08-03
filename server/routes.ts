@@ -13,6 +13,13 @@ import {
   type RealEstateProject,
   type StockData 
 } from "./api-integrations";
+import {
+  getMarketSummary,
+  getLiveGoldPrice,
+  getCurrencyRates,
+  convertCurrency,
+  getActiveStocks
+} from "./market-data";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -57,6 +64,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(analysis);
     } catch (error: any) {
       res.status(500).json({ message: "خطأ في الخادم" });
+    }
+  });
+
+  // Live Market Data endpoint
+  app.get("/api/market-data", async (req, res) => {
+    try {
+      const currency = (req.query.currency as string) || 'SAR';
+      const marketData = await getMarketSummary(currency);
+      res.json(marketData);
+    } catch (error: any) {
+      console.error("Market data error:", error);
+      res.status(500).json({ message: "خطأ في جلب بيانات السوق" });
+    }
+  });
+
+  // Gold price endpoint
+  app.get("/api/gold-price", async (req, res) => {
+    try {
+      const currency = (req.query.currency as string) || 'SAR';
+      const goldPrice = await getLiveGoldPrice(currency);
+      res.json(goldPrice);
+    } catch (error: any) {
+      console.error("Gold price error:", error);
+      res.status(500).json({ message: "خطأ في جلب سعر الذهب" });
+    }
+  });
+
+  // Currency conversion endpoint
+  app.get("/api/currency-rates", async (req, res) => {
+    try {
+      const baseCurrency = (req.query.base as string) || 'USD';
+      const rates = await getCurrencyRates(baseCurrency);
+      res.json(rates);
+    } catch (error: any) {
+      console.error("Currency rates error:", error);
+      res.status(500).json({ message: "خطأ في جلب أسعار العملات" });
+    }
+  });
+
+  // Convert currency endpoint
+  app.post("/api/convert-currency", async (req, res) => {
+    try {
+      const { amount, fromCurrency, toCurrency } = req.body;
+      
+      if (!amount || !fromCurrency || !toCurrency) {
+        return res.status(400).json({ message: "معاملات مطلوبة: amount, fromCurrency, toCurrency" });
+      }
+      
+      const convertedAmount = await convertCurrency(amount, fromCurrency, toCurrency);
+      res.json({
+        originalAmount: amount,
+        fromCurrency,
+        toCurrency,
+        convertedAmount,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("Currency conversion error:", error);
+      res.status(500).json({ message: "خطأ في تحويل العملة" });
+    }
+  });
+
+  // Active stocks endpoint
+  app.get("/api/active-stocks", async (req, res) => {
+    try {
+      const market = (req.query.market as string) || 'TADAWUL';
+      const stocks = await getActiveStocks(market);
+      res.json(stocks);
+    } catch (error: any) {
+      console.error("Stocks data error:", error);
+      res.status(500).json({ message: "خطأ في جلب بيانات الأسهم" });
     }
   });
 
