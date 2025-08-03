@@ -244,6 +244,9 @@ export class UpdatedRecommendationEngine {
           case 'crypto':
             if (userData.preferences.includes('crypto')) {
               recommendations.push(...this.generateCryptoRecommendations(categoryAmount, userData));
+            } else {
+              // If crypto not preferred, add crowdfunding as alternative
+              recommendations.push(...await this.generateCrowdfundingRecommendations(categoryAmount, userData));
             }
             break;
         }
@@ -320,49 +323,63 @@ export class UpdatedRecommendationEngine {
   
   private async generateRealEstateRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
     try {
-      const realEstateData = await this.dataProcessor.loadData('real-estate-projects');
+      // Load both Saudi and UAE real estate data
+      const saudiRealEstate = await this.dataProcessor.loadData('real-estate-projects');
+      const uaeRealEstate = await this.dataProcessor.loadData('uae-real-estate');
+      const allRealEstate = [...saudiRealEstate, ...uaeRealEstate];
+      
       const recommendations: DetailedRecommendation[] = [];
       
-      if (realEstateData.length === 0) {
+      if (allRealEstate.length === 0) {
         console.warn('No real estate data available');
         return [];
       }
       
       // Filter suitable properties based on budget
-      const suitableProperties = realEstateData
+      const suitableProperties = allRealEstate
         .filter((property: any) => property.minInvestment <= amount)
         .sort((a: any, b: any) => (b.expectedReturn || 0) - (a.expectedReturn || 0));
       
-      if (suitableProperties.length > 0) {
-        const property = suitableProperties[0];
-        const investmentAmount = Math.min(amount, property.price || property.minInvestment);
+      // Select up to 2 properties for diversification
+      const maxProperties = Math.min(2, suitableProperties.length);
+      let remainingAmount = amount;
+      
+      for (let i = 0; i < maxProperties && remainingAmount > 0; i++) {
+        const property = suitableProperties[i];
+        const allocation = remainingAmount / (maxProperties - i);
+        const investmentAmount = Math.min(allocation, property.price || property.minInvestment, remainingAmount);
         
-        recommendations.push({
-          type: 'real-estate',
-          name: property.name,
-          amount: investmentAmount,
-          quantity: 1,
-          unitPrice: investmentAmount,
-          currency: property.currency || 'SAR',
-          expectedReturn: property.expectedReturn || 10,
-          riskLevel: property.riskLevel || 'متوسط',
-          description: `استثمار عقاري في ${property.name} - ${property.location}`,
-          details: {
-            location: property.location,
-            type: property.type,
-            developer: property.developer,
-            area: property.area,
-            readyDate: property.readyDate
-          },
-          paymentPlan: property.paymentPlan || 'دفعة مقدمة مع أقساط',
-          features: [
-            `الموقع: ${property.location}`,
-            `نوع العقار: ${property.type}`,
-            `المطور: ${property.developer}`,
-            `المساحة: ${property.area || 'غير محدد'} متر مربع`,
-            `تاريخ التسليم: ${property.readyDate || 'غير محدد'}`
-          ]
-        });
+        if (investmentAmount >= property.minInvestment) {
+          remainingAmount -= investmentAmount;
+          
+          recommendations.push({
+            type: 'real-estate',
+            name: property.name,
+            amount: investmentAmount,
+            quantity: 1,
+            unitPrice: investmentAmount,
+            currency: property.currency || 'SAR',
+            expectedReturn: property.expectedReturn || 10,
+            riskLevel: property.riskLevel || 'متوسط',
+            description: `استثمار عقاري في ${property.name} - ${property.location}`,
+            details: {
+              location: property.location,
+              type: property.type,
+              developer: property.developer,
+              area: property.area,
+              readyDate: property.readyDate
+            },
+            paymentPlan: property.paymentPlan || 'دفعة مقدمة مع أقساط',
+            features: [
+              `الموقع: ${property.location}`,
+              `نوع العقار: ${property.type}`,
+              `المطور: ${property.developer}`,
+              `المساحة: ${property.area || 'غير محدد'}`,
+              `تاريخ التسليم: ${property.readyDate || 'غير محدد'}`,
+              property.currency === 'AED' ? 'استثمار في السوق الإماراتي' : 'استثمار في السوق السعودي'
+            ]
+          });
+        }
       }
       
       return recommendations;
@@ -431,25 +448,42 @@ export class UpdatedRecommendationEngine {
   
   private async generateBondRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
     try {
-      const bondsData = await this.dataProcessor.loadData('bonds-sukuk');
+      // Load both regular bonds and sukuk Islamic bonds
+      const regularBonds = await this.dataProcessor.loadData('bonds-sukuk');
+      const sukukBonds = await this.dataProcessor.loadData('sukuk-bonds');
+      const allBonds = [...regularBonds, ...sukukBonds];
+      
       const recommendations: DetailedRecommendation[] = [];
       
-      if (bondsData.length === 0) {
+      if (allBonds.length === 0) {
         console.warn('No bonds data available');
         return [];
       }
       
       // Filter suitable bonds
-      const suitableBonds = bondsData
+      const suitableBonds = allBonds
         .filter((bond: any) => bond.minInvestment <= amount)
-        .sort((a: any, b: any) => b.rating.localeCompare(a.rating)); // Prefer higher ratings
+        .sort((a: any, b: any) => {
+          // Prefer Islamic sukuk if available, then by rating
+          if (bond.shariahCompliant && !a.shariahCompliant) return -1;
+          if (!bond.shariahCompliant && a.shariahCompliant) return 1;
+          return b.rating?.localeCompare(a.rating) || 0;
+        });
       
-      if (suitableBonds.length > 0) {
-        const bond = suitableBonds[0];
-        const units = Math.floor(amount / bond.faceValue);
+      // Select up to 2 bonds for diversification
+      const maxBonds = Math.min(2, suitableBonds.length);
+      let remainingAmount = amount;
+      
+      for (let i = 0; i < maxBonds && remainingAmount > 0; i++) {
+        const bond = suitableBonds[i];
+        const allocation = remainingAmount / (maxBonds - i);
+        const maxUnits = Math.floor(allocation / bond.faceValue);
+        const units = Math.max(1, maxUnits);
         const investmentAmount = units * bond.faceValue;
         
-        if (units > 0) {
+        if (investmentAmount <= remainingAmount && investmentAmount >= bond.minInvestment) {
+          remainingAmount -= investmentAmount;
+          
           recommendations.push({
             type: 'bonds',
             name: bond.name,
@@ -459,7 +493,7 @@ export class UpdatedRecommendationEngine {
             currency: bond.currency || 'SAR',
             expectedReturn: bond.couponRate || 5,
             riskLevel: this.getRiskLevelByRating(bond.rating),
-            description: `${units} وحدة من ${bond.name}`,
+            description: `${units} وحدة من ${bond.name}${bond.shariahCompliant ? ' (صك إسلامي)' : ''}`,
             details: {
               type: bond.type,
               faceValue: bond.faceValue,
@@ -467,7 +501,8 @@ export class UpdatedRecommendationEngine {
               maturity: bond.maturity,
               rating: bond.rating,
               issuer: bond.issuer,
-              issuedDate: bond.issuedDate
+              issuedDate: bond.issuedDate,
+              shariahCompliant: bond.shariahCompliant
             },
             paymentPlan: 'دفع فوري',
             features: [
@@ -476,6 +511,7 @@ export class UpdatedRecommendationEngine {
               `تاريخ الاستحقاق: ${bond.maturity}`,
               `التصنيف الائتماني: ${bond.rating}`,
               `الجهة المصدرة: ${bond.issuer}`,
+              bond.shariahCompliant ? 'متوافق مع الشريعة الإسلامية' : 'سند تقليدي',
               `دخل ثابت ومضمون`
             ]
           });
@@ -558,6 +594,73 @@ export class UpdatedRecommendationEngine {
     }
     
     return recommendations;
+  }
+  
+  private async generateCrowdfundingRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    try {
+      const crowdfundingData = await this.dataProcessor.loadData('crowdfunding-projects');
+      const recommendations: DetailedRecommendation[] = [];
+      
+      if (crowdfundingData.length === 0) {
+        console.warn('No crowdfunding data available');
+        return [];
+      }
+      
+      // Filter suitable projects
+      const suitableProjects = crowdfundingData
+        .filter((project: any) => project.minInvestment <= amount)
+        .sort((a: any, b: any) => (b.expectedReturn || 0) - (a.expectedReturn || 0));
+      
+      // Select 1-2 projects for diversification
+      const maxProjects = Math.min(2, suitableProjects.length);
+      let remainingAmount = amount;
+      
+      for (let i = 0; i < maxProjects && remainingAmount > 0; i++) {
+        const project = suitableProjects[i];
+        const allocation = remainingAmount / (maxProjects - i);
+        const investmentAmount = Math.min(allocation, remainingAmount);
+        
+        if (investmentAmount >= project.minInvestment) {
+          remainingAmount -= investmentAmount;
+          
+          recommendations.push({
+            type: 'crowdfunding',
+            name: project.name,
+            amount: investmentAmount,
+            quantity: 1,
+            unitPrice: investmentAmount,
+            currency: project.currency || 'SAR',
+            expectedReturn: project.expectedReturn || 15,
+            riskLevel: project.riskLevel || 'عالي',
+            description: `استثمار في مشروع ${project.name} - ${project.category}`,
+            details: {
+              category: project.category,
+              country: project.country,
+              targetAmount: project.targetAmount,
+              raisedAmount: project.raisedAmount,
+              platform: project.platform,
+              duration: project.duration,
+              fundingType: project.fundingType
+            },
+            paymentPlan: 'دفع فوري',
+            features: [
+              `الفئة: ${project.category}`,
+              `البلد: ${project.country}`,
+              `المبلغ المستهدف: ${this.formatCurrency(project.targetAmount)}`,
+              `نسبة التحصيل: ${((project.raisedAmount / project.targetAmount) * 100).toFixed(1)}%`,
+              `المنصة: ${project.platform}`,
+              `مدة المشروع: ${project.duration}`,
+              `نوع التمويل: ${project.fundingType}`
+            ]
+          });
+        }
+      }
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error generating crowdfunding recommendations:', error);
+      return [];
+    }
   }
   
   private getRiskLevelByReturn(returnRate: number): string {
