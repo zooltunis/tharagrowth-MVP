@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, Shield, Coins, Brain } from "lucide-react";
+import { TrendingUp, Shield, Coins, Brain, AlertTriangle } from "lucide-react";
 
 export default function WelcomePage() {
   return (
@@ -66,8 +66,29 @@ export default function WelcomePage() {
                 السوق المباشر
               </Button>
             </Link>
+            <Link href="/education">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto">
+                التعليم الاستثماري
+              </Button>
+            </Link>
           </div>
           <p className="text-gray-500 text-sm">مجاني تماماً • لا يتطلب تسجيل دخول</p>
+          
+          {/* Legal Disclaimer */}
+          <div className="mt-8 max-w-2xl mx-auto">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <p className="font-semibold text-yellow-800 mb-2">إخلاء مسؤولية قانونية</p>
+                  <p className="text-yellow-700">
+                    هذه المنصة لا تقدم خدمات استشارية مالية أو تنفيذ عمليات. تقدم فقط رؤى استثمارية قائمة على الذكاء الاصطناعي لأغراض تعليمية. 
+                    استشر مستشاراً مالياً مؤهلاً قبل اتخاذ أي قرارات استثمارية.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign } from "lucide-react";
+import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign, AlertTriangle } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function ResultsPage() {
@@ -314,6 +314,20 @@ export default function ResultsPage() {
             <Download className="ml-2 h-4 w-4" />
             تحميل التقرير
           </Button>
+        </div>
+
+        {/* Legal Disclaimer Footer */}
+        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-800 mb-2">إخلاء مسؤولية قانونية</p>
+              <p className="text-yellow-700">
+                هذه المنصة لا تقدم خدمات استشارية مالية أو تنفيذ عمليات. تقدم فقط رؤى استثمارية قائمة على الذكاء الاصطناعي لأغراض تعليمية. 
+                استشر مستشاراً مالياً مؤهلاً قبل اتخاذ أي قرارات استثمارية.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

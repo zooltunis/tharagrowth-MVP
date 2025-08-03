@@ -1,0 +1,68 @@
+{
+  "app": {
+    "name": "TharaGrowth",
+    "version": "2.0.0",
+    "description": "AI-powered multilingual investment advisory platform",
+    "author": "TharaGrowth Team",
+    "license": "MIT"
+  },
+  "server": {
+    "port": 5000,
+    "host": "0.0.0.0",
+    "env": "development"
+  },
+  "database": {
+    "type": "postgresql",
+    "ssl": true,
+    "connectionTimeout": 30000,
+    "maxConnections": 10
+  },
+  "api": {
+    "rateLimit": {
+      "windowMs": 900000,
+      "max": 100
+    },
+    "timeout": 30000,
+    "cache": {
+      "newsCache": 300000,
+      "marketDataCache": 30000,
+      "currencyCache": 3600000
+    }
+  },
+  "security": {
+    "corsOrigins": ["http://localhost:5000", "https://*.replit.app"],
+    "helmet": true,
+    "rateLimiting": true
+  },
+  "features": {
+    "multilingual": {
+      "enabled": true,
+      "languages": ["ar", "en", "fr"],
+      "defaultLanguage": "ar"
+    },
+    "liveData": {
+      "enabled": true,
+      "goldPriceAPI": true,
+      "stocksAPI": true,
+      "currencyAPI": true,
+      "newsAPI": true
+    },
+    "caching": {
+      "enabled": true,
+      "memoryCache": true,
+      "apiCache": true
+    }
+  },
+  "performance": {
+    "compression": true,
+    "minification": true,
+    "lazyLoading": true,
+    "apiOptimization": true
+  },
+  "deployment": {
+    "platform": "replit",
+    "region": "auto",
+    "scaling": "auto",
+    "healthCheck": "/api/health"
+  }
+}

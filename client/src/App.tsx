@@ -7,6 +7,7 @@ import WelcomePage from "@/pages/welcome";
 import DataCollectionPage from "@/pages/data-collection";
 import ResultsPage from "@/pages/results";
 import MarketDashboardPage from "@/pages/market-dashboard";
+import EducationPage from "@/pages/education";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/collect-data" component={DataCollectionPage} />
       <Route path="/results/:id" component={ResultsPage} />
       <Route path="/market" component={MarketDashboardPage} />
+      <Route path="/education" component={EducationPage} />
       <Route component={NotFound} />
     </Switch>
   );

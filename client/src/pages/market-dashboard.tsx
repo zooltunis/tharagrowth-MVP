@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, RefreshCw, Building2, Coins, BarChart3, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, RefreshCw, Building2, Coins, BarChart3, Clock, AlertTriangle } from "lucide-react";
 
 interface MarketData {
   goldPrice: {
@@ -301,6 +301,22 @@ export default function MarketDashboard() {
           </CardContent>
         </Card>
 
+      </div>
+
+      {/* Legal Disclaimer Footer */}
+      <div className="max-w-7xl mx-auto mt-8">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-800 mb-2">إخلاء مسؤولية قانونية</p>
+              <p className="text-yellow-700">
+                هذه المنصة لا تقدم خدمات استشارية مالية أو تنفيذ عمليات. البيانات المعروضة لأغراض تعليمية فقط. 
+                استشر مستشاراً مالياً مؤهلاً قبل اتخاذ أي قرارات استثمارية.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
