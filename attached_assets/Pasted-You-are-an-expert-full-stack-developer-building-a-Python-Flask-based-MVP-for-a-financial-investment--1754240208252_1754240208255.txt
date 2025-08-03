@@ -1,0 +1,76 @@
+You are an expert full-stack developer building a Python Flask-based MVP for a financial investment advisory assistant app called TharaGrowth (previously InvestWise). The app is developed on Replit and should be low-cost, API-efficient, and ready for export to another host (like GoDaddy).
+
+Update and refactor the previous app with the following complete requirements:
+
+Core Features:
+
+1. Language support:
+- The app must be trilingual: English, Arabic, and French.
+- Language selection at the top of the page via dropdown.
+- Use basic i18n logic and prepare for easy localization.
+
+2. User input form (Keep it simple and user-friendly):
+- Investment budget (numeric, any currency).
+- Currency selector (AED, SAR, USD, EUR, GBP).
+- Investment goals (single choice dropdown): Retirement, Passive income, Capital growth, Saving for children, etc.
+- Risk appetite (Low, Medium, High).
+- Preferred investment types (multi-choice, limited options):
+  - Real Estate
+  - Gold
+  - Stocks
+  - Crowdfunding
+  - Sukuk
+  - Bonds
+- Use dropdowns and radio buttons to minimize user input effort.
+- Include a "Quick Start" option with default values for users who prefer minimal input.
+
+3. User Profiling & Smart Simplified Recommendation Engine:
+- Based on user inputs, classify users into one of three investment profiles:
+  - Conservative (Low Risk)
+  - Balanced (Medium Risk)
+  - Aggressive (High Risk)
+- Automatically assign asset allocation percentages per profile, e.g.:
+  - Conservative: 70% Bonds/Sukuk + 20% Real Estate + 10% Stocks
+  - Balanced: 50% Stocks + 30% Real Estate + 20% Bonds/Sukuk
+  - Aggressive: 70% Stocks + 20% Real Estate + 10% Gold
+- Provide a short, clear rationale/explanation for each profile and allocation.
+- Recommend 3-5 specific assets or mock investment options per user profile and goals.
+- Use real-time market data where possible (e.g., gold price, stocks) and mock data for Sukuk, Crowdfunding, Bonds, and real estate.
+- Keep recommendations clear and avoid overwhelming detail.
+
+4. Currency conversion:
+- Use a free API (e.g. exchangerate.host or OpenExchangeRates) to convert the user budget to the relevant asset pricing currency.
+- Reflect converted values in recommendations.
+
+5. Live Market Data Section:
+- Show live gold price per gram (via free API).
+- Display a small list of newly launched real estate projects from mock data.
+- Show most active stocks with prices (via public API).
+
+6. Educational Content Section:
+- Provide static content in all three languages about investment basics, diversification, and risk management.
+- Show personalized short tips based on user profile, e.g., "As a conservative investor, you should focus on stable income-generating assets."
+- Optionally, integrate latest finance news headlines from free RSS or NewsAPI.
+
+7. Legal Disclaimer:
+- Clearly show disclaimer: “This platform does not offer financial advisory or execution services. It only offers AI-based investment insight for educational purposes.”
+
+Technical & Deployment:
+
+- Use Python Flask for backend.
+- Frontend with Bootstrap or minimal CSS, Flask templating.
+- Optional minimal JavaScript or HTMX only as needed.
+- Modular, clean, well-commented code for easy future enhancement.
+- Structure folders: /templates, /static, /data, /api_handlers.
+- Config file for API keys.
+- Optimize for low memory/CPU/API calls to respect Replit free tier.
+- Easy export/deployment to other hosts (e.g. GoDaddy) with requirements.txt, Procfile.
+
+Additional Notes:
+
+- Recommendation engine should be modular and designed to allow easy future upgrades, e.g., adding AI/ML.
+- Refresh live data periodically or on user revisit without requiring new inputs.
+- Allow users to update their inputs anytime and get updated recommendations.
+- Provide a simple, elegant UI/UX to encourage engagement without overwhelming users.
+
+Start by fully replacing the old app structure with this enhanced, user-friendly, and smart MVP design. Reuse useful parts but refactor as needed.

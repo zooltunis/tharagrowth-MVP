@@ -398,7 +398,7 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
     // Filter based on risk tolerance and budget
     const filteredRecommendations = categoryRecommendations.filter(rec => {
       const minInvestment = parseInt(rec.minimumInvestment.replace(/[^\d]/g, ''));
-      const isAffordable = minInvestment <= categoryAmount;
+      const isAffordable = minInvestment <= Math.max(categoryAmount, investmentBudget * 0.1); // Allow at least 10% of total budget
       
       const riskMatch = 
         (riskTolerance === 'low' && rec.riskLevel === 'منخفض') ||
@@ -408,7 +408,8 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
       return isAffordable && riskMatch;
     });
     
-    // Select best recommendations (max 2 per category)
+    // Select best recommendations (max 1-2 per category based on allocation)
+    const maxRecommendationsForCategory = percentage >= 30 ? 2 : 1;
     const selectedRecommendations = filteredRecommendations
       .sort((a, b) => {
         // Sort by recommendation strength and expected return
@@ -423,7 +424,7 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
         const bReturn = parseFloat(b.expectedReturn.replace(/[^\d.]/g, ''));
         return bReturn - aReturn;
       })
-      .slice(0, 2);
+      .slice(0, maxRecommendationsForCategory);
     
     recommendations.push(...selectedRecommendations);
   });
@@ -436,6 +437,30 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
     ).slice(0, 3);
     
     recommendations.push(...safeRecommendations);
+  }
+  
+  // Ensure we have at least 2-3 recommendations from different categories
+  if (recommendations.length < 2) {
+    const additionalRecommendations = getAllRecommendations()
+      .filter(rec => {
+        const alreadyIncluded = recommendations.some(existing => existing.id === rec.id);
+        const minInvestment = parseInt(rec.minimumInvestment.replace(/[^\d]/g, ''));
+        const affordableForAnyCategory = minInvestment <= investmentBudget * 0.15; // Allow up to 15% of budget
+        
+        const riskMatch = 
+          (riskTolerance === 'low' && rec.riskLevel === 'منخفض') ||
+          (riskTolerance === 'medium' && ['منخفض', 'متوسط'].includes(rec.riskLevel)) ||
+          (riskTolerance === 'high');
+        
+        return !alreadyIncluded && affordableForAnyCategory && riskMatch;
+      })
+      .sort((a, b) => {
+        const strengthOrder = { 'شراء قوي': 3, 'شراء': 2, 'شراء متوسط': 1 };
+        return (strengthOrder[b.recommendation] || 0) - (strengthOrder[a.recommendation] || 0);
+      })
+      .slice(0, 4 - recommendations.length);
+    
+    recommendations.push(...additionalRecommendations);
   }
   
   return recommendations.slice(0, 6); // Limit to 6 recommendations max

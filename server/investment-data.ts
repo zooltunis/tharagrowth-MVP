@@ -166,6 +166,37 @@ export const investmentDatabase = {
     }
   ],
 
+  'savings': [
+    {
+      id: 'savings-account-001',
+      type: 'حساب ادخار عالي العائد',
+      category: 'savings' as const,
+      title: 'حساب الادخار المميز - البنك الأهلي',
+      description: 'حساب ادخار بعائد تنافسي مع سيولة فورية وأمان كامل',
+      price: 'بدون رسوم',
+      expectedReturn: '3.5% سنوياً',
+      riskLevel: 'منخفض' as const,
+      timeline: 'قصير إلى متوسط المدى',
+      recommendation: 'شراء' as const,
+      minimumInvestment: '1,000 ريال',
+      features: ['ضمان الودائع', 'سيولة فورية', 'عائد تنافسي', 'بدون رسوم']
+    },
+    {
+      id: 'savings-account-002',
+      type: 'شهادة ادخار',
+      category: 'savings' as const,
+      title: 'شهادة الادخار الثلاثية - بنك الراجحي',
+      description: 'شهادة ادخار لمدة 3 سنوات بعائد ثابت ومضمون',
+      price: '1,000 ريال للشهادة',
+      expectedReturn: '4.2% سنوياً',
+      riskLevel: 'منخفض' as const,
+      timeline: '3 سنوات (ثابت)',
+      recommendation: 'شراء قوي' as const,
+      minimumInvestment: '5,000 ريال',
+      features: ['عائد ثابت', 'ضمان بنكي', 'مدة محددة', 'عوائد دورية']
+    }
+  ],
+
   'crypto': [
     {
       id: 'bitcoin-001',
@@ -196,37 +227,6 @@ export const investmentDatabase = {
       recommendation: 'شراء' as const,
       minimumInvestment: '985 ريال (0.1 إيثيريوم)',
       features: ['عقود ذكية', 'نظام DeFi', 'نمو التطبيقات', 'تحسينات تقنية']
-    }
-  ],
-
-  'savings': [
-    {
-      id: 'bank-deposit-001',
-      type: 'ودائع بنكية',
-      category: 'savings' as const,
-      title: 'وديعة بنك الراجحي الثابتة',
-      description: 'وديعة ثابتة مضمونة من بنك الراجحي بعوائد منافسة',
-      price: 'حد أدنى 50,000 ريال',
-      expectedReturn: '3.5% سنوياً',
-      riskLevel: 'منخفض' as const,
-      timeline: '1-3 سنوات',
-      recommendation: 'شراء' as const,
-      minimumInvestment: '50,000 ريال',
-      features: ['ضمان كامل', 'عوائد ثابتة', 'سيولة مرنة', 'تأمين الودائع']
-    },
-    {
-      id: 'money-market-002',
-      type: 'صناديق النقد',
-      category: 'savings' as const,
-      title: 'صندوق سوق النقد الإماراتي',
-      description: 'صندوق استثماري قصير المدى في أدوات النقد الآمنة',
-      price: '100 درهم للوحدة',
-      expectedReturn: '4.2% سنوياً',
-      riskLevel: 'منخفض' as const,
-      timeline: '3-12 شهر',
-      recommendation: 'شراء قوي' as const,
-      minimumInvestment: '5,000 درهم (50 وحدة)',
-      features: ['مخاطر منخفضة', 'سيولة يومية', 'عوائد منتظمة', 'إدارة احترافية']
     }
   ]
 };
