@@ -22,6 +22,7 @@ import {
 } from "./market-data";
 import OpenAI from "openai";
 import { SmartRecommendationEngine } from "./smart-recommendation-engine";
+import { ObjectStorageService } from "./objectStorage";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "sk-fake-key"
@@ -278,6 +279,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("News API error:", error);
       res.status(500).json({ message: "خطأ في جلب الأخبار" });
+    }
+  });
+
+  // File upload endpoints for Excel/CSV mock data
+  app.post("/api/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error: any) {
+      console.error("Upload URL error:", error);
+      res.status(500).json({ message: "خطأ في إنشاء رابط الرفع" });
+    }
+  });
+
+  app.put("/api/upload-complete", async (req, res) => {
+    try {
+      const { fileURL, fileName, fileType } = req.body;
+      
+      if (!fileURL || !fileName) {
+        return res.status(400).json({ message: "بيانات الملف مطلوبة" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        fileURL,
+        {
+          owner: "admin",
+          visibility: "public",
+        }
+      );
+
+      // Store file info for future reference
+      console.log(`File uploaded: ${fileName} (${fileType}) -> ${objectPath}`);
+
+      res.json({
+        success: true,
+        objectPath,
+        message: `تم رفع الملف ${fileName} بنجاح`
+      });
+    } catch (error: any) {
+      console.error("Upload complete error:", error);
+      res.status(500).json({ message: "خطأ في معالجة الملف المرفوع" });
     }
   });
 
