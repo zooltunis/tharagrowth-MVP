@@ -3,6 +3,16 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { userDataSchema, type DetailedRecommendation } from "@shared/schema";
 import { getRecommendationsByCategory, getAllRecommendations } from "./investment-data";
+import { 
+  getGoldPrice, 
+  getStockData, 
+  realEstateProjects, 
+  sukukBondsData, 
+  crowdfundingProjects,
+  calculateGoldRecommendation,
+  type RealEstateProject,
+  type StockData 
+} from "./api-integrations";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -55,11 +65,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateInvestmentRecommendations(userData: any) {
-  // Use intelligent local recommendations instead of OpenAI
-  return generateIntelligentRecommendations(userData);
+  // Use intelligent local recommendations with real data integration
+  return await generateIntelligentRecommendations(userData);
 }
 
-function generateIntelligentRecommendations(userData: any) {
+async function generateIntelligentRecommendations(userData: any) {
   const { age, income, investmentBudget, currency, goals, riskTolerance, preferences } = userData;
   
   // Calculate base allocation based on risk tolerance
@@ -89,8 +99,8 @@ function generateIntelligentRecommendations(userData: any) {
   // Determine risk level
   const riskLevel = getRiskLevel(riskTolerance);
   
-  // Generate detailed recommendations
-  const detailedRecommendations = generateDetailedInvestmentRecommendations(userData, allocation);
+  // Generate detailed recommendations with real data
+  const detailedRecommendations = await generateDetailedInvestmentRecommendations(userData, allocation);
   
   return {
     allocation,
@@ -278,7 +288,7 @@ function normalizeAllocation(allocation: Record<string, number>): Record<string,
 }
 
 function generateDetailedSummary(userData: any, allocation: Record<string, number>): string {
-  const { age, riskTolerance, goals, investmentAmount } = userData;
+  const { age, riskTolerance, goals, investmentBudget, currency } = userData;
   
   let summary = `بناءً على تحليل دقيق لملفك الاستثماري، تم تصميم هذه المحفظة خصيصاً لتناسب:\n\n`;
   
@@ -293,15 +303,17 @@ function generateDetailedSummary(userData: any, allocation: Record<string, numbe
   const riskText = riskTolerance === 'low' ? 'المنخفض' : riskTolerance === 'medium' ? 'المتوسط' : 'العالي';
   summary += `✓ مستوى تحملك للمخاطر ${riskText} تم مراعاته في توزيع الاستثمارات\n`;
   
-  // Investment amount
-  summary += `✓ المبلغ المتاح (${investmentAmount}) تم تحسين التوزيع وفقاً له\n\n`;
+  // Investment budget
+  summary += `✓ الميزانية المتاحة (${investmentBudget.toLocaleString()} ${currency}) تم تحسين التوزيع وفقاً لها\n\n`;
   
   // Goals
   summary += `أهدافك الاستثمارية:\n`;
-  if (goals.includes('savings')) summary += `• بناء ثروة طويلة المدى من خلال استثمارات متنوعة\n`;
+  if (goals.includes('wealth-preservation')) summary += `• حفظ الثروة وحمايتها من التضخم\n`;
   if (goals.includes('passive-income')) summary += `• توليد دخل منتظم من العقارات والسندات\n`;
   if (goals.includes('retirement')) summary += `• التحضير للتقاعد بمحفظة متوازنة وآمنة\n`;
-  if (goals.includes('growth')) summary += `• تحقيق نمو سريع من خلال الأسهم والاستثمارات عالية العائد\n`;
+  if (goals.includes('capital-growth')) summary += `• تحقيق نمو سريع من خلال الأسهم والاستثمارات عالية العائد\n`;
+  if (goals.includes('children-savings')) summary += `• بناء مستقبل آمن للأطفال والتعليم\n`;
+  if (goals.includes('emergency-fund')) summary += `• إنشاء احتياطي مالي للظروف الطارئة\n`;
   
   summary += `\n📈 توزيع المحفظة:\n`;
   Object.entries(allocation).forEach(([type, percentage]) => {
@@ -371,23 +383,12 @@ function getRiskLevel(riskTolerance: string): string {
   }
 }
 
-function generateDetailedInvestmentRecommendations(userData: any, allocation: Record<string, number>): DetailedRecommendation[] {
-  const { investmentAmount, riskTolerance, preferences } = userData;
+async function generateDetailedInvestmentRecommendations(userData: any, allocation: Record<string, number>): Promise<DetailedRecommendation[]> {
+  const { investmentBudget, currency, riskTolerance, preferences } = userData;
   const recommendations: DetailedRecommendation[] = [];
   
-  // Convert investment amount to number for calculations
-  const getInvestmentRange = (amount: string) => {
-    switch (amount) {
-      case '<10000': return 5000;
-      case '10000-50000': return 30000;
-      case '50000-100000': return 75000;
-      case '100000-500000': return 300000;
-      case '500000+': return 750000;
-      default: return 50000;
-    }
-  };
-  
-  const investmentBudget = getInvestmentRange(investmentAmount);
+  // Use the actual investment budget from user input
+  const budget = investmentBudget;
   
   // Map preferences to categories
   const preferenceMap: Record<string, string> = {
@@ -399,9 +400,9 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
     'savings': 'savings'
   };
   
-  // Get recommendations for each allocation category
+  // Get recommendations for each allocation category  
   Object.entries(allocation).forEach(([arabicType, percentage]) => {
-    const categoryAmount = (investmentBudget * percentage) / 100;
+    const categoryAmount = (budget * percentage) / 100;
     
     // Map Arabic types to English categories
     const categoryMap: Record<string, string> = {
@@ -421,7 +422,7 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
     // Filter based on risk tolerance and budget
     const filteredRecommendations = categoryRecommendations.filter(rec => {
       const minInvestment = parseInt(rec.minimumInvestment.replace(/[^\d]/g, ''));
-      const isAffordable = minInvestment <= Math.max(categoryAmount, investmentBudget * 0.1); // Allow at least 10% of total budget
+      const isAffordable = minInvestment <= Math.max(categoryAmount, budget * 0.1); // Allow at least 10% of total budget
       
       const riskMatch = 
         (riskTolerance === 'low' && rec.riskLevel === 'منخفض') ||
@@ -456,7 +457,7 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
   if (recommendations.length === 0) {
     const safeRecommendations = getAllRecommendations().filter(rec => 
       rec.riskLevel === 'منخفض' && 
-      parseInt(rec.minimumInvestment.replace(/[^\d]/g, '')) <= investmentBudget / 2
+      parseInt(rec.minimumInvestment.replace(/[^\d]/g, '')) <= budget / 2
     ).slice(0, 3);
     
     recommendations.push(...safeRecommendations);
@@ -468,7 +469,7 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
       .filter(rec => {
         const alreadyIncluded = recommendations.some(existing => existing.id === rec.id);
         const minInvestment = parseInt(rec.minimumInvestment.replace(/[^\d]/g, ''));
-        const affordableForAnyCategory = minInvestment <= investmentBudget * 0.15; // Allow up to 15% of budget
+        const affordableForAnyCategory = minInvestment <= budget * 0.15; // Allow up to 15% of budget
         
         const riskMatch = 
           (riskTolerance === 'low' && rec.riskLevel === 'منخفض') ||
