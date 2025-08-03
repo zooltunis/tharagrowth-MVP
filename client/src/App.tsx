@@ -14,9 +14,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={WelcomePage} />
-      <Route path="/collect-data" component={DataCollectionPage} />
+      <Route path="/data-collection" component={DataCollectionPage} />
       <Route path="/results/:id" component={ResultsPage} />
-      <Route path="/market" component={MarketDashboardPage} />
+      <Route path="/market-dashboard" component={MarketDashboardPage} />
       <Route path="/education" component={EducationPage} />
       <Route component={NotFound} />
     </Switch>
