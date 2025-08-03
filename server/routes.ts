@@ -21,8 +21,8 @@ import {
   getActiveStocks
 } from "./market-data";
 import OpenAI from "openai";
-import { SmartRecommendationEngine } from "./smart-recommendation-engine";
-import { ObjectStorageService } from "./objectStorage";
+import { UpdatedRecommendationEngine } from "./updated-recommendation-engine";
+import { DataProcessor } from "./data-processor";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "sk-fake-key"
@@ -282,46 +282,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // File upload endpoints for Excel/CSV mock data
-  app.post("/api/upload", async (req, res) => {
+  // Data processing endpoints
+  app.get("/api/data-summary", async (req, res) => {
     try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
+      const dataProcessor = new DataProcessor();
+      const summary = await dataProcessor.getAllDataSummary();
+      res.json(summary);
     } catch (error: any) {
-      console.error("Upload URL error:", error);
-      res.status(500).json({ message: "خطأ في إنشاء رابط الرفع" });
+      console.error("Data summary error:", error);
+      res.status(500).json({ message: "خطأ في جلب ملخص البيانات" });
     }
   });
 
-  app.put("/api/upload-complete", async (req, res) => {
+  app.get("/api/data/:type", async (req, res) => {
     try {
-      const { fileURL, fileName, fileType } = req.body;
+      const { type } = req.params;
+      const dataProcessor = new DataProcessor();
+      const data = await dataProcessor.loadData(type);
+      res.json(data);
+    } catch (error: any) {
+      console.error("Data load error:", error);
+      res.status(500).json({ message: "خطأ في جلب البيانات" });
+    }
+  });
+
+  app.post("/api/process-excel", async (req, res) => {
+    try {
+      const { filePath, dataType } = req.body;
       
-      if (!fileURL || !fileName) {
-        return res.status(400).json({ message: "بيانات الملف مطلوبة" });
+      if (!filePath || !dataType) {
+        return res.status(400).json({ message: "مسار الملف ونوع البيانات مطلوبان" });
       }
 
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        fileURL,
-        {
-          owner: "admin",
-          visibility: "public",
-        }
-      );
-
-      // Store file info for future reference
-      console.log(`File uploaded: ${fileName} (${fileType}) -> ${objectPath}`);
+      const dataProcessor = new DataProcessor();
+      await dataProcessor.processExcelFile(filePath, dataType);
 
       res.json({
         success: true,
-        objectPath,
-        message: `تم رفع الملف ${fileName} بنجاح`
+        message: `تم معالجة ملف ${dataType} بنجاح`
       });
     } catch (error: any) {
-      console.error("Upload complete error:", error);
-      res.status(500).json({ message: "خطأ في معالجة الملف المرفوع" });
+      console.error("Excel processing error:", error);
+      res.status(500).json({ message: "خطأ في معالجة ملف Excel" });
     }
   });
 
@@ -349,8 +351,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateInvestmentRecommendations(userData: any) {
-  // Use the new smart recommendation engine
-  return SmartRecommendationEngine.generateRecommendations(userData);
+  // Use the updated recommendation engine with real data
+  const engine = new UpdatedRecommendationEngine();
+  return await engine.generateRecommendations(userData);
 }
 
 // This function is deprecated - using SmartRecommendationEngine instead

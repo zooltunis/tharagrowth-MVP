@@ -1,5 +1,8 @@
 import { UserData, DetailedRecommendation } from '@shared/schema';
 import { investmentDatabase } from './investment-data';
+import { DataProcessor } from './data-processor';
+import fs from 'fs';
+import path from 'path';
 
 // Investment strategies based on user profile
 export interface InvestmentStrategy {
