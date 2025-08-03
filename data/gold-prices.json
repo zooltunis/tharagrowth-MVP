@@ -1,0 +1,55 @@
+{
+  "lastUpdated": "2025-08-03T21:00:00.000Z",
+  "prices": {
+    "SAR": {
+      "24k": 220.50,
+      "22k": 202.80,
+      "21k": 192.95,
+      "18k": 165.40,
+      "unit": "ريال للجرام"
+    },
+    "AED": {
+      "24k": 224.85,
+      "22k": 206.90,
+      "21k": 196.75,
+      "18k": 168.65,
+      "unit": "درهم للجرام"
+    },
+    "USD": {
+      "24k": 59.40,
+      "22k": 54.70,
+      "21k": 51.95,
+      "18k": 44.55,
+      "unit": "دولار للجرام"
+    }
+  },
+  "marketTrends": {
+    "dailyChange": "+1.2%",
+    "weeklyChange": "+3.8%",
+    "monthlyChange": "+7.5%",
+    "recommendation": "الأسعار في اتجاه صاعد مع تزايد الطلب العالمي"
+  },
+  "investmentOptions": [
+    {
+      "type": "سبائك ذهب",
+      "minimumWeight": "10 جرام",
+      "buybackGuarantee": "نعم",
+      "storageAvailable": "نعم",
+      "premium": "2-3% فوق سعر السوق"
+    },
+    {
+      "type": "عملات ذهبية",
+      "minimumWeight": "1 جرام",
+      "buybackGuarantee": "نعم",
+      "storageAvailable": "لا",
+      "premium": "5-8% فوق سعر السوق"
+    },
+    {
+      "type": "صناديق الذهب المتداولة",
+      "minimumInvestment": "1000 ريال",
+      "buybackGuarantee": "سيولة فورية",
+      "storageAvailable": "غير مطلوب",
+      "premium": "رسوم إدارية 0.5% سنوياً"
+    }
+  ]
+}

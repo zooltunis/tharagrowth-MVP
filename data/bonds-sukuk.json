@@ -1,0 +1,67 @@
+[
+  {
+    "id": "SAR-GOV-001",
+    "name": "سندات الخزانة السعودية - 5 سنوات",
+    "type": "سندات حكومية",
+    "faceValue": 1000,
+    "currency": "SAR", 
+    "yield": "4.8%",
+    "maturity": "5 سنوات",
+    "minimumInvestment": 10000,
+    "rating": "AAA",
+    "riskLevel": "منخفض جداً",
+    "features": ["ضمان حكومي كامل", "عوائد ثابتة", "إعفاء ضريبي", "سيولة في السوق الثانوي"]
+  },
+  {
+    "id": "UAE-CORP-002", 
+    "name": "صكوك اتصالات الإمارات",
+    "type": "صكوك إسلامية",
+    "faceValue": 1000,
+    "currency": "AED",
+    "yield": "6.1%",
+    "maturity": "7 سنوات", 
+    "minimumInvestment": 10000,
+    "rating": "A+",
+    "riskLevel": "منخفض",
+    "features": ["متوافق مع الشريعة", "شركة رائدة", "توزيعات ربع سنوية", "نمو مستقر في القطاع"]
+  },
+  {
+    "id": "SAR-CORP-003",
+    "name": "صكوك أرامكو الإسلامية",
+    "type": "صكوك شركات",
+    "faceValue": 1000,
+    "currency": "SAR",
+    "yield": "5.2%", 
+    "maturity": "10 سنوات",
+    "minimumInvestment": 25000,
+    "rating": "AA",
+    "riskLevel": "منخفض",
+    "features": ["أكبر شركة نفط", "ضمان قوي", "عوائد مجزية", "سيولة عالية"]
+  },
+  {
+    "id": "UAE-GOV-004",
+    "name": "سندات حكومة دبي",
+    "type": "سندات حكومية محلية",
+    "faceValue": 1000,
+    "currency": "AED",
+    "yield": "5.5%",
+    "maturity": "3 سنوات",
+    "minimumInvestment": 5000,
+    "rating": "A",
+    "riskLevel": "منخفض",
+    "features": ["ضمان حكومة دبي", "مدة قصيرة", "عوائد تنافسية", "تداول نشط"]
+  },
+  {
+    "id": "SAR-BANK-005",
+    "name": "صكوك بنك الراجحي",
+    "type": "صكوك مصرفية",
+    "faceValue": 1000,
+    "currency": "SAR",
+    "yield": "4.9%",
+    "maturity": "5 سنوات",
+    "minimumInvestment": 15000,
+    "rating": "A+",
+    "riskLevel": "منخفض", 
+    "features": ["أكبر بنك إسلامي", "متوافق شرعياً", "استقرار مالي", "نمو مستمر"]
+  }
+]
