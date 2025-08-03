@@ -17,20 +17,39 @@ export default function ResultsPage() {
   }) as { data: any, isLoading: boolean, error: any };
 
   useEffect(() => {
-    if (analysis?.recommendations?.allocation && chartRef.current) {
+    if (analysis?.recommendations?.recommendations && chartRef.current) {
       renderPieChart();
     }
   }, [analysis]);
 
   const renderPieChart = () => {
-    if (!analysis?.recommendations?.allocation || !chartRef.current) return;
+    if (!analysis?.recommendations?.recommendations || !chartRef.current) return;
 
     const ctx = chartRef.current.getContext('2d');
     if (!ctx) return;
 
+    // Create allocation data from recommendations
+    const recommendations = analysis.recommendations.recommendations;
+    if (!recommendations || recommendations.length === 0) return;
+
+    // Calculate allocation from recommendations
+    const allocation: Record<string, number> = {};
+    const totalAmount = analysis.recommendations.totalAllocated || 0;
+    
+    if (totalAmount > 0) {
+      recommendations.forEach((rec: any) => {
+        const category = rec.type;
+        allocation[category] = (allocation[category] || 0) + rec.amount;
+      });
+
+      // Convert to percentages
+      Object.keys(allocation).forEach(key => {
+        allocation[key] = (allocation[key] / totalAmount) * 100;
+      });
+    }
+
     // Import Chart.js dynamically
     import('chart.js/auto').then(({ Chart }) => {
-      const data = analysis.recommendations.allocation;
       const colors = [
         '#1E40AF', '#059669', '#DC2626', '#F59E0B', 
         '#8B5CF6', '#06B6D4', '#10B981', '#F97316'
@@ -39,10 +58,10 @@ export default function ResultsPage() {
       new Chart(ctx, {
         type: 'pie',
         data: {
-          labels: Object.keys(data),
+          labels: Object.keys(allocation),
           datasets: [{
-            data: Object.values(data),
-            backgroundColor: colors.slice(0, Object.keys(data).length),
+            data: Object.values(allocation),
+            backgroundColor: colors.slice(0, Object.keys(allocation).length),
             borderWidth: 2,
             borderColor: '#ffffff'
           }]
@@ -67,44 +86,99 @@ export default function ResultsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-full mb-6 animate-pulse">
-            <Loader2 className="text-white text-3xl animate-spin" size={32} />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">جاري تحليل بياناتك...</h2>
-          <p className="text-gray-600">يرجى الانتظار بينما نقوم بإنشاء توصيات استثمارية مخصصة لك</p>
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600 mb-4" />
+          <p className="text-gray-600">جاري تحميل التوصيات...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !analysis) {
+  if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md mx-4">
-          <CardContent className="pt-6">
-            <div className="flex mb-4 gap-2">
-              <AlertCircle className="h-8 w-8 text-red-500" />
-              <h1 className="text-2xl font-bold text-gray-900">خطأ في تحميل التحليل</h1>
-            </div>
-            <p className="mt-4 text-sm text-gray-600">
-              لم نتمكن من العثور على التحليل المطلوب
-            </p>
-            <Link href="/">
-              <Button className="mt-4 w-full">العودة للرئيسية</Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-600 mb-4">حدث خطأ أثناء تحميل التوصيات الاستثمارية</p>
+          <Link href="/">
+            <Button>العودة للرئيسية</Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const { allocation, summary, expectedReturn, riskLevel, detailedRecommendations } = analysis.recommendations;
+  if (!analysis?.recommendations) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <AlertCircle className="mx-auto h-12 w-12 text-yellow-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد توصيات</h3>
+          <p className="text-gray-600 mb-4">لم يتم العثور على توصيات لهذا التحليل</p>
+          <Link href="/">
+            <Button>العودة للرئيسية</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Extract data from the new structure
+  const recommendations = analysis.recommendations.recommendations || [];
+  const totalAllocated = analysis.recommendations.totalAllocated || 0;
+  const remainingAmount = analysis.recommendations.remainingAmount || 0;
+  const summary = analysis.recommendations.analysis || "لا يوجد ملخص متاح";
+  const strategy = analysis.recommendations.strategy || "غير محدد";
+  const riskLevel = analysis.recommendations.riskProfile || "غير محدد";
+  
+  // Calculate allocation from recommendations for display
+  const allocation: Record<string, number> = {};
+  if (recommendations.length > 0 && totalAllocated > 0) {
+    recommendations.forEach((rec: any) => {
+      const category = rec.type;
+      allocation[category] = (allocation[category] || 0) + rec.amount;
+    });
+    
+    // Convert to percentages
+    Object.keys(allocation).forEach(key => {
+      allocation[key] = (allocation[key] / totalAllocated) * 100;
+    });
+  }
+  
+  // Calculate expected return from recommendations
+  let expectedReturn = "8-12";
+  if (recommendations.length > 0) {
+    const avgReturn = recommendations.reduce((sum: number, rec: any) => sum + (rec.expectedReturn || 8), 0) / recommendations.length;
+    expectedReturn = avgReturn.toFixed(1);
+  }
+
   const colors = [
     '#1E40AF', '#059669', '#DC2626', '#F59E0B', 
     '#8B5CF6', '#06B6D4', '#10B981', '#F97316'
   ];
+
+  const translateType = (type: string) => {
+    const translations: { [key: string]: string } = {
+      'stocks': 'الأسهم',
+      'real-estate': 'العقارات',
+      'gold': 'الذهب',
+      'bonds': 'السندات',
+      'savings': 'الادخار',
+      'crypto': 'العملات المشفرة',
+      'crowdfunding': 'التمويل الجماعي'
+    };
+    return translations[type] || type;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('ar-SA', {
+      style: 'currency',
+      currency: 'SAR',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
 
   return (
     <div className="min-h-screen py-8 px-4 bg-gray-50">
@@ -118,61 +192,69 @@ export default function ResultsPage() {
           <p className="text-gray-600">تم إنشاء محفظة استثمارية مخصصة حسب ملفك الشخصي</p>
         </div>
 
-        {/* Results Grid */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          {/* Pie Chart */}
-          <Card className="shadow-lg border-gray-100">
-            <CardHeader>
-              <CardTitle>توزيع المحفظة الاستثمارية</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="relative h-80">
-                <canvas ref={chartRef} className="max-w-full"></canvas>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Allocation Details */}
-          <Card className="shadow-lg border-gray-100">
-            <CardHeader>
-              <CardTitle>تفاصيل التوزيع</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(allocation).map(([type, percentage], index) => (
-                  <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center">
-                      <div 
-                        className="w-4 h-4 rounded-full ml-3" 
-                        style={{ backgroundColor: colors[index] }}
-                      ></div>
-                      <span className="font-medium">{type}</span>
-                    </div>
-                    <span className="text-lg font-bold">{percentage}%</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Investment Summary */}
         <Card className="shadow-lg border-gray-100 mb-8">
           <CardHeader>
-            <CardTitle>ملخص التوصيات</CardTitle>
+            <CardTitle>ملخص المحفظة الاستثمارية</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-              <h4 className="font-bold text-lg text-blue-900 mb-2">العائد المتوقع السنوي</h4>
-              <p className="text-3xl font-bold text-blue-600">{expectedReturn}%</p>
-              <p className="text-blue-700 text-sm mt-2">هذا تقدير تقريبي وقد يختلف العائد الفعلي</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <DollarSign className="mx-auto h-8 w-8 text-blue-600 mb-2" />
+                <h4 className="font-bold text-blue-900">إجمالي الاستثمار</h4>
+                <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalAllocated)}</p>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                <TrendingUp className="mx-auto h-8 w-8 text-green-600 mb-2" />
+                <h4 className="font-bold text-green-900">العائد المتوقع</h4>
+                <p className="text-2xl font-bold text-green-600">{expectedReturn}%</p>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                <Shield className="mx-auto h-8 w-8 text-purple-600 mb-2" />
+                <h4 className="font-bold text-purple-900">مستوى المخاطر</h4>
+                <p className="text-xl font-bold text-purple-600">{riskLevel}</p>
+              </div>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+                <Clock className="mx-auto h-8 w-8 text-orange-600 mb-2" />
+                <h4 className="font-bold text-orange-900">الاستراتيجية</h4>
+                <p className="text-xl font-bold text-orange-600">{strategy}</p>
+              </div>
             </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-              <h4 className="font-bold text-lg text-gray-900 mb-2">مستوى المخاطر</h4>
-              <p className="text-xl font-semibold text-gray-700">{riskLevel}</p>
-            </div>
+
+            {/* Portfolio Chart and Allocation */}
+            {Object.keys(allocation).length > 0 && (
+              <div className="grid lg:grid-cols-2 gap-8 mb-6">
+                {/* Pie Chart */}
+                <div>
+                  <h4 className="font-bold text-lg mb-4">توزيع المحفظة</h4>
+                  <div className="relative h-64">
+                    <canvas ref={chartRef} className="max-w-full"></canvas>
+                  </div>
+                </div>
+
+                {/* Allocation Details */}
+                <div>
+                  <h4 className="font-bold text-lg mb-4">تفاصيل التوزيع</h4>
+                  <div className="space-y-3">
+                    {Object.entries(allocation).map(([type, percentage], index) => (
+                      <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <div 
+                            className="w-4 h-4 rounded-full ml-3" 
+                            style={{ backgroundColor: colors[index] }}
+                          ></div>
+                          <span className="font-medium">{translateType(type)}</span>
+                        </div>
+                        <span className="text-lg font-bold">{percentage.toFixed(1)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="prose prose-lg max-w-none">
-              <div className="whitespace-pre-line text-gray-700 leading-relaxed">
+              <div className="whitespace-pre-line text-gray-700 leading-relaxed bg-gray-50 p-6 rounded-lg">
                 {summary}
               </div>
             </div>
@@ -180,114 +262,70 @@ export default function ResultsPage() {
         </Card>
 
         {/* Detailed Recommendations Section */}
-        {detailedRecommendations && detailedRecommendations.length > 0 && (
+        {recommendations && recommendations.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">التوصيات التفصيلية</h2>
             <div className="grid lg:grid-cols-2 gap-6">
-              {detailedRecommendations.map((recommendation: any, index: number) => (
-                <Card key={recommendation.id} className="shadow-lg border-gray-100 hover:shadow-xl transition-shadow">
+              {recommendations.map((recommendation: any, index: number) => (
+                <Card key={index} className="shadow-lg border-gray-100 hover:shadow-xl transition-shadow">
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <CardTitle className="text-lg">{recommendation.title}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">{recommendation.type}</p>
+                        <CardTitle className="text-lg">{recommendation.name}</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.type)}</p>
                       </div>
                       <Badge 
                         variant={
-                          recommendation.recommendation === 'شراء قوي' ? 'default' :
-                          recommendation.recommendation === 'شراء' ? 'secondary' : 'outline'
+                          recommendation.riskLevel === 'منخفض' ? 'default' :
+                          recommendation.riskLevel === 'متوسط' ? 'secondary' : 'destructive'
                         }
                         className="shrink-0"
                       >
-                        {recommendation.recommendation}
+                        {recommendation.riskLevel}
                       </Badge>
                     </div>
                   </CardHeader>
                   
                   <CardContent className="space-y-4">
-                    <p className="text-gray-700 text-sm leading-relaxed">{recommendation.description}</p>
+                    <p className="text-gray-700">{recommendation.description}</p>
                     
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center text-sm">
-                        <DollarSign className="h-4 w-4 text-green-500 ml-2" />
-                        <div>
-                          <p className="font-medium">السعر</p>
-                          <p className="text-gray-600">{recommendation.price}</p>
-                        </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-500">المبلغ:</span>
+                        <p className="font-bold">{formatCurrency(recommendation.amount)}</p>
                       </div>
-                      
-                      <div className="flex items-center text-sm">
-                        <TrendingUp className="h-4 w-4 text-blue-500 ml-2" />
-                        <div>
-                          <p className="font-medium">العائد المتوقع</p>
-                          <p className="text-gray-600">{recommendation.expectedReturn}</p>
-                        </div>
+                      <div>
+                        <span className="font-medium text-gray-500">الكمية:</span>
+                        <p className="font-bold">{recommendation.quantity}</p>
                       </div>
-                      
-                      <div className="flex items-center text-sm">
-                        <Shield className="h-4 w-4 text-orange-500 ml-2" />
-                        <div>
-                          <p className="font-medium">مستوى المخاطر</p>
-                          <p className="text-gray-600">{recommendation.riskLevel}</p>
-                        </div>
+                      <div>
+                        <span className="font-medium text-gray-500">العائد المتوقع:</span>
+                        <p className="font-bold text-green-600">{recommendation.expectedReturn}%</p>
                       </div>
-                      
-                      <div className="flex items-center text-sm">
-                        <Clock className="h-4 w-4 text-purple-500 ml-2" />
-                        <div>
-                          <p className="font-medium">المدة المتوقعة</p>
-                          <p className="text-gray-600">{recommendation.timeline}</p>
-                        </div>
+                      <div>
+                        <span className="font-medium text-gray-500">العملة:</span>
+                        <p className="font-bold">{recommendation.currency}</p>
                       </div>
                     </div>
-                    
-                    {recommendation.location && (
-                      <div className="flex items-center text-sm">
-                        <MapPin className="h-4 w-4 text-red-500 ml-2" />
-                        <div>
-                          <p className="font-medium">الموقع</p>
-                          <p className="text-gray-600">{recommendation.location}</p>
-                        </div>
-                      </div>
-                    )}
-                    
+
                     {recommendation.paymentPlan && (
-                      <div className="bg-blue-50 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-blue-900 mb-1">خطة الدفع</p>
-                        <p className="text-sm text-blue-700">{recommendation.paymentPlan}</p>
+                      <div>
+                        <span className="font-medium text-gray-500">خطة الدفع:</span>
+                        <p className="text-sm">{recommendation.paymentPlan}</p>
                       </div>
                     )}
-                    
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm font-medium text-gray-900 mb-1">الحد الأدنى للاستثمار</p>
-                      <p className="text-sm text-gray-700">{recommendation.minimumInvestment}</p>
-                    </div>
-                    
+
                     {recommendation.features && recommendation.features.length > 0 && (
                       <div>
-                        <p className="text-sm font-medium text-gray-900 mb-2">المميزات الرئيسية</p>
-                        <div className="flex flex-wrap gap-1">
+                        <span className="font-medium text-gray-500 mb-2 block">المميزات:</span>
+                        <ul className="text-sm space-y-1">
                           {recommendation.features.map((feature: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
+                            <li key={idx} className="flex items-center">
+                              <Check className="h-4 w-4 text-green-600 ml-2 flex-shrink-0" />
                               {feature}
-                            </Badge>
+                            </li>
                           ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {recommendation.currentPrice && recommendation.targetPrice && (
-                      <div className="bg-green-50 p-3 rounded-lg">
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <p className="font-medium text-green-900">السعر الحالي</p>
-                            <p className="text-green-700">{recommendation.currentPrice}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-green-900">السعر المستهدف</p>
-                            <p className="text-green-700">{recommendation.targetPrice}</p>
-                          </div>
-                        </div>
+                        </ul>
                       </div>
                     )}
                   </CardContent>
@@ -297,34 +335,49 @@ export default function ResultsPage() {
           </div>
         )}
 
+        {/* No Recommendations Message */}
+        {(!recommendations || recommendations.length === 0) && (
+          <Card className="shadow-lg border-yellow-200 bg-yellow-50">
+            <CardContent className="text-center py-12">
+              <AlertTriangle className="mx-auto h-16 w-16 text-yellow-600 mb-4" />
+              <h3 className="text-xl font-bold text-yellow-900 mb-2">لا توجد توصيات متاحة</h3>
+              <p className="text-yellow-700 mb-6">
+                لم نتمكن من العثور على استثمارات مناسبة ضمن المعايير المحددة. 
+                قد تحتاج إلى تعديل مبلغ الاستثمار أو تفضيلات الاستثمار.
+              </p>
+              <div className="space-y-2 text-sm text-yellow-700">
+                <p>المبلغ المتاح: {formatCurrency(totalAllocated)}</p>
+                <p>المبلغ المتبقي: {formatCurrency(remainingAmount)}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Action Buttons */}
-        <div className="text-center space-x-4">
-          <Link href="/">
-            <Button variant="outline">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          <Link href="/data-collection">
+            <Button variant="outline" className="w-full sm:w-auto">
               <RotateCcw className="ml-2 h-4 w-4" />
-              إعادة التحليل
+              إجراء تحليل جديد
             </Button>
           </Link>
-          <Button 
-            onClick={() => {
-              // TODO: Implement PDF report generation
-              alert('سيتم إضافة ميزة تحميل التقرير قريباً');
-            }}
-          >
-            <Download className="ml-2 h-4 w-4" />
-            تحميل التقرير
-          </Button>
+          <Link href="/">
+            <Button className="w-full sm:w-auto">
+              العودة للرئيسية
+            </Button>
+          </Link>
         </div>
 
-        {/* Legal Disclaimer Footer */}
-        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-semibold text-yellow-800 mb-2">إخلاء مسؤولية قانونية</p>
-              <p className="text-yellow-700">
-                هذه المنصة لا تقدم خدمات استشارية مالية أو تنفيذ عمليات. تقدم فقط رؤى استثمارية قائمة على الذكاء الاصطناعي لأغراض تعليمية. 
-                استشر مستشاراً مالياً مؤهلاً قبل اتخاذ أي قرارات استثمارية.
+        {/* Legal Disclaimer */}
+        <div className="mt-12 p-6 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start">
+            <AlertTriangle className="h-6 w-6 text-red-600 ml-3 mt-1 flex-shrink-0" />
+            <div>
+              <h4 className="font-bold text-red-900 mb-2">إخلاء مسؤولية قانونية</h4>
+              <p className="text-red-800 text-sm leading-relaxed">
+                هذه التوصيات مخصصة لأغراض تعليمية فقط وليست استشارة مالية مهنية. 
+                يجب عليك استشارة مستشار مالي مؤهل قبل اتخاذ أي قرارات استثمارية. 
+                قد تفقد بعض أو كل أموالك المستثمرة. الأداء السابق لا يضمن النتائج المستقبلية.
               </p>
             </div>
           </div>

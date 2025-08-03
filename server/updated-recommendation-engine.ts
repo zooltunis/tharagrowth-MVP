@@ -111,16 +111,26 @@ export class UpdatedRecommendationEngine {
       const adjustedAllocation = this.adjustAllocationByPreferences(strategy.allocation, userData.preferences);
       console.log('Adjusted allocation:', adjustedAllocation);
       
-      // Step 3: Generate detailed recommendations using real data
+      // Step 3: Parse investment amount
+      const investmentAmount = parseFloat(userData.investmentBudget);
+      console.log('Investment amount:', investmentAmount);
+      
+      // Step 4: Generate detailed recommendations using real data
       const detailedRecommendations = await this.generateDetailedRecommendations(
-        userData.amount, 
+        investmentAmount, 
         adjustedAllocation, 
         userData
       );
       
-      // Step 4: Calculate totals and analysis
-      const totalAllocated = detailedRecommendations.reduce((sum, rec) => sum + rec.amount, 0);
-      const remainingAmount = userData.amount - totalAllocated;
+      console.log('Generated detailed recommendations:', detailedRecommendations.length);
+      console.log('First recommendation sample:', detailedRecommendations[0]);
+      
+      // Step 5: Calculate totals and analysis
+      const totalAllocated = detailedRecommendations.reduce((sum, rec) => sum + (rec.amount || 0), 0);
+      const remainingAmount = Math.max(0, investmentAmount - totalAllocated);
+      
+      console.log('Total allocated:', totalAllocated);
+      console.log('Remaining amount:', remainingAmount);
       
       const analysis = this.generateAnalysis(strategy, userData, totalAllocated);
       
@@ -190,25 +200,45 @@ export class UpdatedRecommendationEngine {
   ): InvestmentStrategy['allocation'] {
     const adjusted = { ...baseAllocation };
     
+    // Create preference mapping for flexible matching
+    const preferenceMapping: { [key: string]: string[] } = {
+      'real-estate': ['real-estate', 'realestate', 'property'],
+      'stocks': ['stocks', 'shares', 'equity'],
+      'gold': ['gold', 'precious-metals'],
+      'bonds': ['bonds', 'sukuk', 'fixed-income'],
+      'savings': ['savings', 'deposits'],
+      'crypto': ['crypto', 'cryptocurrency', 'crowdfunding'] // Map crowdfunding to crypto allocation
+    };
+    
     // If user has no preferences for a category, reduce its allocation to 0
     Object.keys(adjusted).forEach(category => {
-      if (!preferences.includes(category.replace('-', ''))) {
+      const categoryPrefs = preferenceMapping[category] || [category];
+      const hasPreference = categoryPrefs.some(pref => preferences.includes(pref));
+      
+      if (!hasPreference) {
         adjusted[category as keyof typeof adjusted] = 0;
       }
     });
     
     // Redistribute the removed allocations among preferred categories
-    const totalPreferredAllocation = Object.keys(adjusted)
-      .filter(category => preferences.includes(category.replace('-', '')))
-      .reduce((sum, category) => sum + baseAllocation[category as keyof typeof baseAllocation], 0);
+    const preferredCategories = Object.keys(adjusted).filter(category => {
+      const categoryPrefs = preferenceMapping[category] || [category];
+      return categoryPrefs.some(pref => preferences.includes(pref));
+    });
     
-    if (totalPreferredAllocation > 0) {
-      Object.keys(adjusted).forEach(category => {
-        if (preferences.includes(category.replace('-', ''))) {
+    if (preferredCategories.length > 0) {
+      const totalPreferredAllocation = preferredCategories
+        .reduce((sum, category) => sum + baseAllocation[category as keyof typeof baseAllocation], 0);
+      
+      if (totalPreferredAllocation > 0) {
+        preferredCategories.forEach(category => {
           const originalWeight = baseAllocation[category as keyof typeof baseAllocation];
           adjusted[category as keyof typeof adjusted] = (originalWeight / totalPreferredAllocation) * 100;
-        }
-      });
+        });
+      }
+    } else {
+      // If no preferences match, use original allocation
+      return baseAllocation;
     }
     
     return adjusted;

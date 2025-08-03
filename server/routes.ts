@@ -351,9 +351,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateInvestmentRecommendations(userData: any) {
+  console.log('Starting recommendation generation with userData:', userData);
   // Use the updated recommendation engine with real data
   const engine = new UpdatedRecommendationEngine();
-  return await engine.generateRecommendations(userData);
+  const result = await engine.generateRecommendations(userData);
+  console.log('Final result from engine:', {
+    totalAllocated: result.totalAllocated,
+    recommendationsCount: result.recommendations.length,
+    strategy: result.strategy
+  });
+  return result;
 }
 
 // This function is deprecated - using SmartRecommendationEngine instead
