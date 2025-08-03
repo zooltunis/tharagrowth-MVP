@@ -39,7 +39,7 @@ export default function ResultsPage() {
     if (totalAmount > 0) {
       recommendations.forEach((rec: any) => {
         const category = rec.type;
-        allocation[category] = (allocation[category] || 0) + rec.amount;
+        allocation[category] = (allocation[category] || 0) + parseFloat(rec.price || '0');
       });
 
       // Convert to percentages
@@ -138,7 +138,7 @@ export default function ResultsPage() {
   if (recommendations.length > 0 && totalAllocated > 0) {
     recommendations.forEach((rec: any) => {
       const category = rec.type;
-      allocation[category] = (allocation[category] || 0) + rec.amount;
+      allocation[category] = (allocation[category] || 0) + parseFloat(rec.price || '0');
     });
     
     // Convert to percentages
@@ -150,7 +150,10 @@ export default function ResultsPage() {
   // Calculate expected return from recommendations
   let expectedReturn = "8-12";
   if (recommendations.length > 0) {
-    const avgReturn = recommendations.reduce((sum: number, rec: any) => sum + (rec.expectedReturn || 8), 0) / recommendations.length;
+    const avgReturn = recommendations.reduce((sum: number, rec: any) => {
+      const returnValue = parseFloat(rec.expectedReturn?.replace('%', '') || '8');
+      return sum + returnValue;
+    }, 0) / recommendations.length;
     expectedReturn = avgReturn.toFixed(1);
   }
 
@@ -271,7 +274,7 @@ export default function ResultsPage() {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <CardTitle className="text-lg">{recommendation.name}</CardTitle>
+                        <CardTitle className="text-lg">{recommendation.title}</CardTitle>
                         <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.type)}</p>
                       </div>
                       <Badge 
@@ -292,19 +295,19 @@ export default function ResultsPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="font-medium text-gray-500">المبلغ:</span>
-                        <p className="font-bold">{formatCurrency(recommendation.amount)}</p>
+                        <p className="font-bold">{formatCurrency(parseFloat(recommendation.price || '0'))}</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">الكمية:</span>
-                        <p className="font-bold">{recommendation.quantity}</p>
+                        <p className="font-bold">1</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">العائد المتوقع:</span>
-                        <p className="font-bold text-green-600">{recommendation.expectedReturn}%</p>
+                        <p className="font-bold text-green-600">{recommendation.expectedReturn}</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">العملة:</span>
-                        <p className="font-bold">{recommendation.currency}</p>
+                        <p className="font-bold">SAR</p>
                       </div>
                     </div>
 

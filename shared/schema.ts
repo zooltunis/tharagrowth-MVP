@@ -12,11 +12,15 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   riskTolerance: text("risk_tolerance").notNull(),
   preferences: jsonb("preferences").$type<string[]>().notNull(),
   recommendations: jsonb("recommendations").$type<{
-    allocation: Record<string, number>;
-    summary: string;
-    expectedReturn: string;
-    riskLevel: string;
-    detailedRecommendations: DetailedRecommendation[];
+    id: string;
+    userData: any;
+    strategy: string;
+    riskProfile: string;
+    recommendations: DetailedRecommendation[];
+    totalAllocated: number;
+    remainingAmount: number;
+    analysis: string;
+    generatedAt: string;
   }>().notNull(),
 });
 

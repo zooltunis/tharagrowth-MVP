@@ -99,7 +99,17 @@ export class UpdatedRecommendationEngine {
     this.dataProcessor = new DataProcessor();
   }
   
-  async generateRecommendations(userData: UserData): Promise<DetailedRecommendation> {
+  async generateRecommendations(userData: UserData): Promise<{
+    id: string;
+    userData: any;
+    strategy: string;
+    riskProfile: string;
+    recommendations: DetailedRecommendation[];
+    totalAllocated: number;
+    remainingAmount: number;
+    analysis: string;
+    generatedAt: string;
+  }> {
     try {
       console.log('Generating recommendations for user data:', userData);
       
@@ -126,7 +136,7 @@ export class UpdatedRecommendationEngine {
       console.log('First recommendation sample:', detailedRecommendations[0]);
       
       // Step 5: Calculate totals and analysis
-      const totalAllocated = detailedRecommendations.reduce((sum, rec) => sum + (rec.amount || 0), 0);
+      const totalAllocated = detailedRecommendations.reduce((sum, rec) => sum + parseFloat(rec.price || '0'), 0);
       const remainingAmount = Math.max(0, investmentAmount - totalAllocated);
       
       console.log('Total allocated:', totalAllocated);
@@ -316,24 +326,18 @@ export class UpdatedRecommendationEngine {
           stockCount++;
           
           recommendations.push({
+            id: `stock-${stock.symbol}-${Date.now()}`,
             type: 'stocks',
-            name: stock.name,
-            amount: investmentAmount,
-            quantity: shares,
-            unitPrice: stock.price,
-            currency: stock.currency || 'SAR',
-            expectedReturn: stock.dividendYield || 8,
-            riskLevel: this.getRiskLevelByReturn(stock.dividendYield || 8),
+            category: 'stocks',
+            title: stock.name,
             description: `${shares} سهم في ${stock.name} (${stock.symbol}) - قطاع ${stock.sector}`,
-            details: {
-              symbol: stock.symbol,
-              sector: stock.sector,
-              exchange: stock.exchange,
-              peRatio: stock.peRatio,
-              marketCap: stock.marketCap,
-              dividendYield: stock.dividendYield
-            },
+            price: investmentAmount.toString(),
+            expectedReturn: `${stock.dividendYield || 8}%`,
             paymentPlan: 'دفع فوري',
+            riskLevel: this.getRiskLevelByReturn(stock.dividendYield || 8) as 'منخفض' | 'متوسط' | 'عالي',
+            timeline: 'طويل الأمد (3-5 سنوات)',
+            recommendation: 'شراء',
+            minimumInvestment: stock.price.toString(),
             features: [
               `عائد توزيعات أرباح: ${stock.dividendYield?.toFixed(1) || 'غير محدد'}%`,
               `نسبة السعر للربح: ${stock.peRatio?.toFixed(1) || 'غير محدد'}`,
@@ -383,23 +387,19 @@ export class UpdatedRecommendationEngine {
           remainingAmount -= investmentAmount;
           
           recommendations.push({
+            id: `property-${property.name.replace(/\s+/g, '-')}-${Date.now()}`,
             type: 'real-estate',
-            name: property.name,
-            amount: investmentAmount,
-            quantity: 1,
-            unitPrice: investmentAmount,
-            currency: property.currency || 'SAR',
-            expectedReturn: property.expectedReturn || 10,
-            riskLevel: property.riskLevel || 'متوسط',
+            category: 'real-estate',
+            title: property.name,
             description: `استثمار عقاري في ${property.name} - ${property.location}`,
-            details: {
-              location: property.location,
-              type: property.type,
-              developer: property.developer,
-              area: property.area,
-              readyDate: property.readyDate
-            },
+            price: investmentAmount.toString(),
+            expectedReturn: `${property.expectedReturn || 10}%`,
             paymentPlan: property.paymentPlan || 'دفعة مقدمة مع أقساط',
+            riskLevel: property.riskLevel === 'low' ? 'منخفض' : property.riskLevel === 'medium' ? 'متوسط' : property.riskLevel === 'high' ? 'عالي' : 'متوسط',
+            timeline: 'متوسط الأجل (2-3 سنوات)',
+            recommendation: 'شراء',
+            location: property.location,
+            minimumInvestment: (property.minInvestment || investmentAmount).toString(),
             features: [
               `الموقع: ${property.location}`,
               `نوع العقار: ${property.type}`,
@@ -441,23 +441,18 @@ export class UpdatedRecommendationEngine {
         const investmentAmount = actualGrams * gold.pricePerGram;
         
         recommendations.push({
+          id: `gold-${gold.type}-${Date.now()}`,
           type: 'gold',
-          name: `${gold.type} - ${gold.purity}`,
-          amount: investmentAmount,
-          quantity: actualGrams,
-          unitPrice: gold.pricePerGram,
-          currency: gold.currency || 'SAR',
-          expectedReturn: 6, // Gold typically 5-7% annual return
-          riskLevel: 'منخفض',
+          category: 'gold',
+          title: `${gold.type} - ${gold.purity}`,
           description: `${actualGrams} جرام من ${gold.type} عيار ${gold.purity}`,
-          details: {
-            type: gold.type,
-            purity: gold.purity,
-            supplier: gold.supplier,
-            weight: gold.weight,
-            description: gold.description
-          },
+          price: investmentAmount.toString(),
+          expectedReturn: '6%',
           paymentPlan: 'دفع فوري',
+          riskLevel: 'منخفض',
+          timeline: 'طويل الأمد (5+ سنوات)',
+          recommendation: 'شراء',
+          minimumInvestment: (gold.minPurchase * gold.pricePerGram).toString(),
           features: [
             `النوع: ${gold.type}`,
             `العيار: ${gold.purity}`,
@@ -495,8 +490,8 @@ export class UpdatedRecommendationEngine {
         .filter((bond: any) => bond.minInvestment <= amount)
         .sort((a: any, b: any) => {
           // Prefer Islamic sukuk if available, then by rating
-          if (bond.shariahCompliant && !a.shariahCompliant) return -1;
-          if (!bond.shariahCompliant && a.shariahCompliant) return 1;
+          if (a.shariahCompliant && !b.shariahCompliant) return -1;
+          if (!a.shariahCompliant && b.shariahCompliant) return 1;
           return b.rating?.localeCompare(a.rating) || 0;
         });
       
@@ -515,26 +510,18 @@ export class UpdatedRecommendationEngine {
           remainingAmount -= investmentAmount;
           
           recommendations.push({
+            id: `bond-${bond.name.replace(/\s+/g, '-')}-${Date.now()}`,
             type: 'bonds',
-            name: bond.name,
-            amount: investmentAmount,
-            quantity: units,
-            unitPrice: bond.faceValue,
-            currency: bond.currency || 'SAR',
-            expectedReturn: bond.couponRate || 5,
-            riskLevel: this.getRiskLevelByRating(bond.rating),
+            category: 'bonds',
+            title: bond.name,
             description: `${units} وحدة من ${bond.name}${bond.shariahCompliant ? ' (صك إسلامي)' : ''}`,
-            details: {
-              type: bond.type,
-              faceValue: bond.faceValue,
-              couponRate: bond.couponRate,
-              maturity: bond.maturity,
-              rating: bond.rating,
-              issuer: bond.issuer,
-              issuedDate: bond.issuedDate,
-              shariahCompliant: bond.shariahCompliant
-            },
+            price: investmentAmount.toString(),
+            expectedReturn: `${bond.couponRate || 5}%`,
             paymentPlan: 'دفع فوري',
+            riskLevel: this.getRiskLevelByRating(bond.rating) as 'منخفض' | 'متوسط' | 'عالي',
+            timeline: bond.maturity || 'متوسط الأجل (2-5 سنوات)',
+            recommendation: 'شراء',
+            minimumInvestment: bond.minInvestment?.toString() || bond.faceValue?.toString() || '1000',
             features: [
               `نوع السند: ${bond.type}`,
               `معدل الكوبون: ${bond.couponRate}%`,
@@ -560,22 +547,18 @@ export class UpdatedRecommendationEngine {
     
     // High-yield savings account
     recommendations.push({
+      id: `savings-${Date.now()}`,
       type: 'savings',
-      name: 'حساب توفير عالي العائد',
-      amount: amount,
-      quantity: 1,
-      unitPrice: amount,
-      currency: 'SAR',
-      expectedReturn: 4.5,
-      riskLevel: 'منخفض',
+      category: 'savings',
+      title: 'حساب توفير عالي العائد',
       description: `حساب توفير بعائد ${(4.5).toFixed(1)}% سنوياً`,
-      details: {
-        bank: 'البنك الأهلي التجاري',
-        interestRate: 4.5,
-        compoundingFrequency: 'شهري',
-        minimumBalance: 10000
-      },
+      price: amount.toString(),
+      expectedReturn: '4.5%',
       paymentPlan: 'إيداع فوري',
+      riskLevel: 'منخفض',
+      timeline: 'مرن',
+      recommendation: 'شراء قوي',
+      minimumInvestment: '10000',
       features: [
         'عائد مضمون 4.5% سنوياً',
         'مؤمن من قبل مؤسسة النقد',
@@ -594,25 +577,18 @@ export class UpdatedRecommendationEngine {
     // Only recommend if user has high risk tolerance
     if (userData.riskTolerance === 'high') {
       recommendations.push({
+        id: `crypto-${Date.now()}`,
         type: 'crypto',
-        name: 'محفظة العملات المشفرة المتنوعة',
-        amount: amount,
-        quantity: 1,
-        unitPrice: amount,
-        currency: 'USD',
-        expectedReturn: 20,
-        riskLevel: 'عالي',
+        category: 'crypto',
+        title: 'محفظة العملات المشفرة المتنوعة',
         description: 'استثمار في محفظة متنوعة من العملات المشفرة الرائدة',
-        details: {
-          allocation: {
-            'Bitcoin (BTC)': '50%',
-            'Ethereum (ETH)': '30%',
-            'Binance Coin (BNB)': '20%'
-          },
-          platform: 'منصة تداول موثوقة',
-          security: 'تخزين آمن بمحافظ باردة'
-        },
+        price: amount.toString(),
+        expectedReturn: '20%',
         paymentPlan: 'استثمار تدريجي (DCA)',
+        riskLevel: 'عالي',
+        timeline: 'طويل الأمد (3-5 سنوات)',
+        recommendation: 'شراء متوسط',
+        minimumInvestment: '1000',
         features: [
           'تنويع على العملات الرائدة',
           'إمكانية عوائد عالية',
@@ -654,25 +630,18 @@ export class UpdatedRecommendationEngine {
           remainingAmount -= investmentAmount;
           
           recommendations.push({
+            id: `crowdfunding-${project.name.replace(/\s+/g, '-')}-${Date.now()}`,
             type: 'crowdfunding',
-            name: project.name,
-            amount: investmentAmount,
-            quantity: 1,
-            unitPrice: investmentAmount,
-            currency: project.currency || 'SAR',
-            expectedReturn: project.expectedReturn || 15,
-            riskLevel: project.riskLevel || 'عالي',
+            category: 'crypto', // Map to crypto category for allocation
+            title: project.name,
             description: `استثمار في مشروع ${project.name} - ${project.category}`,
-            details: {
-              category: project.category,
-              country: project.country,
-              targetAmount: project.targetAmount,
-              raisedAmount: project.raisedAmount,
-              platform: project.platform,
-              duration: project.duration,
-              fundingType: project.fundingType
-            },
-            paymentPlan: 'دفع فوري',
+            price: investmentAmount.toString(),
+            expectedReturn: `${project.expectedReturn || 15}%`,
+            paymentPlan: project.paymentPlan || 'دفع فوري',
+            riskLevel: project.riskLevel === 'low' ? 'منخفض' : project.riskLevel === 'medium' ? 'متوسط' : 'عالي',
+            timeline: project.timeline || 'متوسط الأجل (1-3 سنوات)',
+            recommendation: 'شراء',
+            minimumInvestment: project.minInvestment?.toString() || '5000',
             features: [
               `الفئة: ${project.category}`,
               `البلد: ${project.country}`,
@@ -693,15 +662,15 @@ export class UpdatedRecommendationEngine {
     }
   }
   
-  private getRiskLevelByReturn(returnRate: number): string {
+  private getRiskLevelByReturn(returnRate: number): 'منخفض' | 'متوسط' | 'عالي' {
     if (returnRate < 5) return 'منخفض';
     if (returnRate < 12) return 'متوسط';
     return 'عالي';
   }
   
-  private getRiskLevelByRating(rating: string): string {
-    if (rating.startsWith('AAA') || rating.startsWith('AA')) return 'منخفض';
-    if (rating.startsWith('A') || rating.startsWith('BBB')) return 'متوسط';
+  private getRiskLevelByRating(rating: string): 'منخفض' | 'متوسط' | 'عالي' {
+    if (rating?.startsWith('AAA') || rating?.startsWith('AA')) return 'منخفض';
+    if (rating?.startsWith('A') || rating?.startsWith('BBB')) return 'متوسط';
     return 'عالي';
   }
   
@@ -725,7 +694,7 @@ export class UpdatedRecommendationEngine {
 📊 **تحليل المحفظة:**
 - مستوى المخاطر: ${strategy.riskProfile}
 - إجمالي المبلغ المستثمر: ${this.formatCurrency(totalAllocated)}
-- نسبة الاستثمار: ${((totalAllocated / userData.amount) * 100).toFixed(1)}%
+- نسبة الاستثمار: ${((totalAllocated / parseFloat(userData.investmentBudget)) * 100).toFixed(1)}%
 
 🎯 **التوافق مع أهدافك:**
 ${userData.goals.map(goal => `• ${this.translateGoal(goal)}`).join('\n')}
