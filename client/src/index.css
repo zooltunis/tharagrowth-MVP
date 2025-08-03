@@ -3,49 +3,73 @@
 @tailwind utilities;
 
 :root {
+  /* TharaGrowth Finance-Inspired Color System */
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --foreground: hsl(185, 15%, 25%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215, 16%, 47%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --popover-foreground: hsl(185, 15%, 25%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  --card-foreground: hsl(185, 15%, 25%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  
+  /* Primary: Deep teal inspired by logo */
+  --primary: hsl(185, 84%, 25%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  
+  /* Secondary: Golden accent from logo */
+  --secondary: hsl(45, 86%, 62%);
+  --secondary-foreground: hsl(185, 15%, 25%);
+  
+  /* Accent: Success green for growth */
+  --accent: hsl(142, 70%, 45%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  
+  /* Finance-specific colors */
+  --success: hsl(142, 70%, 45%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(45, 86%, 62%);
+  --warning-foreground: hsl(185, 15%, 25%);
+  --gold: hsl(45, 86%, 62%);
+  --gold-foreground: hsl(185, 15%, 25%);
+  --teal: hsl(185, 84%, 25%);
+  --teal-foreground: hsl(0, 0%, 100%);
+  --navy: hsl(210, 100%, 20%);
+  --navy-foreground: hsl(0, 0%, 100%);
+  
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(185, 84%, 25%);
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
-  --radius: 0.5rem;
+  --background: hsl(185, 15%, 8%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(185, 15%, 12%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(185, 15%, 12%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(185, 15%, 12%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(185, 15%, 20%);
+  --input: hsl(185, 15%, 20%);
+  --primary: hsl(185, 84%, 35%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(45, 86%, 52%);
+  --secondary-foreground: hsl(185, 15%, 8%);
+  --accent: hsl(142, 70%, 55%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --success: hsl(142, 70%, 55%);
+  --warning: hsl(45, 86%, 52%);
+  --gold: hsl(45, 86%, 52%);
+  --teal: hsl(185, 84%, 35%);
+  --navy: hsl(210, 100%, 30%);
+  --destructive: hsl(0, 63%, 31%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(185, 84%, 35%);
 }
 
 @layer base {
@@ -81,12 +105,113 @@
   margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
-/* Custom investment colors */
-.investment-colors {
-  --real-estate: hsl(220, 85%, 42%);
-  --stocks: hsl(159, 64%, 40%);
-  --gold: hsl(45, 93%, 47%);
-  --bonds: hsl(0, 72%, 51%);
-  --crypto: hsl(271, 91%, 65%);
-  --savings: hsl(192, 95%, 39%);
+/* TharaGrowth Design System Extensions */
+@layer components {
+  /* Modern card with subtle shadow */
+  .finance-card {
+    @apply bg-card rounded-xl border shadow-sm hover:shadow-md transition-all duration-200;
+    border-color: hsl(var(--border) / 0.5);
+  }
+  
+  /* Logo container styling */
+  .logo-container {
+    @apply flex items-center justify-center w-16 h-16 rounded-xl shadow-md;
+    background: linear-gradient(135deg, hsl(var(--teal)) 0%, hsl(var(--primary)) 100%);
+  }
+  
+  /* Language switcher styling */
+  .language-switcher {
+    @apply flex items-center space-x-1 rtl:space-x-reverse bg-muted rounded-lg p-1;
+  }
+  
+  .language-btn {
+    @apply px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 hover:bg-background;
+  }
+  
+  .language-btn.active {
+    @apply bg-primary text-primary-foreground shadow-sm;
+  }
+  
+  /* Modern button variants */
+  .btn-finance {
+    @apply text-white hover:opacity-90 transition-all duration-200 rounded-lg px-6 py-3 font-medium shadow-md hover:shadow-lg;
+    background: linear-gradient(135deg, hsl(var(--teal)) 0%, hsl(var(--primary)) 100%);
+  }
+  
+  .btn-gold {
+    @apply hover:opacity-90 transition-all duration-200 rounded-lg px-6 py-3 font-medium shadow-md hover:shadow-lg;
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--warning)) 100%);
+    color: hsl(var(--gold-foreground));
+  }
+  
+  /* Form styling for multilingual support */
+  .form-modern {
+    @apply space-y-6 bg-card p-8 rounded-xl border shadow-sm;
+    border-color: hsl(var(--border) / 0.5);
+  }
+  
+  /* Status indicators */
+  .status-positive {
+    @apply text-success bg-success/10 border-success/20;
+  }
+  
+  .status-neutral {
+    @apply text-warning bg-warning/10 border-warning/20;
+  }
+  
+  .status-negative {
+    @apply text-destructive bg-destructive/10 border-destructive/20;
+  }
+  
+  /* Market data styling */
+  .market-widget {
+    @apply finance-card p-6 space-y-4;
+  }
+  
+  .price-display {
+    @apply text-3xl font-bold text-foreground;
+  }
+  
+  .change-positive {
+    @apply text-success flex items-center;
+  }
+  
+  .change-negative {
+    @apply text-destructive flex items-center;
+  }
+  
+  /* Gradient backgrounds for modern feel */
+  .bg-gradient-finance {
+    background: linear-gradient(135deg, hsl(var(--teal)) 0%, hsl(var(--primary)) 100%);
+  }
+  
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--warning)) 100%);
+  }
+  
+  .bg-gradient-success {
+    background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--accent)) 100%);
+  }
 }
+
+/* Investment portfolio colors */
+.investment-colors {
+  --real-estate: hsl(210, 100%, 20%);
+  --stocks: hsl(142, 70%, 45%);
+  --gold: hsl(45, 86%, 62%);
+  --bonds: hsl(0, 84%, 60%);
+  --crypto: hsl(271, 91%, 65%);
+  --savings: hsl(185, 84%, 25%);
+}
+
+/* Finance-specific utility classes */
+.text-success { color: hsl(var(--success)); }
+.text-warning { color: hsl(var(--warning)); }
+.text-gold { color: hsl(var(--gold)); }
+.text-teal { color: hsl(var(--teal)); }
+.text-navy { color: hsl(var(--navy)); }
+.bg-success { background-color: hsl(var(--success)); }
+.bg-warning { background-color: hsl(var(--warning)); }
+.bg-gold { background-color: hsl(var(--gold)); }
+.bg-teal { background-color: hsl(var(--teal)); }
+.bg-navy { background-color: hsl(var(--navy)); }

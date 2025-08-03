@@ -1,32 +1,107 @@
 import { useState } from "react";
+import React from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/ui/header";
 import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
 import { analyzeInvestmentData } from "@/lib/openai";
-import { ArrowRight, ArrowLeft, Brain, Loader2, AlertTriangle } from "lucide-react";
-
-const steps = [
-  { id: 1, title: "معلومات شخصية", progress: 25 },
-  { id: 2, title: "أهداف الاستثمار", progress: 50 },
-  { id: 3, title: "مستوى تحمل المخاطر", progress: 75 },
-  { id: 4, title: "تفضيلات الاستثمار", progress: 100 },
-];
+import { ArrowRight, ArrowLeft, Brain, Loader2, AlertTriangle, User, Target, Shield, Settings } from "lucide-react";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [currentLang, setCurrentLang] = useState("ar");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  const content = {
+    ar: {
+      title: "تحليل استثماري ذكي",
+      subtitle: "احصل على توصيات مخصصة في 4 خطوات بسيطة",
+      steps: [
+        { id: 1, title: "معلومات شخصية", progress: 25, icon: User },
+        { id: 2, title: "أهداف الاستثمار", progress: 50, icon: Target },
+        { id: 3, title: "مستوى تحمل المخاطر", progress: 75, icon: Shield },
+        { id: 4, title: "تفضيلات الاستثمار", progress: 100, icon: Settings },
+      ],
+      fields: {
+        age: "العمر",
+        income: "الراتب الشهري",
+        investmentBudget: "مبلغ الاستثمار",
+        currency: "العملة",
+        goals: "أهداف الاستثمار",
+        riskTolerance: "مستوى تحمل المخاطر",
+        preferences: "تفضيلات الاستثمار"
+      },
+      buttons: {
+        next: "التالي",
+        prev: "السابق",
+        analyze: "تحليل البيانات"
+      }
+    },
+    en: {
+      title: "Smart Investment Analysis",
+      subtitle: "Get personalized recommendations in 4 simple steps",
+      steps: [
+        { id: 1, title: "Personal Information", progress: 25, icon: User },
+        { id: 2, title: "Investment Goals", progress: 50, icon: Target },
+        { id: 3, title: "Risk Tolerance", progress: 75, icon: Shield },
+        { id: 4, title: "Investment Preferences", progress: 100, icon: Settings },
+      ],
+      fields: {
+        age: "Age",
+        income: "Monthly Income",
+        investmentBudget: "Investment Amount",
+        currency: "Currency",
+        goals: "Investment Goals",
+        riskTolerance: "Risk Tolerance",
+        preferences: "Investment Preferences"
+      },
+      buttons: {
+        next: "Next",
+        prev: "Previous",
+        analyze: "Analyze Data"
+      }
+    },
+    fr: {
+      title: "Analyse d'Investissement Intelligente",
+      subtitle: "Obtenez des recommandations personnalisées en 4 étapes simples",
+      steps: [
+        { id: 1, title: "Informations Personnelles", progress: 25, icon: User },
+        { id: 2, title: "Objectifs d'Investissement", progress: 50, icon: Target },
+        { id: 3, title: "Tolérance au Risque", progress: 75, icon: Shield },
+        { id: 4, title: "Préférences d'Investissement", progress: 100, icon: Settings },
+      ],
+      fields: {
+        age: "Âge",
+        income: "Revenu Mensuel",
+        investmentBudget: "Montant d'Investissement",
+        currency: "Devise",
+        goals: "Objectifs d'Investissement",
+        riskTolerance: "Tolérance au Risque",
+        preferences: "Préférences d'Investissement"
+      },
+      buttons: {
+        next: "Suivant",
+        prev: "Précédent",
+        analyze: "Analyser les Données"
+      }
+    }
+  };
+
+  const currentContent = content[currentLang as keyof typeof content];
+  const steps = currentContent.steps;
 
   const form = useForm<UserData>({
     resolver: zodResolver(userDataSchema),
@@ -79,23 +154,76 @@ export default function DataCollectionPage() {
   const currentStepData = steps.find(step => step.id === currentStep)!;
 
   return (
-    <div className="min-h-screen py-8 px-4 bg-gray-50">
-      <div className="max-w-2xl mx-auto">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              الخطوة {currentStep} من 4
-            </span>
-            <span className="text-sm text-gray-500">{currentStepData.progress}%</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50" dir={currentLang === "ar" ? "rtl" : "ltr"}>
+      <Header currentLang={currentLang} onLanguageChange={setCurrentLang} />
+      
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <div className="logo-container w-16 h-16">
+              <Brain className="text-white" size={32} />
+            </div>
           </div>
-          <Progress value={currentStepData.progress} className="h-2" />
+          <h1 className="text-4xl font-bold text-foreground mb-4">{currentContent.title}</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{currentContent.subtitle}</p>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            {steps.map((step, index) => {
+              const IconComponent = step.icon;
+              const isActive = step.id === currentStep;
+              const isCompleted = step.id < currentStep;
+              
+              return (
+                <div key={step.id} className="flex flex-col items-center flex-1">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all duration-200 ${
+                    isActive ? 'bg-gradient-finance text-white shadow-lg scale-110' :
+                    isCompleted ? 'bg-success text-white' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    <IconComponent size={20} />
+                  </div>
+                  <span className={`text-sm font-medium text-center ${
+                    isActive ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
+                    {step.title}
+                  </span>
+                  {index < steps.length - 1 && (
+                    <div className={`hidden md:block w-full h-0.5 mt-6 ${
+                      isCompleted ? 'bg-success' : 'bg-border'
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-foreground">
+                {currentLang === "en" ? `Step ${currentStep} of 4` :
+                 currentLang === "fr" ? `Étape ${currentStep} sur 4` :
+                 `الخطوة ${currentStep} من 4`}
+              </span>
+              <span className="text-sm text-muted-foreground">{currentStepData.progress}%</span>
+            </div>
+            <Progress value={currentStepData.progress} className="h-3" />
+          </div>
         </div>
 
         {/* Form Container */}
-        <Card className="shadow-lg border-gray-100 overflow-hidden">
-          <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">{currentStepData.title}</h2>
+        <div className="max-w-2xl mx-auto">
+          <Card className="finance-card overflow-hidden">
+            <CardHeader className="bg-gradient-finance text-white">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                {React.createElement(currentStepData.icon, { className: "h-6 w-6" })}
+                {currentStepData.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -396,29 +524,16 @@ export default function DataCollectionPage() {
                       ) : (
                         <Brain className="ml-2 h-4 w-4" />
                       )}
-                      تحليل البيانات
+                      {currentContent.buttons.analyze}
                     </Button>
                   )}
                 </div>
               </form>
             </Form>
-          </CardContent>
-        </Card>
-
-        {/* Legal Disclaimer */}
-        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-semibold text-yellow-800 mb-2">إخلاء مسؤولية قانونية</p>
-              <p className="text-yellow-700">
-                هذه المنصة لا تقدم خدمات استشارية مالية أو تنفيذ عمليات. تقدم فقط رؤى استثمارية قائمة على الذكاء الاصطناعي لأغراض تعليمية. 
-                استشر مستشاراً مالياً مؤهلاً قبل اتخاذ أي قرارات استثمارية.
-              </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
