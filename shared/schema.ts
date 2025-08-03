@@ -6,7 +6,7 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   id: serial("id").primaryKey(),
   age: text("age").notNull(),
   income: text("income").notNull(),
-  investmentBudget: integer("investment_budget").notNull(),
+  investmentBudget: text("investment_amount").notNull(),
   currency: text("currency").notNull(),
   goals: jsonb("goals").$type<string[]>().notNull(),
   riskTolerance: text("risk_tolerance").notNull(),
@@ -46,7 +46,7 @@ export const insertInvestmentAnalysisSchema = createInsertSchema(investmentAnaly
 export const userDataSchema = z.object({
   age: z.string().min(1, "يرجى اختيار العمر"),
   income: z.string().min(1, "يرجى اختيار الدخل الشهري"),
-  investmentBudget: z.number().min(100, "الحد الأدنى للاستثمار 100").max(10000000, "الحد الأقصى 10 مليون"),
+  investmentBudget: z.string().min(1, "يرجى إدخال مبلغ الاستثمار"),
   currency: z.enum(["AED", "SAR", "USD", "EUR", "GBP"], {
     required_error: "يرجى اختيار العملة"
   }),

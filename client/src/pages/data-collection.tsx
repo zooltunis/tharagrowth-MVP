@@ -78,7 +78,7 @@ export default function DataCollectionPage() {
     defaultValues: {
       age: "",
       income: "",
-      investmentBudget: 50000,
+      investmentBudget: "50000",
       currency: "SAR",
       goals: [],
       riskTolerance: "",
@@ -272,7 +272,7 @@ export default function DataCollectionPage() {
                               <Input
                                 type="number"
                                 {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) => field.onChange(e.target.value)}
                                 placeholder="مثال: 50000"
                               />
                             </FormControl>
