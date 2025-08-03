@@ -13,7 +13,7 @@ export default function WelcomePage() {
             <TrendingUp className="text-white text-3xl" size={32} />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-            InvestWise
+            TharaGrowth
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 font-light">
             تطبيق ذكي لتوصيات الاستثمار المخصصة

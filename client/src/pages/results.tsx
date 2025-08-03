@@ -14,7 +14,7 @@ export default function ResultsPage() {
   const { data: analysis, isLoading, error } = useQuery({
     queryKey: ["/api/analysis", id],
     enabled: !!id,
-  });
+  }) as { data: any, isLoading: boolean, error: any };
 
   useEffect(() => {
     if (analysis?.recommendations?.allocation && chartRef.current) {
@@ -184,7 +184,7 @@ export default function ResultsPage() {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">التوصيات التفصيلية</h2>
             <div className="grid lg:grid-cols-2 gap-6">
-              {detailedRecommendations.map((recommendation, index) => (
+              {detailedRecommendations.map((recommendation: any, index: number) => (
                 <Card key={recommendation.id} className="shadow-lg border-gray-100 hover:shadow-xl transition-shadow">
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start mb-2">
@@ -267,7 +267,7 @@ export default function ResultsPage() {
                       <div>
                         <p className="text-sm font-medium text-gray-900 mb-2">المميزات الرئيسية</p>
                         <div className="flex flex-wrap gap-1">
-                          {recommendation.features.map((feature, idx) => (
+                          {recommendation.features.map((feature: string, idx: number) => (
                             <Badge key={idx} variant="outline" className="text-xs">
                               {feature}
                             </Badge>

@@ -455,7 +455,13 @@ function generateDetailedInvestmentRecommendations(userData: any, allocation: Re
         return !alreadyIncluded && affordableForAnyCategory && riskMatch;
       })
       .sort((a, b) => {
-        const strengthOrder = { 'شراء قوي': 3, 'شراء': 2, 'شراء متوسط': 1 };
+        const strengthOrder: Record<string, number> = { 
+          'شراء قوي': 3, 
+          'شراء': 2, 
+          'شراء متوسط': 1,
+          'انتظار': 0,
+          'تجنب': -1
+        };
         return (strengthOrder[b.recommendation] || 0) - (strengthOrder[a.recommendation] || 0);
       })
       .slice(0, 4 - recommendations.length);
