@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if get_locale() == 'ar' %}
+    نتائج التحليل - ثراء جروث
+    {% elif get_locale() == 'fr' %}
+    Résultats d'Analyse - TharaGrowth
+    {% else %}
+    Analysis Results - TharaGrowth
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {% if get_locale() == 'ar' %}
+                تحليلك الاستثماري الشخصي
+                {% elif get_locale() == 'fr' %}
+                Votre Analyse d'Investissement Personnalisée
+                {% else %}
+                Your Personal Investment Analysis
+                {% endif %}
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300">
+                {% if get_locale() == 'ar' %}
+                استراتيجية استثمارية مخصصة بناءً على ملفك المالي
+                {% elif get_locale() == 'fr' %}
+                Stratégie d'investissement personnalisée basée sur votre profil financier
+                {% else %}
+                Personalized investment strategy based on your financial profile
+                {% endif %}
+            </p>
+        </div>
+
+        {% if analysis %}
+        <!-- Key Metrics Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">
+                            {% if get_locale() == 'ar' %}الاستثمار الإجمالي{% elif get_locale() == 'fr' %}Investissement Total{% else %}Total Investment{% endif %}
+                        </h3>
+                        <p class="text-2xl font-bold">
+                            {{ "{:,}".format(analysis.user_data.budget) }} {{ analysis.user_data.currency }}
+                        </p>
+                    </div>
+                    <i class="fas fa-wallet text-3xl opacity-80"></i>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">
+                            {% if get_locale() == 'ar' %}العائد المتوقع{% elif get_locale() == 'fr' %}Rendement Attendu{% else %}Expected Return{% endif %}
+                        </h3>
+                        <p class="text-2xl font-bold">{{ analysis.recommendations.expected_annual_return }}%</p>
+                        <p class="text-sm opacity-90">
+                            {% if get_locale() == 'ar' %}سنوياً{% elif get_locale() == 'fr' %}Annuel{% else %}Annual{% endif %}
+                        </p>
+                    </div>
+                    <i class="fas fa-chart-line text-3xl opacity-80"></i>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">
+                            {% if get_locale() == 'ar' %}مستوى المخاطر{% elif get_locale() == 'fr' %}Niveau de Risque{% else %}Risk Level{% endif %}
+                        </h3>
+                        <p class="text-2xl font-bold">
+                            {% if get_locale() == 'ar' %}
+                                {% if analysis.recommendations.risk_level == 'low' %}منخفض
+                                {% elif analysis.recommendations.risk_level == 'medium' %}متوسط
+                                {% else %}عالي{% endif %}
+                            {% elif get_locale() == 'fr' %}
+                                {% if analysis.recommendations.risk_level == 'low' %}Faible
+                                {% elif analysis.recommendations.risk_level == 'medium' %}Moyen
+                                {% else %}Élevé{% endif %}
+                            {% else %}
+                                {{ analysis.recommendations.risk_level.title() }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <i class="fas fa-shield-alt text-3xl opacity-80"></i>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-6 rounded-lg text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">
+                            {% if get_locale() == 'ar' %}مراجعة المحفظة{% elif get_locale() == 'fr' %}Revue du Portefeuille{% else %}Portfolio Review{% endif %}
+                        </h3>
+                        <p class="text-xl font-bold">{{ analysis.recommendations.review_frequency }}</p>
+                    </div>
+                    <i class="fas fa-calendar-alt text-3xl opacity-80"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Portfolio Allocation Chart -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                    {% if get_locale() == 'ar' %}
+                    توزيع المحفظة الاستثمارية
+                    {% elif get_locale() == 'fr' %}
+                    Répartition du Portefeuille
+                    {% else %}
+                    Portfolio Allocation
+                    {% endif %}
+                </h2>
+                
+                <div class="relative">
+                    <canvas id="allocationChart" width="400" height="400"></canvas>
+                </div>
+                
+                <!-- Allocation Legend -->
+                <div class="mt-6 space-y-3">
+                    {% for asset, percentage in analysis.recommendations.allocation.items() %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full mr-3" style="background-color: {{ loop.cycle('#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4') }}"></div>
+                            <span class="text-gray-700 dark:text-gray-300">
+                                {% if get_locale() == 'ar' %}
+                                    {% if asset == 'stocks' %}الأسهم
+                                    {% elif asset == 'real_estate' %}العقارات
+                                    {% elif asset == 'gold' %}الذهب
+                                    {% elif asset == 'bonds' %}السندات
+                                    {% elif asset == 'sukuk' %}الصكوك
+                                    {% else %}{{ asset }}{% endif %}
+                                {% elif get_locale() == 'fr' %}
+                                    {% if asset == 'stocks' %}Actions
+                                    {% elif asset == 'real_estate' %}Immobilier
+                                    {% elif asset == 'gold' %}Or
+                                    {% elif asset == 'bonds' %}Obligations
+                                    {% elif asset == 'sukuk' %}Sukuk
+                                    {% else %}{{ asset }}{% endif %}
+                                {% else %}
+                                    {{ asset.replace('_', ' ').title() }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <span class="font-bold text-gray-900 dark:text-white">{{ percentage }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Investment Strategy & Rationale -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                    {% if get_locale() == 'ar' %}
+                    الاستراتيجية الاستثمارية
+                    {% elif get_locale() == 'fr' %}
+                    Stratégie d'Investissement
+                    {% else %}
+                    Investment Strategy
+                    {% endif %}
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Strategy Type -->
+                    <div class="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                        <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                            {% if get_locale() == 'ar' %}نوع الاستراتيجية{% elif get_locale() == 'fr' %}Type de Stratégie{% else %}Strategy Type{% endif %}
+                        </h3>
+                        <p class="text-blue-800 dark:text-blue-200 capitalize">
+                            {% if get_locale() == 'ar' %}
+                                {% if analysis.recommendations.strategy == 'conservative' %}محافظة
+                                {% elif analysis.recommendations.strategy == 'balanced' %}متوازنة
+                                {% else %}جريئة{% endif %}
+                            {% elif get_locale() == 'fr' %}
+                                {% if analysis.recommendations.strategy == 'conservative' %}Conservatrice
+                                {% elif analysis.recommendations.strategy == 'balanced' %}Équilibrée
+                                {% else %}Agressive{% endif %}
+                            {% else %}
+                                {{ analysis.recommendations.strategy }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Rationale -->
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-3">
+                            {% if get_locale() == 'ar' %}المنطق الاستثماري{% elif get_locale() == 'fr' %}Logique d'Investissement{% else %}Investment Rationale{% endif %}
+                        </h3>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {{ analysis.recommendations.rationale }}
+                        </p>
+                    </div>
+                    
+                    <!-- Personalized Tips -->
+                    <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+                        <h3 class="font-semibold text-green-900 dark:text-green-100 mb-2">
+                            {% if get_locale() == 'ar' %}نصائح شخصية{% elif get_locale() == 'fr' %}Conseils Personnalisés{% else %}Personalized Tips{% endif %}
+                        </h3>
+                        <p class="text-green-800 dark:text-green-200">
+                            {{ analysis.recommendations.personalized_tips }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specific Investment Opportunities -->
+        {% if analysis.opportunities %}
+        <div class="mt-12">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+                {% if get_locale() == 'ar' %}
+                فرص استثمارية محددة
+                {% elif get_locale() == 'fr' %}
+                Opportunités d'Investissement Spécifiques
+                {% else %}
+                Specific Investment Opportunities
+                {% endif %}
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for opportunity in analysis.opportunities %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                {{ opportunity.name }}
+                            </h3>
+                            <span class="px-3 py-1 text-xs font-medium rounded-full 
+                                {% if opportunity.risk_level == 'low' %}bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200
+                                {% elif opportunity.risk_level == 'medium' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200
+                                {% else %}bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200{% endif %}">
+                                {% if get_locale() == 'ar' %}
+                                    {% if opportunity.risk_level == 'low' %}مخاطر منخفضة
+                                    {% elif opportunity.risk_level == 'medium' %}مخاطر متوسطة
+                                    {% else %}مخاطر عالية{% endif %}
+                                {% elif get_locale() == 'fr' %}
+                                    {% if opportunity.risk_level == 'low' %}Risque Faible
+                                    {% elif opportunity.risk_level == 'medium' %}Risque Moyen
+                                    {% else %}Risque Élevé{% endif %}
+                                {% else %}
+                                    {{ opportunity.risk_level.title() }} Risk
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-600 dark:text-gray-300 mb-4 text-sm">
+                            {{ opportunity.description[:120] }}{% if opportunity.description|length > 120 %}...{% endif %}
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {% if get_locale() == 'ar' %}العائد المتوقع{% elif get_locale() == 'fr' %}Rendement Attendu{% else %}Expected Return{% endif %}
+                                </span>
+                                <span class="text-lg font-bold text-green-600 dark:text-green-400">
+                                    {{ opportunity.expected_return }}%
+                                </span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {% if get_locale() == 'ar' %}الحد الأدنى{% elif get_locale() == 'fr' %}Minimum{% else %}Minimum{% endif %}
+                                </span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">
+                                    {% if opportunity.minimum_investment_local %}
+                                        {{ "{:,}".format(opportunity.minimum_investment_local) }} {{ opportunity.display_currency }}
+                                    {% else %}
+                                        ${{ "{:,}".format(opportunity.minimum_investment_usd) }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            {% if opportunity.features %}
+                            <div class="pt-3 border-t dark:border-gray-600">
+                                <div class="flex flex-wrap gap-2">
+                                    {% for feature in opportunity.features[:3] %}
+                                    <span class="px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs rounded">
+                                        {{ feature }}
+                                    </span>
+                                    {% endfor %}
+                                    {% if opportunity.features|length > 3 %}
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        +{{ opportunity.features|length - 3 }} 
+                                        {% if get_locale() == 'ar' %}المزيد{% elif get_locale() == 'fr' %}de plus{% else %}more{% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="mt-12 text-center space-y-4">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('analyze') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                    {% if get_locale() == 'ar' %}
+                    تحليل جديد
+                    {% elif get_locale() == 'fr' %}
+                    Nouvelle Analyse
+                    {% else %}
+                    New Analysis
+                    {% endif %}
+                </a>
+                
+                <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                    {% if get_locale() == 'ar' %}
+                    طباعة التقرير
+                    {% elif get_locale() == 'fr' %}
+                    Imprimer le Rapport
+                    {% else %}
+                    Print Report
+                    {% endif %}
+                </button>
+                
+                <a href="{{ url_for('education') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                    {% if get_locale() == 'ar' %}
+                    تعلم المزيد
+                    {% elif get_locale() == 'fr' %}
+                    En Savoir Plus
+                    {% else %}
+                    Learn More
+                    {% endif %}
+                </a>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div class="max-w-4xl mx-auto mt-8 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
+                <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    {% if get_locale() == 'ar' %}
+                    تنويه: هذه التوصيات لأغراض تعليمية فقط وليست نصائح مالية. يُرجى استشارة مستشار مالي مؤهل قبل اتخاذ أي قرارات استثمارية.
+                    {% elif get_locale() == 'fr' %}
+                    Avertissement: Ces recommandations sont à des fins éducatives uniquement et ne constituent pas des conseils financiers. Veuillez consulter un conseiller financier qualifié avant de prendre des décisions d'investissement.
+                    {% else %}
+                    Disclaimer: These recommendations are for educational purposes only and do not constitute financial advice. Please consult with a qualified financial advisor before making any investment decisions.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- No Analysis Available -->
+        <div class="text-center py-16">
+            <i class="fas fa-chart-line text-6xl text-gray-400 dark:text-gray-600 mb-6"></i>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                {% if get_locale() == 'ar' %}
+                لا توجد نتائج تحليل متاحة
+                {% elif get_locale() == 'fr' %}
+                Aucun résultat d'analyse disponible
+                {% else %}
+                No Analysis Results Available
+                {% endif %}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+                {% if get_locale() == 'ar' %}
+                يرجى إجراء تحليل استثماري للحصول على توصيات مخصصة
+                {% elif get_locale() == 'fr' %}
+                Veuillez effectuer une analyse d'investissement pour obtenir des recommandations personnalisées
+                {% else %}
+                Please perform an investment analysis to get personalized recommendations
+                {% endif %}
+            </p>
+            <a href="{{ url_for('analyze') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                {% if get_locale() == 'ar' %}
+                ابدأ التحليل
+                {% elif get_locale() == 'fr' %}
+                Commencer l'Analyse
+                {% else %}
+                Start Analysis
+                {% endif %}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if analysis %}
+<script>
+    // Portfolio Allocation Chart
+    const ctx = document.getElementById('allocationChart').getContext('2d');
+    const allocation = {{ analysis.recommendations.allocation | tojson }};
+    
+    const labels = Object.keys(allocation).map(asset => {
+        {% if get_locale() == 'ar' %}
+        const translations = {
+            'stocks': 'الأسهم',
+            'real_estate': 'العقارات',
+            'gold': 'الذهب',
+            'bonds': 'السندات',
+            'sukuk': 'الصكوك',
+            'crowdfunding': 'التمويل الجماعي'
+        };
+        {% elif get_locale() == 'fr' %}
+        const translations = {
+            'stocks': 'Actions',
+            'real_estate': 'Immobilier',
+            'gold': 'Or',
+            'bonds': 'Obligations',
+            'sukuk': 'Sukuk',
+            'crowdfunding': 'Financement Participatif'
+        };
+        {% else %}
+        const translations = {
+            'stocks': 'Stocks',
+            'real_estate': 'Real Estate',
+            'gold': 'Gold',
+            'bonds': 'Bonds',
+            'sukuk': 'Sukuk',
+            'crowdfunding': 'Crowdfunding'
+        };
+        {% endif %}
+        return translations[asset] || asset.replace('_', ' ');
+    });
+    
+    const data = Object.values(allocation);
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, data.length),
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false // We have custom legend
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Print Styles -->
+<style media="print">
+    .no-print { display: none !important; }
+    body { background: white !important; color: black !important; }
+    .bg-gray-50, .bg-gray-800, .dark\:bg-gray-800 { background: white !important; }
+    .text-white { color: black !important; }
+    .shadow-lg { box-shadow: none !important; border: 1px solid #ccc !important; }
+</style>
+{% endif %}
+{% endblock %}

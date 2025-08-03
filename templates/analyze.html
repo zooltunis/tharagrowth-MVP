@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if get_locale() == 'ar' %}
+    تحليل الاستثمار - ثراء جروث
+    {% elif get_locale() == 'fr' %}
+    Analyse d'Investissement - TharaGrowth
+    {% else %}
+    Investment Analysis - TharaGrowth
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {% if get_locale() == 'ar' %}
+                تحليل الاستثمار الشخصي
+                {% elif get_locale() == 'fr' %}
+                Analyse d'Investissement Personnalisé
+                {% else %}
+                Personal Investment Analysis
+                {% endif %}
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300">
+                {% if get_locale() == 'ar' %}
+                أخبرنا عن أهدافك المالية وميزانيتك لنقدم لك توصيات مخصصة
+                {% elif get_locale() == 'fr' %}
+                Parlez-nous de vos objectifs financiers et de votre budget pour des recommandations personnalisées
+                {% else %}
+                Tell us about your financial goals and budget for personalized recommendations
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Investment Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+            <form method="POST" action="{{ url_for('analyze') }}" class="space-y-8">
+                {{ form.hidden_tag() }}
+                
+                <!-- Budget Section -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}
+                        الميزانية الاستثمارية
+                        {% elif get_locale() == 'fr' %}
+                        Budget d'Investissement
+                        {% else %}
+                        Investment Budget
+                        {% endif %}
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form.investment_budget.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2") }}
+                            {{ form.investment_budget(class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white", placeholder="50000") }}
+                            {% if form.investment_budget.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.investment_budget.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            {{ form.currency.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2") }}
+                            {{ form.currency(class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white") }}
+                            {% if form.currency.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.currency.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investment Goals -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}
+                        الهدف الاستثماري
+                        {% elif get_locale() == 'fr' %}
+                        Objectif d'Investissement
+                        {% else %}
+                        Investment Goal
+                        {% endif %}
+                    </h2>
+                    
+                    <div>
+                        {{ form.investment_goal.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2") }}
+                        {{ form.investment_goal(class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white") }}
+                        {% if form.investment_goal.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.investment_goal.errors[0] }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Risk Appetite -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}
+                        تحمل المخاطر
+                        {% elif get_locale() == 'fr' %}
+                        Tolérance au Risque
+                        {% else %}
+                        Risk Tolerance
+                        {% endif %}
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        {% for value, label in form.risk_appetite.choices %}
+                        <div class="flex items-center">
+                            <input type="radio" name="risk_appetite" value="{{ value }}" id="risk_{{ value }}" 
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                   {% if form.risk_appetite.data == value %}checked{% endif %}>
+                            <label for="risk_{{ value }}" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% if get_locale() == 'ar' %}
+                                    {% if value == 'low' %}مخاطر منخفضة - الأمان أولاً
+                                    {% elif value == 'medium' %}مخاطر متوسطة - متوازن
+                                    {% else %}مخاطر عالية - التركيز على النمو{% endif %}
+                                {% elif get_locale() == 'fr' %}
+                                    {% if value == 'low' %}Risque Faible - Sécurité d'Abord
+                                    {% elif value == 'medium' %}Risque Moyen - Équilibré
+                                    {% else %}Risque Élevé - Axé sur la Croissance{% endif %}
+                                {% else %}
+                                    {{ label }}
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.risk_appetite.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.risk_appetite.errors[0] }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Investment Types -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}
+                        أنواع الاستثمار المفضلة
+                        {% elif get_locale() == 'fr' %}
+                        Types d'Investissement Préférés
+                        {% else %}
+                        Preferred Investment Types
+                        {% endif %}
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for value, label in form.investment_types.choices %}
+                        <div class="flex items-center">
+                            <input type="checkbox" name="investment_types" value="{{ value }}" id="type_{{ value }}"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                   {% if value in form.investment_types.data %}checked{% endif %}>
+                            <label for="type_{{ value }}" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% if get_locale() == 'ar' %}
+                                    {% if value == 'real_estate' %}العقارات
+                                    {% elif value == 'gold' %}الذهب والمعادن النفيسة
+                                    {% elif value == 'stocks' %}الأسهم والحقوق
+                                    {% elif value == 'crowdfunding' %}التمويل الجماعي
+                                    {% elif value == 'sukuk' %}الصكوك (السندات الإسلامية)
+                                    {% else %}السندات الحكومية/الشركات{% endif %}
+                                {% elif get_locale() == 'fr' %}
+                                    {% if value == 'real_estate' %}Immobilier
+                                    {% elif value == 'gold' %}Or et Métaux Précieux
+                                    {% elif value == 'stocks' %}Actions et Parts
+                                    {% elif value == 'crowdfunding' %}Financement Participatif
+                                    {% elif value == 'sukuk' %}Sukuk (Obligations Islamiques)
+                                    {% else %}Obligations Gouvernementales/Entreprises{% endif %}
+                                {% else %}
+                                    {{ label }}
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.investment_types.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.investment_types.errors[0] }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Quick Start Option -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}
+                        تفضيلات التحليل
+                        {% elif get_locale() == 'fr' %}
+                        Préférences d'Analyse
+                        {% else %}
+                        Analysis Preferences
+                        {% endif %}
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        {% for value, label in form.quick_start.choices %}
+                        <div class="flex items-center">
+                            <input type="radio" name="quick_start" value="{{ value }}" id="quick_{{ value }}" 
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                   {% if form.quick_start.data == value %}checked{% endif %}>
+                            <label for="quick_{{ value }}" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {% if get_locale() == 'ar' %}
+                                    {% if value == 'detailed' %}تحليل مفصل{% else %}بداية سريعة (استخدام الإعدادات الافتراضية){% endif %}
+                                {% elif get_locale() == 'fr' %}
+                                    {% if value == 'detailed' %}Analyse Détaillée{% else %}Démarrage Rapide (Utiliser les Paramètres par Défaut){% endif %}
+                                {% else %}
+                                    {{ label }}
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-6">
+                    {{ form.submit(class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Information Cards -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-shield-alt text-blue-600 dark:text-blue-400 text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}معلومات آمنة{% elif get_locale() == 'fr' %}Informations Sécurisées{% else %}Secure Information{% endif %}
+                    </h3>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 text-sm">
+                    {% if get_locale() == 'ar' %}
+                    بياناتك محمية بتشفير عالي المستوى ولن يتم مشاركتها مع أطراف ثالثة
+                    {% elif get_locale() == 'fr' %}
+                    Vos données sont protégées par un chiffrement de niveau entreprise et ne seront pas partagées
+                    {% else %}
+                    Your data is protected with enterprise-grade encryption and will not be shared with third parties
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="bg-green-50 dark:bg-green-900 p-6 rounded-lg">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-clock text-green-600 dark:text-green-400 text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}تحليل سريع{% elif get_locale() == 'fr' %}Analyse Rapide{% else %}Quick Analysis{% endif %}
+                    </h3>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 text-sm">
+                    {% if get_locale() == 'ar' %}
+                    احصل على تحليل شامل وتوصيات مخصصة في أقل من دقيقة
+                    {% elif get_locale() == 'fr' %}
+                    Obtenez une analyse complète et des recommandations personnalisées en moins d'une minute
+                    {% else %}
+                    Get comprehensive analysis and personalized recommendations in under a minute
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="bg-purple-50 dark:bg-purple-900 p-6 rounded-lg">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-star text-purple-600 dark:text-purple-400 text-2xl mr-3"></i>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">
+                        {% if get_locale() == 'ar' %}توصيات مخصصة{% elif get_locale() == 'fr' %}Recommandations Personnalisées{% else %}Personalized Recommendations{% endif %}
+                    </h3>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 text-sm">
+                    {% if get_locale() == 'ar' %}
+                    كل توصية مصممة خصيصاً لتناسب ملفك المالي وأهدافك الاستثمارية
+                    {% elif get_locale() == 'fr' %}
+                    Chaque recommandation est conçue spécifiquement pour votre profil financier et vos objectifs
+                    {% else %}
+                    Every recommendation is tailored specifically to your financial profile and investment goals
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Form validation and UX improvements
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const submitButton = form.querySelector('button[type="submit"]');
+        
+        form.addEventListener('submit', function(e) {
+            // Show loading state
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + 
+                '{% if get_locale() == "ar" %}جاري التحليل...{% elif get_locale() == "fr" %}Analyse en cours...{% else %}Analyzing...{% endif %}';
+            submitButton.disabled = true;
+        });
+        
+        // Auto-select investment types based on risk tolerance
+        const riskRadios = document.querySelectorAll('input[name="risk_appetite"]');
+        const investmentCheckboxes = document.querySelectorAll('input[name="investment_types"]');
+        
+        riskRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'low') {
+                    // Suggest conservative investments
+                    investmentCheckboxes.forEach(cb => {
+                        if (['bonds', 'sukuk', 'gold'].includes(cb.value)) {
+                            cb.checked = true;
+                        }
+                    });
+                } else if (this.value === 'medium') {
+                    // Suggest balanced investments
+                    investmentCheckboxes.forEach(cb => {
+                        if (['real_estate', 'stocks', 'gold'].includes(cb.value)) {
+                            cb.checked = true;
+                        }
+                    });
+                } else if (this.value === 'high') {
+                    // Suggest growth investments
+                    investmentCheckboxes.forEach(cb => {
+                        if (['stocks', 'crowdfunding', 'real_estate'].includes(cb.value)) {
+                            cb.checked = true;
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

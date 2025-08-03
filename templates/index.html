@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if get_locale() == 'ar' %}
+    ثراء جروث - منصة الاستشارات الاستثمارية الذكية
+    {% elif get_locale() == 'fr' %}
+    TharaGrowth - Plateforme de Conseil en Investissement Intelligent
+    {% else %}
+    TharaGrowth - Smart Investment Advisory Platform
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                {% if get_locale() == 'ar' %}
+                استثمر بذكاء مع <span class="text-yellow-300">ثراء جروث</span>
+                {% elif get_locale() == 'fr' %}
+                Investissez Intelligemment avec <span class="text-yellow-300">TharaGrowth</span>
+                {% else %}
+                Invest Smart with <span class="text-yellow-300">TharaGrowth</span>
+                {% endif %}
+            </h1>
+            
+            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                {% if get_locale() == 'ar' %}
+                احصل على توصيات استثمارية مخصصة باستخدام الذكاء الاصطناعي
+                {% elif get_locale() == 'fr' %}
+                Obtenez des recommandations d'investissement personnalisées alimentées par l'IA
+                {% else %}
+                Get personalized investment recommendations powered by AI
+                {% endif %}
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('analyze') }}" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-8 rounded-lg text-lg transition duration-300">
+                    {% if get_locale() == 'ar' %}
+                    احصل على توصياتك المجانية
+                    {% elif get_locale() == 'fr' %}
+                    Obtenez vos Recommandations Gratuites
+                    {% else %}
+                    Get Your Free Recommendations
+                    {% endif %}
+                </a>
+                
+                <a href="#features" class="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-bold py-4 px-8 rounded-lg text-lg transition duration-300">
+                    {% if get_locale() == 'ar' %}
+                    تعرف على المزيد
+                    {% elif get_locale() == 'fr' %}
+                    En Savoir Plus
+                    {% else %}
+                    Learn More
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Market Data Section -->
+<div class="bg-white dark:bg-gray-800 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center mb-8">
+            {% if get_locale() == 'ar' %}
+            بيانات السوق المباشرة
+            {% elif get_locale() == 'fr' %}
+            Données de Marché en Direct
+            {% else %}
+            Live Market Data
+            {% endif %}
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Gold Price -->
+            {% if gold_price %}
+            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 p-6 rounded-lg text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold">
+                            {% if get_locale() == 'ar' %}سعر الذهب{% elif get_locale() == 'fr' %}Prix de l'Or{% else %}Gold Price{% endif %}
+                        </h3>
+                        <p class="text-2xl font-bold">${{ gold_price.price_per_gram_usd }}</p>
+                        <p class="text-sm opacity-90">
+                            {% if get_locale() == 'ar' %}للجرام{% elif get_locale() == 'fr' %}par gramme{% else %}per gram{% endif %}
+                        </p>
+                    </div>
+                    <i class="fas fa-coins text-3xl opacity-80"></i>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Active Stocks -->
+            {% for stock in active_stocks[:3] %}
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ stock.symbol }}</h3>
+                        <p class="text-2xl font-bold {% if '+' in stock.change %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ stock.price }} {{ stock.currency }}
+                        </p>
+                        <p class="text-sm {% if '+' in stock.change %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ stock.change }} ({{ stock.change_percent }})
+                        </p>
+                    </div>
+                    <i class="fas fa-chart-line text-3xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div id="features" class="py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">
+                {% if get_locale() == 'ar' %}
+                لماذا تختار ثراء جروث؟
+                {% elif get_locale() == 'fr' %}
+                Pourquoi Choisir TharaGrowth?
+                {% else %}
+                Why Choose TharaGrowth?
+                {% endif %}
+            </h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <i class="fas fa-robot text-4xl text-blue-600 dark:text-blue-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-3">
+                        {% if get_locale() == 'ar' %}
+                        ذكاء اصطناعي متقدم
+                        {% elif get_locale() == 'fr' %}
+                        IA Avancée
+                        {% else %}
+                        Advanced AI
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {% if get_locale() == 'ar' %}
+                        خوارزميات ذكية تحلل ملفك الاستثماري وتقدم توصيات مخصصة
+                        {% elif get_locale() == 'fr' %}
+                        Algorithmes intelligents qui analysent votre profil et fournissent des recommandations personnalisées
+                        {% else %}
+                        Smart algorithms that analyze your profile and provide personalized recommendations
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <i class="fas fa-globe text-4xl text-green-600 dark:text-green-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-3">
+                        {% if get_locale() == 'ar' %}
+                        دعم ثلاث لغات
+                        {% elif get_locale() == 'fr' %}
+                        Support Trilingue
+                        {% else %}
+                        Trilingual Support
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {% if get_locale() == 'ar' %}
+                        دعم كامل للعربية والإنجليزية والفرنسية للوصول إلى جمهور أوسع
+                        {% elif get_locale() == 'fr' %}
+                        Support complet en arabe, anglais et français pour une portée plus large
+                        {% else %}
+                        Full support for Arabic, English, and French for wider accessibility
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt text-4xl text-purple-600 dark:text-purple-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-3">
+                        {% if get_locale() == 'ar' %}
+                        أمان وموثوقية
+                        {% elif get_locale() == 'fr' %}
+                        Sécurité et Fiabilité
+                        {% else %}
+                        Security & Reliability
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {% if get_locale() == 'ar' %}
+                        حماية بياناتك وخصوصيتك مع تشفير عالي المستوى
+                        {% elif get_locale() == 'fr' %}
+                        Protection de vos données et confidentialité avec chiffrement de niveau entreprise
+                        {% else %}
+                        Protect your data and privacy with enterprise-grade encryption
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <i class="fas fa-chart-pie text-4xl text-red-600 dark:text-red-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-3">
+                        {% if get_locale() == 'ar' %}
+                        تنويع شامل
+                        {% elif get_locale() == 'fr' %}
+                        Diversification Complète
+                        {% else %}
+                        Complete Diversification
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {% if get_locale() == 'ar' %}
+                        عقارات، أسهم، ذهب، سندات، صكوك - محفظة متنوعة لتقليل المخاطر
+                        {% elif get_locale() == 'fr' %}
+                        Immobilier, actions, or, obligations, sukuk - portefeuille diversifié pour réduire les risques
+                        {% else %}
+                        Real estate, stocks, gold, bonds, sukuk - diversified portfolio to minimize risks
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <i class="fas fa-mobile-alt text-4xl text-indigo-600 dark:text-indigo-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-3">
+                        {% if get_locale() == 'ar' %}
+                        سهولة الوصول
+                        {% elif get_locale() == 'fr' %}
+                        Facilité d'Accès
+                        {% else %}
+                        Easy Access
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {% if get_locale() == 'ar' %}
+                        واجهة بسيطة وسهلة الاستخدام على جميع الأجهزة
+                        {% elif get_locale() == 'fr' %}
+                        Interface simple et facile à utiliser sur tous les appareils
+                        {% else %}
+                        Simple and user-friendly interface across all devices
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <i class="fas fa-clock text-4xl text-orange-600 dark:text-orange-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-3">
+                        {% if get_locale() == 'ar' %}
+                        توصيات فورية
+                        {% elif get_locale() == 'fr' %}
+                        Recommandations Instantanées
+                        {% else %}
+                        Instant Recommendations
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        {% if get_locale() == 'ar' %}
+                        احصل على تحليل شامل وتوصيات مخصصة في دقائق
+                        {% elif get_locale() == 'fr' %}
+                        Obtenez une analyse complète et des recommandations personnalisées en minutes
+                        {% else %}
+                        Get comprehensive analysis and personalized recommendations in minutes
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Real Estate Section -->
+{% if real_estate_projects %}
+<div class="py-16 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">
+                {% if get_locale() == 'ar' %}
+                مشاريع عقارية مميزة
+                {% elif get_locale() == 'fr' %}
+                Projets Immobiliers Vedettes
+                {% else %}
+                Featured Real Estate Projects
+                {% endif %}
+            </h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for project in real_estate_projects %}
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-3">{{ project.name }}</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">{{ project.description[:100] }}...</p>
+                    
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {% if get_locale() == 'ar' %}عائد متوقع{% elif get_locale() == 'fr' %}Rendement Attendu{% else %}Expected Return{% endif %}: 
+                            {{ project.expected_return }}%
+                        </span>
+                        <span class="px-3 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 rounded-full text-sm">
+                            {{ project.risk_level }}
+                        </span>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {% if get_locale() == 'ar' %}حد أدنى للاستثمار{% elif get_locale() == 'fr' %}Investissement Minimum{% else %}Minimum Investment{% endif %}: 
+                            ${{ "{:,}".format(project.minimum_investment_usd) }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- CTA Section -->
+<div class="bg-gradient-to-r from-purple-600 to-blue-600 py-16">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-white mb-4">
+            {% if get_locale() == 'ar' %}
+            ابدأ رحلتك الاستثمارية اليوم
+            {% elif get_locale() == 'fr' %}
+            Commencez Votre Parcours d'Investissement Aujourd'hui
+            {% else %}
+            Start Your Investment Journey Today
+            {% endif %}
+        </h2>
+        
+        <p class="text-xl text-blue-100 mb-8">
+            {% if get_locale() == 'ar' %}
+            انضم إلى آلاف المستثمرين الذين يثقون في ثراء جروث
+            {% elif get_locale() == 'fr' %}
+            Rejoignez des milliers d'investisseurs qui font confiance à TharaGrowth
+            {% else %}
+            Join thousands of investors who trust TharaGrowth
+            {% endif %}
+        </p>
+        
+        <a href="{{ url_for('analyze') }}" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-4 px-8 rounded-lg text-lg transition duration-300 inline-block">
+            {% if get_locale() == 'ar' %}
+            احصل على تحليل مجاني الآن
+            {% elif get_locale() == 'fr' %}
+            Obtenez une Analyse Gratuite Maintenant
+            {% else %}
+            Get Free Analysis Now
+            {% endif %}
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh market data every 5 minutes
+    setInterval(function() {
+        fetch('/api/market-data')
+            .then(response => response.json())
+            .then(data => {
+                // Update gold price if element exists
+                if (data.gold_price) {
+                    const goldPriceElement = document.querySelector('[data-gold-price]');
+                    if (goldPriceElement) {
+                        goldPriceElement.textContent = '$' + data.gold_price.price_per_gram_usd;
+                    }
+                }
+                
+                console.log('Market data updated:', new Date().toLocaleTimeString());
+            })
+            .catch(error => console.log('Market data update failed:', error));
+    }, 300000); // 5 minutes
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TharaGrowth - Investment Advisory Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">TharaGrowth</h1>
+                <p class="text-gray-600 mb-6">
+                    {% if get_locale() == 'ar' %}
+                    منصة الاستشارات الاستثمارية الذكية
+                    {% elif get_locale() == 'fr' %}
+                    Plateforme de Conseil en Investissement Intelligent
+                    {% else %}
+                    Smart Investment Advisory Platform
+                    {% endif %}
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-center space-x-2">
+                        <a href="{{ url_for('set_language', language='en') }}" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                           🇺🇸 English
+                        </a>
+                        <a href="{{ url_for('set_language', language='ar') }}" 
+                           class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                           🇸🇦 العربية
+                        </a>
+                        <a href="{{ url_for('set_language', language='fr') }}" 
+                           class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+                           🇫🇷 Français
+                        </a>
+                    </div>
+                    
+                    <div class="text-sm text-gray-500">
+                        Current language: {{ get_locale() }}
+                    </div>
+                    
+                    <div class="pt-4">
+                        <a href="/api/status" class="text-blue-600 hover:text-blue-800 underline">
+                            Test API Status
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

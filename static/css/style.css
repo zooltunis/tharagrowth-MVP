@@ -1,0 +1,323 @@
+/* TharaGrowth Custom Styles */
+
+/* RTL Support */
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .text-left {
+    text-align: right !important;
+}
+
+[dir="rtl"] .text-right {
+    text-align: left !important;
+}
+
+[dir="rtl"] .ml-2 {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+[dir="rtl"] .mr-2 {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+[dir="rtl"] .ml-3 {
+    margin-left: 0;
+    margin-right: 0.75rem;
+}
+
+[dir="rtl"] .mr-3 {
+    margin-right: 0;
+    margin-left: 0.75rem;
+}
+
+/* Arabic Font Support */
+[lang="ar"] {
+    font-family: 'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+    line-height: 1.7;
+}
+
+[lang="ar"] h1, [lang="ar"] h2, [lang="ar"] h3, [lang="ar"] h4, [lang="ar"] h5, [lang="ar"] h6 {
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+/* French Font Support */
+[lang="fr"] {
+    font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
+    line-height: 1.6;
+}
+
+/* Custom Components */
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Investment Type Icons */
+.investment-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.icon-real-estate { background: linear-gradient(135deg, #667eea, #764ba2); }
+.icon-stocks { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.icon-gold { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
+.icon-bonds { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+.icon-sukuk { background: linear-gradient(135deg, #89f7fe, #66a6ff); }
+.icon-crowdfunding { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+
+/* Loading States */
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+/* Investment Cards */
+.investment-card {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.investment-card:hover {
+    border-color: #3B82F6;
+    transform: translateY(-2px);
+}
+
+.investment-card.selected {
+    border-color: #10B981;
+    background-color: #F0FDF4;
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+    .investment-card.selected {
+        background-color: #064E3B;
+    }
+}
+
+/* Form Enhancements */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.dark .form-label {
+    color: #D1D5DB;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 0.5rem;
+    background-color: #FFFFFF;
+    color: #111827;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .form-input {
+    background-color: #374151;
+    border-color: #4B5563;
+    color: #F9FAFB;
+}
+
+.dark .form-input:focus {
+    border-color: #60A5FA;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Risk Level Indicators */
+.risk-low { color: #059669; }
+.risk-medium { color: #D97706; }
+.risk-high { color: #DC2626; }
+
+.risk-badge-low { 
+    background-color: #D1FAE5; 
+    color: #065F46; 
+}
+
+.risk-badge-medium { 
+    background-color: #FEF3C7; 
+    color: #92400E; 
+}
+
+.risk-badge-high { 
+    background-color: #FEE2E2; 
+    color: #991B1B; 
+}
+
+.dark .risk-badge-low { 
+    background-color: #064E3B; 
+    color: #A7F3D0; 
+}
+
+.dark .risk-badge-medium { 
+    background-color: #78350F; 
+    color: #FDE68A; 
+}
+
+.dark .risk-badge-high { 
+    background-color: #7F1D1D; 
+    color: #FECACA; 
+}
+
+/* Currency Symbols */
+.currency-symbol {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .grid-responsive {
+        grid-template-columns: 1fr;
+    }
+    
+    .text-responsive {
+        font-size: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+    
+    .page-break {
+        page-break-before: always;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+
+/* Accessibility Improvements */
+.focus-visible:focus {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+}
+
+/* Utility Classes */
+.text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bg-pattern {
+    background-image: 
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0);
+    background-size: 20px 20px;
+}
+
+.divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #E5E7EB, transparent);
+    margin: 2rem 0;
+}
+
+.dark .divider {
+    background: linear-gradient(to right, transparent, #4B5563, transparent);
+}

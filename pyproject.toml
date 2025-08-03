@@ -1,0 +1,13 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.1.1",
+    "flask-babel>=4.0.0",
+    "flask-wtf>=1.2.2",
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.4",
+    "wtforms>=3.2.1",
+]
