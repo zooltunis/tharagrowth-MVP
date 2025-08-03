@@ -45,7 +45,11 @@ export const insertInvestmentAnalysisSchema = createInsertSchema(investmentAnaly
 export const userDataSchema = z.object({
   age: z.string().min(1, "يرجى اختيار العمر"),
   income: z.string().min(1, "يرجى اختيار الدخل الشهري"),
-  investmentAmount: z.string().min(1, "يرجى اختيار المبلغ المتاح للاستثمار"),
+  investmentBudget: z.number().min(100, "الحد الأدنى للاستثمار 100").max(10000000, "الحد الأقصى 10 مليون"),
+  currency: z.enum(["AED", "SAR", "USD", "EUR", "GBP"], {
+    required_error: "يرجى اختيار العملة"
+  }),
+
   goals: z.array(z.string()).min(1, "يرجى اختيار هدف واحد على الأقل"),
   riskTolerance: z.string().min(1, "يرجى اختيار مستوى تحمل المخاطر"),
   preferences: z.array(z.string()).min(1, "يرجى اختيار نوع واحد من الاستثمار على الأقل"),

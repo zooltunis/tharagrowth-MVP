@@ -60,7 +60,7 @@ async function generateInvestmentRecommendations(userData: any) {
 }
 
 function generateIntelligentRecommendations(userData: any) {
-  const { age, income, investmentAmount, goals, riskTolerance, preferences } = userData;
+  const { age, income, investmentBudget, currency, goals, riskTolerance, preferences } = userData;
   
   // Calculate base allocation based on risk tolerance
   let baseAllocation = getBaseAllocation(riskTolerance);
@@ -68,8 +68,8 @@ function generateIntelligentRecommendations(userData: any) {
   // Adjust based on age (younger = more aggressive)
   baseAllocation = adjustForAge(baseAllocation, age);
   
-  // Adjust based on investment amount
-  baseAllocation = adjustForAmount(baseAllocation, investmentAmount);
+  // Adjust based on investment budget and currency
+  baseAllocation = adjustForAmount(baseAllocation, investmentBudget, currency);
   
   // Adjust based on goals
   baseAllocation = adjustForGoals(baseAllocation, goals);
@@ -155,16 +155,23 @@ function adjustForAge(allocation: Record<string, number>, age: string): Record<s
   return adjusted;
 }
 
-function adjustForAmount(allocation: Record<string, number>, amount: string): Record<string, number> {
+function adjustForAmount(allocation: Record<string, number>, budget: number, currency: string): Record<string, number> {
   const adjusted = { ...allocation };
   
-  if (amount === '<10000' || amount === '10000-50000') {
-    // Smaller amounts - reduce real estate, increase stocks
-    if (adjusted['العقارات']) adjusted['العقارات'] -= 10;
+  // Convert to USD equivalent for consistent logic
+  const conversionRates: Record<string, number> = {
+    'AED': 0.27, 'SAR': 0.27, 'USD': 1, 'EUR': 1.1, 'GBP': 1.3
+  };
+  const budgetUSD = budget * (conversionRates[currency] || 0.27);
+  
+  if (budgetUSD < 5000) {
+    // Smaller amounts - reduce real estate, increase liquid investments
+    if (adjusted['العقارات']) adjusted['العقارات'] -= 15;
     if (adjusted['الأسهم']) adjusted['الأسهم'] += 5;
     if (adjusted['الذهب']) adjusted['الذهب'] += 5;
-  } else if (amount === '500000+') {
-    // Larger amounts - more real estate
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] += 5;
+  } else if (budgetUSD > 50000) {
+    // Larger amounts - more real estate and diverse investments
     if (adjusted['العقارات']) adjusted['العقارات'] += 10;
     if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] -= 5;
     if (adjusted['السندات']) adjusted['السندات'] -= 5;
@@ -184,12 +191,26 @@ function adjustForGoals(allocation: Record<string, number>, goals: string[]): Re
     if (adjusted['الذهب']) adjusted['الذهب'] -= 10;
   }
   
-  if (goals.includes('growth')) {
+  if (goals.includes('capital-growth')) {
     // Focus on growth assets
     if (adjusted['الأسهم']) adjusted['الأسهم'] += 15;
     if (adjusted['العملات الرقمية']) adjusted['العملات الرقمية'] += 5;
     if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] -= 10;
     if (adjusted['السندات']) adjusted['السندات'] -= 10;
+  }
+  
+  if (goals.includes('children-savings')) {
+    // Conservative approach for children's future
+    if (adjusted['حسابات الادخار']) adjusted['حسابات الادخار'] += 10;
+    if (adjusted['السندات']) adjusted['السندات'] += 5;
+    if (adjusted['العملات الرقمية']) adjusted['العملات الرقمية'] -= 10;
+  }
+  
+  if (goals.includes('wealth-preservation')) {
+    // Focus on inflation hedges
+    if (adjusted['الذهب']) adjusted['الذهب'] += 15;
+    if (adjusted['العقارات']) adjusted['العقارات'] += 5;
+    if (adjusted['العملات الرقمية']) adjusted['العملات الرقمية'] -= 10;
   }
   
   if (goals.includes('retirement')) {
@@ -213,7 +234,9 @@ function filterByPreferences(allocation: Record<string, number>, preferences: st
     'gold': 'الذهب',
     'bonds': 'السندات',
     'crypto': 'العملات الرقمية',
-    'savings': 'حسابات الادخار'
+    'savings': 'حسابات الادخار',
+    'crowdfunding': 'التمويل الجماعي',
+    'sukuk': 'الصكوك الإسلامية'
   };
   
   // Only include preferred investment types

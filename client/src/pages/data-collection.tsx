@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
 import { analyzeInvestmentData } from "@/lib/openai";
@@ -32,7 +33,9 @@ export default function DataCollectionPage() {
     defaultValues: {
       age: "",
       income: "",
-      investmentAmount: "",
+      investmentBudget: 50000,
+      currency: "SAR",
+
       goals: [],
       riskTolerance: "",
       preferences: [],
@@ -152,22 +155,44 @@ export default function DataCollectionPage() {
 
                     <FormField
                       control={form.control}
-                      name="investmentAmount"
+                      name="investmentBudget"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>المبلغ المتاح للاستثمار (ريال سعودي)</FormLabel>
+                          <FormLabel>الميزانية المتاحة للاستثمار</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="أدخل المبلغ"
+                              min={100}
+                              max={10000000}
+                              value={field.value}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              className="text-left"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="currency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>العملة</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="اختر المبلغ المتاح" />
+                                <SelectValue placeholder="اختر العملة" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="<10000">أقل من 10,000 ريال</SelectItem>
-                              <SelectItem value="10000-50000">10,000 - 50,000 ريال</SelectItem>
-                              <SelectItem value="50000-100000">50,000 - 100,000 ريال</SelectItem>
-                              <SelectItem value="100000-500000">100,000 - 500,000 ريال</SelectItem>
-                              <SelectItem value="500000+">أكثر من 500,000 ريال</SelectItem>
+                              <SelectItem value="AED">درهم إماراتي (AED)</SelectItem>
+                              <SelectItem value="SAR">ريال سعودي (SAR)</SelectItem>
+                              <SelectItem value="USD">دولار أمريكي (USD)</SelectItem>
+                              <SelectItem value="EUR">يورو (EUR)</SelectItem>
+                              <SelectItem value="GBP">جنيه إسترليني (GBP)</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -187,10 +212,12 @@ export default function DataCollectionPage() {
                         <FormLabel>ما هو هدفك الرئيسي من الاستثمار؟ (يمكنك اختيار أكثر من هدف)</FormLabel>
                         <div className="space-y-3">
                           {[
-                            { id: "savings", label: "الادخار طويل المدى", desc: "بناء ثروة للمستقبل" },
+                            { id: "retirement", label: "التقاعد", desc: "التحضير للتقاعد والاستقلال المالي" },
                             { id: "passive-income", label: "الدخل السلبي", desc: "توليد دخل شهري منتظم" },
-                            { id: "retirement", label: "التقاعد", desc: "التحضير للتقاعد المبكر" },
-                            { id: "growth", label: "النمو السريع", desc: "زيادة رأس المال بسرعة" },
+                            { id: "capital-growth", label: "نمو رأس المال", desc: "زيادة قيمة الاستثمار على المدى الطويل" },
+                            { id: "children-savings", label: "الادخار للأطفال", desc: "بناء مستقبل آمن للأطفال والتعليم" },
+                            { id: "wealth-preservation", label: "حفظ الثروة", desc: "حماية الأموال من التضخم" },
+                            { id: "emergency-fund", label: "صندوق الطوارئ", desc: "إنشاء احتياطي مالي للظروف الطارئة" },
                           ].map((goal) => (
                             <FormField
                               key={goal.id}
@@ -290,12 +317,14 @@ export default function DataCollectionPage() {
                         <FormLabel>أي أنواع الاستثمار تثير اهتمامك؟ (اختر كل ما يناسبك)</FormLabel>
                         <div className="grid md:grid-cols-2 gap-3">
                           {[
-                            { id: "real-estate", label: "العقارات", icon: "🏠" },
-                            { id: "stocks", label: "الأسهم", icon: "📈" },
-                            { id: "gold", label: "الذهب", icon: "🥇" },
-                            { id: "bonds", label: "السندات", icon: "📄" },
-                            { id: "crypto", label: "العملات الرقمية", icon: "₿" },
-                            { id: "savings", label: "حسابات الادخار", icon: "🏦" },
+                            { id: "real-estate", label: "العقارات", icon: "🏠", desc: "استثمارات عقارية وأراضي" },
+                            { id: "gold", label: "الذهب", icon: "🥇", desc: "المعادن الثمينة والذهب" },
+                            { id: "stocks", label: "الأسهم", icon: "📈", desc: "أسهم الشركات المحلية والعالمية" },
+                            { id: "crowdfunding", label: "التمويل الجماعي", icon: "👥", desc: "مشاريع التمويل الجماعي" },
+                            { id: "sukuk", label: "الصكوك الإسلامية", icon: "📜", desc: "صكوك متوافقة مع الشريعة" },
+                            { id: "bonds", label: "السندات", icon: "📄", desc: "سندات حكومية وشركات" },
+                            { id: "savings", label: "حسابات الادخار", icon: "🏦", desc: "ودائع وشهادات ادخار" },
+                            { id: "crypto", label: "العملات الرقمية", icon: "₿", desc: "البيتكوين والعملات الرقمية" },
                           ].map((pref) => (
                             <FormField
                               key={pref.id}
@@ -305,7 +334,7 @@ export default function DataCollectionPage() {
                                 return (
                                   <FormItem
                                     key={pref.id}
-                                    className="flex flex-row items-center space-x-3 space-y-0 p-4 border border-gray-200 rounded-lg hover:border-primary cursor-pointer"
+                                    className="flex flex-row items-start space-x-3 space-y-0 p-4 border border-gray-200 rounded-lg hover:border-primary cursor-pointer"
                                   >
                                     <FormControl>
                                       <Checkbox
@@ -322,9 +351,14 @@ export default function DataCollectionPage() {
                                       />
                                     </FormControl>
                                     <span className="text-xl">{pref.icon}</span>
-                                    <FormLabel className="font-medium">
-                                      {pref.label}
-                                    </FormLabel>
+                                    <div className="space-y-1">
+                                      <FormLabel className="font-medium">
+                                        {pref.label}
+                                      </FormLabel>
+                                      <p className="text-xs text-gray-500">
+                                        {pref.desc}
+                                      </p>
+                                    </div>
                                   </FormItem>
                                 );
                               }}
