@@ -166,8 +166,12 @@ export class UpdatedRecommendationEngine {
     const age = userData.age;
     const riskTolerance = userData.riskTolerance;
     const goals = userData.goals;
+    const income = userData.income;
+    const investmentAmount = parseFloat(userData.investmentBudget);
     
-    // Age-based factor
+    console.log('Selecting strategy based on:', { age, riskTolerance, goals, income, investmentAmount });
+    
+    // Age-based risk factor
     let ageFactor = 0;
     if (age === '18-25') ageFactor = 0.8; // Young, can take more risk
     else if (age === '26-35') ageFactor = 0.6;
@@ -181,27 +185,53 @@ export class UpdatedRecommendationEngine {
     else if (riskTolerance === 'medium') riskFactor = 0.5;
     else riskFactor = 0.1;
     
-    // Goals factor
+    // Income-based investment capacity
+    let incomeFactor = 0.5;
+    if (income === '50000+') incomeFactor = 1;
+    else if (income === '30000-50000') incomeFactor = 0.8;
+    else if (income === '15000-30000') incomeFactor = 0.6;
+    else if (income === '5000-15000') incomeFactor = 0.4;
+    else incomeFactor = 0.2;
+    
+    // Investment amount factor
+    let amountFactor = 0.5;
+    if (investmentAmount >= 100000) amountFactor = 1;
+    else if (investmentAmount >= 50000) amountFactor = 0.8;
+    else if (investmentAmount >= 20000) amountFactor = 0.6;
+    else if (investmentAmount >= 10000) amountFactor = 0.4;
+    else amountFactor = 0.2;
+    
+    // Goals factor - affects strategy selection
     let goalsFactor = 0.5;
     if (goals.includes('retirement')) goalsFactor = 0.2;
     if (goals.includes('emergency')) goalsFactor = 0.1;
     if (goals.includes('investment')) goalsFactor = 0.8;
+    if (goals.includes('income')) goalsFactor = 0.6;
     
     // Calculate combined risk score
-    const riskScore = (ageFactor + riskFactor + goalsFactor) / 3;
+    const riskScore = (ageFactor * 0.3 + riskFactor * 0.4 + goalsFactor * 0.3);
+    const capacityScore = (incomeFactor * 0.6 + amountFactor * 0.4);
     
-    // Select strategy based on risk score and specific goals
+    console.log('Strategy selection factors:', { ageFactor, riskFactor, goalsFactor, incomeFactor, amountFactor, riskScore, capacityScore });
+    
+    // Select strategy based on goals first, then risk and capacity
     if (goals.includes('retirement')) {
+      console.log('Selected retirement strategy based on goals');
       return investmentStrategies.retirement;
     } else if (goals.includes('income')) {
+      console.log('Selected income strategy based on goals');
       return investmentStrategies.income;
-    } else if (goals.includes('emergency') || riskScore < 0.3) {
+    } else if (goals.includes('emergency') || riskScore < 0.3 || capacityScore < 0.3) {
+      console.log('Selected conservative strategy based on low risk/capacity');
       return investmentStrategies.conservative;
-    } else if (riskScore < 0.6) {
+    } else if (riskScore < 0.6 || capacityScore < 0.6) {
+      console.log('Selected balanced strategy based on medium risk/capacity');
       return investmentStrategies.balanced;
     } else {
+      console.log('Selected aggressive strategy based on high risk/capacity');
       return investmentStrategies.aggressive;
     }
+
   }
   
   private adjustAllocationByPreferences(
@@ -220,9 +250,445 @@ export class UpdatedRecommendationEngine {
       'crypto': ['crypto', 'cryptocurrency', 'crowdfunding'] // Map crowdfunding to crypto allocation
     };
     
-    // If user has no preferences for a category, reduce its allocation to 0
-    Object.keys(adjusted).forEach(category => {
-      const categoryPrefs = preferenceMapping[category] || [category];
+    // Increase allocation for preferred categories and decrease for non-preferred ones
+    console.log('User preferences:', preferences);
+    
+    // First, identify which categories the user prefers
+    const preferredCategories: string[] = [];
+    Object.entries(preferenceMapping).forEach(([category, categoryPrefs]) => {
+      if (categoryPrefs.some(pref => preferences.includes(pref))) {
+        preferredCategories.push(category);
+      }
+    });
+    
+    console.log('Preferred categories:', preferredCategories);
+    
+    // If user has specific preferences, boost those categories
+    if (preferredCategories.length > 0) {
+      const totalBoost = 30; // 30% extra allocation to distribute
+      const boostPerCategory = totalBoost / preferredCategories.length;
+      
+      // Redistribute allocation
+      Object.keys(adjusted).forEach(category => {
+        if (preferredCategories.includes(category)) {
+          adjusted[category] = Math.min(50, adjusted[category] + boostPerCategory); // Cap at 50%
+        } else {
+          // Reduce non-preferred categories
+          adjusted[category] = Math.max(0, adjusted[category] - (boostPerCategory / (Object.keys(adjusted).length - preferredCategories.length)));
+        }
+      });
+    }
+    
+    console.log('Adjusted allocation:', adjusted);
+    return adjusted;
+  }
+  
+  private async generateDetailedRecommendations(
+    investmentAmount: number, 
+    allocation: InvestmentStrategy['allocation'], 
+    userData: UserData
+  ): Promise<DetailedRecommendation[]> {
+    const recommendations: DetailedRecommendation[] = [];
+    
+    console.log('Generating detailed recommendations with allocation:', allocation);
+    console.log('Investment amount:', investmentAmount);
+    
+    // Generate recommendations for each category based on allocation percentage
+    for (const [category, percentage] of Object.entries(allocation)) {
+      if (percentage > 0) {
+        const categoryAmount = (investmentAmount * percentage) / 100;
+        console.log(`Generating ${category} recommendations for amount: ${categoryAmount}`);
+        
+        let categoryRecommendations: DetailedRecommendation[] = [];
+        
+        switch (category) {
+          case 'stocks':
+            categoryRecommendations = await this.generateStockRecommendations(categoryAmount, userData);
+            break;
+          case 'real-estate':
+            categoryRecommendations = await this.generateRealEstateRecommendations(categoryAmount, userData);
+            break;
+          case 'gold':
+            categoryRecommendations = await this.generateGoldRecommendations(categoryAmount, userData);
+            break;
+          case 'bonds':
+            categoryRecommendations = await this.generateBondRecommendations(categoryAmount, userData);
+            break;
+          case 'savings':
+            categoryRecommendations = await this.generateSavingsRecommendations(categoryAmount, userData);
+            break;
+          case 'crypto':
+            categoryRecommendations = await this.generateCrowdfundingRecommendations(categoryAmount, userData);
+            break;
+        }
+        
+        recommendations.push(...categoryRecommendations);
+      }
+    }
+    
+    console.log('Total recommendations generated:', recommendations.length);
+    return recommendations;
+  }
+  
+  private async generateStockRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    try {
+      const stocksData = await this.dataProcessor.getStocksData();
+      const recommendations: DetailedRecommendation[] = [];
+      let remainingAmount = amount;
+      
+      // Filter stocks based on user profile
+      const suitableStocks = stocksData
+        .filter((stock: any) => stock.price <= remainingAmount)
+        .sort((a: any, b: any) => {
+          // Prioritize based on user's risk tolerance and dividend yield
+          const scoreA = this.calculateStockScore(a, userData);
+          const scoreB = this.calculateStockScore(b, userData);
+          return scoreB - scoreA;
+        });
+      
+      const maxStocks = Math.min(3, suitableStocks.length);
+      
+      for (let i = 0; i < maxStocks && remainingAmount > 0; i++) {
+        const stock = suitableStocks[i];
+        const allocation = remainingAmount / (maxStocks - i);
+        const shares = Math.floor(allocation / stock.price);
+        
+        if (shares > 0) {
+          const investmentAmount = shares * stock.price;
+          remainingAmount -= investmentAmount;
+          
+          recommendations.push({
+            id: `stock-${stock.symbol}-${userData.age}-${userData.riskTolerance}-${Date.now()}`,
+            type: 'stocks',
+            category: 'stocks',
+            title: `${shares} سهم ${stock.name}`,
+            description: `${shares} سهم في ${stock.name} (${stock.symbol}) - قطاع ${stock.sector} | العائد: ${stock.dividendYield || 8}% | المخاطر: ${this.getRiskLevelByReturn(stock.dividendYield || 8)}`,
+            price: investmentAmount.toString(),
+            expectedReturn: `${stock.dividendYield || 8}%`,
+            paymentPlan: 'دفع فوري',
+            riskLevel: this.getRiskLevelByReturn(stock.dividendYield || 8),
+            timeline: 'طويل الأمد (3-5 سنوات)',
+            recommendation: 'شراء',
+            minimumInvestment: stock.price.toString(),
+            features: [
+              `القطاع: ${stock.sector}`,
+              `الرمز: ${stock.symbol}`,
+              `العائد السنوي: ${stock.dividendYield || 8}%`,
+              `سعر السهم: ${stock.price} ريال`,
+              `عدد الأسهم: ${shares}`,
+              `إجمالي الاستثمار: ${investmentAmount.toFixed(0)} ريال`
+            ]
+          });
+        }
+      }
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error generating stock recommendations:', error);
+      return [];
+    }
+  }
+  
+  private calculateStockScore(stock: any, userData: UserData): number {
+    let score = 0;
+    
+    // Risk tolerance alignment
+    if (userData.riskTolerance === 'high' && stock.dividendYield > 10) score += 3;
+    if (userData.riskTolerance === 'medium' && stock.dividendYield >= 6 && stock.dividendYield <= 12) score += 3;
+    if (userData.riskTolerance === 'low' && stock.dividendYield <= 8) score += 3;
+    
+    // Sector preference (if any)
+    if (userData.preferences.includes('stocks')) score += 2;
+    
+    // Age-based preference
+    const age = userData.age;
+    if (age === '18-25' && stock.sector === 'Technology') score += 2;
+    if (age === '26-35' && (stock.sector === 'Finance' || stock.sector === 'Healthcare')) score += 2;
+    if ((age === '36-45' || age === '46-55') && (stock.sector === 'Utilities' || stock.sector === 'Consumer Goods')) score += 2;
+    
+    return score;
+  }
+  
+  private async generateRealEstateRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    try {
+      const realEstateData = await this.dataProcessor.getRealEstateData();
+      const recommendations: DetailedRecommendation[] = [];
+      let remainingAmount = amount;
+      
+      // Filter suitable properties
+      const suitableProperties = realEstateData
+        .filter((property: any) => property.price <= remainingAmount * 1.1) // Allow 10% flexibility
+        .sort((a: any, b: any) => {
+          // Prioritize based on expected return and user profile
+          const scoreA = this.calculateRealEstateScore(a, userData);
+          const scoreB = this.calculateRealEstateScore(b, userData);
+          return scoreB - scoreA;
+        });
+      
+      const maxProperties = Math.min(2, suitableProperties.length);
+      
+      for (let i = 0; i < maxProperties && remainingAmount > 0; i++) {
+        const property = suitableProperties[i];
+        const investmentAmount = Math.min(remainingAmount, property.price);
+        remainingAmount -= investmentAmount;
+        
+        recommendations.push({
+          id: `realestate-${property.name.replace(/\s+/g, '-')}-${userData.age}-${Date.now()}`,
+          type: 'real-estate',
+          category: 'real-estate',
+          title: property.name,
+          description: `استثمار في ${property.name} - ${property.location} | العائد: ${property.expectedReturn || 12}% سنوياً | ${property.type}`,
+          price: investmentAmount.toString(),
+          expectedReturn: `${property.expectedReturn || 12}%`,
+          paymentPlan: property.paymentPlan || 'دفع فوري',
+          riskLevel: this.getRiskLevelByReturn(property.expectedReturn || 12),
+          timeline: 'طويل الأمد (5-10 سنوات)',
+          recommendation: 'شراء',
+          minimumInvestment: property.price.toString(),
+          features: [
+            `الموقع: ${property.location}`,
+            `النوع: ${property.type}`,
+            `المساحة: ${property.area} متر مربع`,
+            `العائد المتوقع: ${property.expectedReturn || 12}% سنوياً`,
+            `خطة الدفع: ${property.paymentPlan || 'دفع فوري'}`,
+            `تاريخ التسليم: ${property.deliveryDate || 'فوري'}`
+          ]
+        });
+      }
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error generating real estate recommendations:', error);
+      return [];
+    }
+  }
+  
+  private calculateRealEstateScore(property: any, userData: UserData): number {
+    let score = 0;
+    
+    // Risk tolerance alignment
+    if (userData.riskTolerance === 'high' && property.expectedReturn > 15) score += 3;
+    if (userData.riskTolerance === 'medium' && property.expectedReturn >= 10 && property.expectedReturn <= 15) score += 3;
+    if (userData.riskTolerance === 'low' && property.expectedReturn <= 12) score += 3;
+    
+    // Preference for real estate
+    if (userData.preferences.includes('real-estate')) score += 2;
+    
+    // Income-based affordability
+    if (userData.income === '50000+' && property.price > 100000) score += 1;
+    if (userData.income === '15000-30000' && property.price <= 50000) score += 1;
+    
+    return score;
+  }
+  
+  private async generateGoldRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    try {
+      const goldData = await this.dataProcessor.getGoldData();
+      const recommendations: DetailedRecommendation[] = [];
+      
+      if (goldData.length === 0) return recommendations;
+      
+      const currentGoldPrice = goldData[0]?.price || 180; // Fallback price per gram
+      const grams = Math.floor(amount / currentGoldPrice);
+      
+      if (grams > 0) {
+        const totalCost = grams * currentGoldPrice;
+        
+        recommendations.push({
+          id: `gold-investment-${userData.age}-${userData.riskTolerance}-${Date.now()}`,
+          type: 'gold',
+          category: 'gold',
+          title: `${grams} جرام ذهب`,
+          description: `استثمار في ${grams} جرام من الذهب الخالص عيار 24 | حماية من التضخم | استثمار آمن طويل الأمد`,
+          price: totalCost.toString(),
+          expectedReturn: '6-8%',
+          paymentPlan: 'دفع فوري',
+          riskLevel: 'منخفض' as 'منخفض' | 'متوسط' | 'عالي',
+          timeline: 'طويل الأمد (3-7 سنوات)',
+          recommendation: 'شراء',
+          minimumInvestment: currentGoldPrice.toString(),
+          features: [
+            `الكمية: ${grams} جرام`,
+            `العيار: 24 قيراط`,
+            `سعر الجرام: ${currentGoldPrice} ريال`,
+            `حماية من التضخم`,
+            `سيولة عالية`,
+            `استثمار آمن ومستقر`
+          ]
+        });
+      }
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error generating gold recommendations:', error);
+      return [];
+    }
+  }
+  
+  private async generateBondRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    try {
+      const bondsData = await this.dataProcessor.getBondsData();
+      const recommendations: DetailedRecommendation[] = [];
+      let remainingAmount = amount;
+      
+      // Combine regular bonds and sukuk bonds
+      const allBonds = [...bondsData];
+      
+      // Try to get sukuk data as well
+      try {
+        const sukukData = await this.dataProcessor.getSukukData();
+        allBonds.push(...sukukData);
+      } catch (error) {
+        console.log('Could not load sukuk data, using bonds only');
+      }
+      
+      // Filter suitable bonds
+      const suitableBonds = allBonds
+        .filter((bond: any) => bond.minInvestment <= amount)
+        .sort((a: any, b: any) => {
+          // Prefer Islamic sukuk if available, then by rating
+          if (a.shariahCompliant && !b.shariahCompliant) return -1;
+          if (!a.shariahCompliant && b.shariahCompliant) return 1;
+          return b.rating?.localeCompare(a.rating) || 0;
+        });
+      
+      const maxBonds = Math.min(2, suitableBonds.length);
+      
+      for (let i = 0; i < maxBonds && remainingAmount > 0; i++) {
+        const bond = suitableBonds[i];
+        const allocation = remainingAmount / (maxBonds - i);
+        const faceValue = bond.faceValue || bond.minInvestment || 1000;
+        const units = Math.floor(allocation / faceValue);
+        
+        if (units > 0) {
+          const investmentAmount = units * faceValue;
+          remainingAmount -= investmentAmount;
+          
+          recommendations.push({
+            id: `bond-${bond.name?.replace(/\s+/g, '-')}-${userData.riskTolerance}-${Date.now()}`,
+            type: 'bonds',
+            category: 'bonds',
+            title: `${units} وحدة ${bond.name}`,
+            description: `${units} وحدة من ${bond.name}${bond.shariahCompliant ? ' (صك إسلامي)' : ''} | العائد: ${bond.couponRate || 5}% | التصنيف: ${bond.rating || 'A'}`,
+            price: investmentAmount.toString(),
+            expectedReturn: `${bond.couponRate || 5}%`,
+            paymentPlan: 'دفع فوري',
+            riskLevel: this.getRiskLevelByRating(bond.rating),
+            timeline: bond.maturity || 'متوسط الأجل (2-5 سنوات)',
+            recommendation: 'شراء',
+            minimumInvestment: bond.minInvestment?.toString() || bond.faceValue?.toString() || '1000',
+            features: [
+              `الجهة المصدرة: ${bond.issuer || 'حكومية'}`,
+              `التصنيف الائتماني: ${bond.rating || 'A'}`,
+              `معدل الكوبون: ${bond.couponRate || 5}%`,
+              `تاريخ الاستحقاق: ${bond.maturity || '5 سنوات'}`,
+              bond.shariahCompliant ? 'متوافق مع الشريعة الإسلامية' : 'سند تقليدي',
+              `القيمة الاسمية: ${faceValue} ريال`,
+              `عدد الوحدات: ${units}`
+            ]
+          });
+        }
+      }
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error generating bond recommendations:', error);
+      return [];
+    }
+  }
+  
+  private async generateSavingsRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    const recommendations: DetailedRecommendation[] = [];
+    
+    // Generate different savings options based on amount and user profile
+    if (amount >= 1000) {
+      const expectedReturn = userData.riskTolerance === 'low' ? '3-4' : '4-5';
+      
+      recommendations.push({
+        id: `savings-deposit-${userData.income}-${Date.now()}`,
+        type: 'savings',
+        category: 'savings',
+        title: 'وديعة ادخارية',
+        description: `وديعة ادخارية بعائد ثابت ${expectedReturn}% سنوياً | مضمونة ومؤمن عليها | سيولة جزئية`,
+        price: amount.toString(),
+        expectedReturn: `${expectedReturn}%`,
+        paymentPlan: 'دفع فوري',
+        riskLevel: 'منخفض' as 'منخفض' | 'متوسط' | 'عالي',
+        timeline: 'قصير إلى متوسط الأجل (6 أشهر - 2 سنة)',
+        recommendation: 'شراء',
+        minimumInvestment: '1000',
+        features: [
+          `عائد ثابت ${expectedReturn}% سنوياً`,
+          'مضمونة من البنك المركزي',
+          'إمكانية السحب الجزئي',
+          'لا توجد رسوم إدارية',
+          'مناسبة للطوارئ',
+          'استثمار آمن بنسبة 100%'
+        ]
+      });
+    }
+    
+    return recommendations;
+  }
+  
+  private async generateCrowdfundingRecommendations(amount: number, userData: UserData): Promise<DetailedRecommendation[]> {
+    try {
+      const crowdfundingData = await this.dataProcessor.getCrowdfundingData();
+      const recommendations: DetailedRecommendation[] = [];
+      let remainingAmount = amount;
+      
+      // Filter suitable projects
+      const suitableProjects = crowdfundingData
+        .filter((project: any) => project.minInvestment <= amount)
+        .sort((a: any, b: any) => {
+          // Sort by expected return and funding progress
+          const scoreA = (a.expectedReturn || 15) + ((a.raisedAmount / a.targetAmount) * 100);
+          const scoreB = (b.expectedReturn || 15) + ((b.raisedAmount / b.targetAmount) * 100);
+          return scoreB - scoreA;
+        });
+      
+      const maxProjects = Math.min(2, suitableProjects.length);
+      
+      for (let i = 0; i < maxProjects && remainingAmount > 0; i++) {
+        const project = suitableProjects[i];
+        const allocation = remainingAmount / (maxProjects - i);
+        const investmentAmount = Math.min(allocation, remainingAmount);
+        
+        if (investmentAmount >= project.minInvestment) {
+          remainingAmount -= investmentAmount;
+          
+          recommendations.push({
+            id: `crowdfunding-${project.name.replace(/\s+/g, '-')}-${userData.age}-${Date.now()}`,
+            type: 'crowdfunding',
+            category: 'crypto', // Map to crypto category for allocation
+            title: project.name,
+            description: `استثمار في مشروع ${project.name} - ${project.category} | العائد المتوقع: ${project.expectedReturn || 15}% | منصة: ${project.platform}`,
+            price: investmentAmount.toString(),
+            expectedReturn: `${project.expectedReturn || 15}%`,
+            paymentPlan: project.paymentPlan || 'دفع فوري',
+            riskLevel: project.riskLevel === 'low' ? 'منخفض' : project.riskLevel === 'medium' ? 'متوسط' : 'عالي',
+            timeline: project.timeline || 'متوسط الأجل (1-3 سنوات)',
+            recommendation: 'شراء',
+            minimumInvestment: project.minInvestment?.toString() || '5000',
+            features: [
+              `الفئة: ${project.category}`,
+              `البلد: ${project.country}`,
+              `المبلغ المستهدف: ${this.formatCurrency(project.targetAmount)}`,
+              `نسبة التحصيل: ${((project.raisedAmount / project.targetAmount) * 100).toFixed(1)}%`,
+              `المنصة: ${project.platform}`,
+              `مدة المشروع: ${project.duration}`,
+              `نوع التمويل: ${project.fundingType}`
+            ]
+          });
+        }
+      }
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error generating crowdfunding recommendations:', error);
+      return [];
+    }
+  }
       const hasPreference = categoryPrefs.some(pref => preferences.includes(pref));
       
       if (!hasPreference) {

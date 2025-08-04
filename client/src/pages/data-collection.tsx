@@ -18,9 +18,10 @@ import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings }
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [currentLang, setCurrentLang] = useState("ar");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { currentLanguage, isRTL } = useLanguage();
+  const { t } = useTranslation();
 
   const content = {
     ar: {
@@ -136,8 +137,8 @@ export default function DataCollectionPage() {
   const StepIcon = currentStepData.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50" dir={currentLang === "ar" ? "rtl" : "ltr"}>
-      <Header currentLang={currentLang} onLanguageChange={setCurrentLang} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50" dir={isRTL ? "rtl" : "ltr"}>
+      <Header />
       
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}

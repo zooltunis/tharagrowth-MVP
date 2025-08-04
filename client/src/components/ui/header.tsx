@@ -2,40 +2,34 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Globe, Menu, X } from "lucide-react";
+import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import logoPath from "@assets/TharaGrowth Logo - Emblem Style with Calligraphy Twist_20250803_194834_0000_1754247313539.png";
 
 interface HeaderProps {
-  currentLang?: string;
-  onLanguageChange?: (lang: string) => void;
+  // No props needed anymore - using context
 }
 
-export function Header({ currentLang = "ar", onLanguageChange }: HeaderProps) {
+export function Header(props: HeaderProps) {
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { currentLanguage, setLanguage, isRTL } = useLanguage();
+  const { t } = useTranslation();
 
   const languages = [
-    { code: "ar", name: "العربية", dir: "rtl" },
-    { code: "en", name: "English", dir: "ltr" },
-    { code: "fr", name: "Français", dir: "ltr" }
+    { code: "ar" as const, name: "العربية", dir: "rtl" },
+    { code: "en" as const, name: "English", dir: "ltr" },
+    { code: "fr" as const, name: "Français", dir: "ltr" }
   ];
 
   const navigation = [
-    { href: "/", label: "الرئيسية", labelEn: "Home", labelFr: "Accueil" },
-    { href: "/data-collection", label: "التحليل", labelEn: "Analysis", labelFr: "Analyse" },
-    { href: "/market-dashboard", label: "السوق", labelEn: "Market", labelFr: "Marché" },
-    { href: "/education", label: "التعليم", labelEn: "Education", labelFr: "Éducation" }
+    { href: "/", label: commonTranslations.home },
+    { href: "/data-collection", label: commonTranslations.analysis },
+    { href: "/market-dashboard", label: commonTranslations.market },
+    { href: "/education", label: commonTranslations.education }
   ];
 
-  const getNavLabel = (nav: any) => {
-    switch (currentLang) {
-      case "en": return nav.labelEn;
-      case "fr": return nav.labelFr;
-      default: return nav.label;
-    }
-  };
-
   return (
-    <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
@@ -50,9 +44,7 @@ export function Header({ currentLang = "ar", onLanguageChange }: HeaderProps) {
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold text-foreground">TharaGrowth</h1>
               <p className="text-xs text-muted-foreground -mt-1">
-                {currentLang === "en" ? "Smart Investment Advisor" : 
-                 currentLang === "fr" ? "Conseiller Intelligent" : 
-                 "مستشار الاستثمار الذكي"}
+                {t({ ar: "مستشار الاستثمار الذكي", en: "Smart Investment Advisor", fr: "Conseiller Intelligent" })}
               </p>
             </div>
           </Link>
@@ -67,23 +59,40 @@ export function Header({ currentLang = "ar", onLanguageChange }: HeaderProps) {
                   location === nav.href ? "text-primary" : "text-muted-foreground"
                 }`}
               >
-                {getNavLabel(nav)}
+                {t(nav.label)}
               </Link>
             ))}
           </nav>
 
           {/* Language Switcher */}
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <div className="language-switcher">
-              {languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => onLanguageChange?.(lang.code)}
-                  className={`language-btn ${currentLang === lang.code ? "active" : ""}`}
-                >
-                  {lang.name}
-                </button>
-              ))}
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            <div className="relative group">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 rtl:space-x-reverse"
+              >
+                <Globe className="w-4 h-4" />
+                <span className="hidden sm:inline">
+                  {languages.find(lang => lang.code === currentLanguage)?.name}
+                </span>
+              </Button>
+              
+              {/* Language Dropdown */}
+              <div className="absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-48 bg-background border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)}
+                    className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors ${
+                      currentLanguage === lang.code ? 'bg-muted text-primary font-medium' : 'text-foreground'
+                    }`}
+                    dir={lang.dir}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -93,7 +102,7 @@ export function Header({ currentLang = "ar", onLanguageChange }: HeaderProps) {
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
@@ -113,7 +122,7 @@ export function Header({ currentLang = "ar", onLanguageChange }: HeaderProps) {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {getNavLabel(nav)}
+                  {t(nav.label)}
                 </Link>
               ))}
             </nav>

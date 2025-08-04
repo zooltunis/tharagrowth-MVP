@@ -21,7 +21,7 @@ import {
   getActiveStocks
 } from "./market-data";
 import OpenAI from "openai";
-import { UpdatedRecommendationEngine } from "./updated-recommendation-engine";
+import { DynamicRecommendationEngine } from "./dynamic-recommendation-engine";
 import { DataProcessor } from "./data-processor";
 
 const openai = new OpenAI({
@@ -351,16 +351,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateInvestmentRecommendations(userData: any) {
-  console.log('Starting recommendation generation with userData:', userData);
-  // Use the updated recommendation engine with real data
-  const engine = new UpdatedRecommendationEngine();
-  const result = await engine.generateRecommendations(userData);
-  console.log('Final result from engine:', {
-    totalAllocated: result.totalAllocated,
-    recommendationsCount: result.recommendations.length,
-    strategy: result.strategy
+  console.log('🎯 Starting recommendation generation with dynamic engine');
+  console.log('📊 User Data:', {
+    age: userData.age,
+    income: userData.income,
+    budget: userData.investmentBudget,
+    risk: userData.riskTolerance,
+    goals: userData.goals,
+    preferences: userData.preferences
   });
-  return result;
+  
+  try {
+    const engine = new DynamicRecommendationEngine();
+    const result = await engine.generateRecommendations(userData);
+    console.log('✅ Dynamic recommendations generated successfully');
+    console.log('📈 Generated', result.recommendations.length, 'recommendations');
+    console.log('💰 Total allocated:', result.totalAllocated);
+    return result;
+  } catch (error) {
+    console.error('❌ Error generating recommendations:', error);
+    throw new Error('فشل في توليد التوصيات الاستثمارية');
+  }
 }
 
 // This function is deprecated - using SmartRecommendationEngine instead
