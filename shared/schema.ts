@@ -11,6 +11,9 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   goals: jsonb("goals").$type<string[]>().notNull(),
   riskTolerance: text("risk_tolerance").notNull(),
   preferences: jsonb("preferences").$type<string[]>().notNull(),
+  targetMarket: text("target_market").notNull(),
+  allowDiversification: text("allow_diversification").notNull(),
+  islamicCompliance: text("islamic_compliance").notNull(),
   recommendations: jsonb("recommendations").$type<{
     id: string;
     userData: any;
@@ -58,6 +61,13 @@ export const userDataSchema = z.object({
   goals: z.array(z.string()).min(1, "يرجى اختيار هدف واحد على الأقل"),
   riskTolerance: z.string().min(1, "يرجى اختيار مستوى تحمل المخاطر"),
   preferences: z.array(z.string()).min(1, "يرجى اختيار نوع واحد من الاستثمار على الأقل"),
+
+  // New Gulf market-specific fields
+  targetMarket: z.enum(["UAE", "Saudi Arabia", "Gulf Countries", "International"], {
+    required_error: "يرجى اختيار السوق المستهدف"
+  }),
+  allowDiversification: z.boolean().default(false),
+  islamicCompliance: z.boolean().default(false),
 });
 
 export type InsertInvestmentAnalysis = z.infer<typeof insertInvestmentAnalysisSchema>;

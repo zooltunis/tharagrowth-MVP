@@ -136,5 +136,28 @@ export const commonTranslations = {
   goalIncome: { ar: 'توليد الدخل', en: 'Income Generation', fr: 'Génération de Revenus' },
   goalEducation: { ar: 'التعليم', en: 'Education', fr: 'Éducation' },
   goalTravel: { ar: 'السفر', en: 'Travel', fr: 'Voyage' },
-  goalBusiness: { ar: 'بدء مشروع', en: 'Start Business', fr: 'Créer une Entreprise' }
+  goalBusiness: { ar: 'بدء مشروع', en: 'Start Business', fr: 'Créer une Entreprise' },
+  
+  // New market-specific translations
+  targetMarket: { ar: 'السوق المستهدف', en: 'Target Market', fr: 'Marché Cible' },
+  diversification: { ar: 'السماح بالتنويع في أسواق أخرى', en: 'Allow diversification into other markets', fr: 'Permettre la diversification vers d\'autres marchés' },
+  islamicCompliance: { ar: 'إظهار الاستثمارات المتوافقة مع الشريعة فقط', en: 'Show only Shariah-compliant investments', fr: 'Afficher uniquement les investissements conformes à la Charia' },
+  
+  // Market options
+  marketUAE: { ar: 'دولة الإمارات العربية المتحدة', en: 'United Arab Emirates', fr: 'Émirats Arabes Unis' },
+  marketSaudiArabia: { ar: 'المملكة العربية السعودية', en: 'Saudi Arabia', fr: 'Arabie Saoudite' },
+  marketGulf: { ar: 'دول الخليج', en: 'Gulf Countries', fr: 'Pays du Golfe' },
+  marketInternational: { ar: 'دولي', en: 'International', fr: 'International' },
+  
+  // Currency options
+  currencyAED: { ar: 'درهم إماراتي (AED)', en: 'UAE Dirham (AED)', fr: 'Dirham des EAU (AED)' },
+  currencySAR: { ar: 'ريال سعودي (SAR)', en: 'Saudi Riyal (SAR)', fr: 'Riyal Saoudien (SAR)' },
+  currencyUSD: { ar: 'دولار أمريكي (USD)', en: 'US Dollar (USD)', fr: 'Dollar Américain (USD)' },
+  currencyEUR: { ar: 'يورو (EUR)', en: 'Euro (EUR)', fr: 'Euro (EUR)' },
+  currencyGBP: { ar: 'جنيه إسترليني (GBP)', en: 'British Pound (GBP)', fr: 'Livre Sterling (GBP)' },
+  
+  // Help text
+  diversificationHelp: { ar: 'في حالة التحديد، قد تشمل التوصيات الأسهم الأجنبية أو الصكوك الدولية أو خيارات العقارات العالمية', en: 'If selected, recommendations may include foreign stocks, international sukuk, or global real estate options', fr: 'Si sélectionné, les recommandations peuvent inclure des actions étrangères, des sukuk internationaux ou des options immobilières mondiales' },
+  islamicComplianceHelp: { ar: 'في حالة التحديد، سيتم تصفية الأسهم غير المتوافقة أو السندات التقليدية', en: 'If selected, filter out non-compliant stocks or conventional bonds', fr: 'Si sélectionné, filtrer les actions non conformes ou les obligations conventionnelles' },
+  targetMarketHelp: { ar: 'هذا الحقل سيؤثر على تصفية الأصول وترتيب الأولويات في التوصيات', en: 'This field will affect asset filtering and prioritization in recommendations', fr: 'Ce champ affectera le filtrage des actifs et la priorisation dans les recommandations' }
 };

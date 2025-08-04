@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
 import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings } from "lucide-react";
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
+import { Switch } from "@/components/ui/switch";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -81,10 +82,13 @@ export default function DataCollectionPage() {
       age: "",
       income: "",
       investmentBudget: "50000",
-      currency: "SAR",
+      currency: "AED",
       goals: [],
       riskTolerance: "",
       preferences: [],
+      targetMarket: "UAE",
+      allowDiversification: false,
+      islamicCompliance: false,
     },
   });
 
@@ -298,9 +302,11 @@ export default function DataCollectionPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="SAR">ريال سعودي (SAR)</SelectItem>
-                                <SelectItem value="USD">دولار أمريكي (USD)</SelectItem>
-                                <SelectItem value="EUR">يورو (EUR)</SelectItem>
+                                <SelectItem value="AED">{t(commonTranslations.currencyAED)}</SelectItem>
+                                <SelectItem value="SAR">{t(commonTranslations.currencySAR)}</SelectItem>
+                                <SelectItem value="USD">{t(commonTranslations.currencyUSD)}</SelectItem>
+                                <SelectItem value="EUR">{t(commonTranslations.currencyEUR)}</SelectItem>
+                                <SelectItem value="GBP">{t(commonTranslations.currencyGBP)}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -415,68 +421,157 @@ export default function DataCollectionPage() {
                     />
                   )}
 
-                  {/* Step 4: Investment Preferences */}
+                  {/* Step 4: Investment Preferences & Market Settings */}
                   {currentStep === 4 && (
-                    <FormField
-                      control={form.control}
-                      name="preferences"
-                      render={() => (
-                        <FormItem>
-                          <FormLabel>أي أنواع الاستثمار تثير اهتمامك؟ (اختر كل ما يناسبك)</FormLabel>
-                          <div className="grid md:grid-cols-2 gap-3">
-                            {[
-                              { id: "real-estate", label: "العقارات", icon: "🏠", desc: "استثمارات عقارية وأراضي" },
-                              { id: "gold", label: "الذهب", icon: "🥇", desc: "المعادن الثمينة والذهب" },
-                              { id: "stocks", label: "الأسهم", icon: "📈", desc: "أسهم الشركات المحلية والعالمية" },
-                              { id: "crowdfunding", label: "التمويل الجماعي", icon: "👥", desc: "مشاريع التمويل الجماعي" },
-                              { id: "sukuk", label: "الصكوك الإسلامية", icon: "📜", desc: "صكوك متوافقة مع الشريعة" },
-                              { id: "bonds", label: "السندات", icon: "📄", desc: "سندات حكومية وشركات" },
-                              { id: "savings", label: "حسابات الادخار", icon: "🏦", desc: "ودائع وشهادات ادخار" },
-                              { id: "crypto", label: "العملات الرقمية", icon: "₿", desc: "البيتكوين والعملات الرقمية" },
-                            ].map((pref) => (
-                              <FormField
-                                key={pref.id}
-                                control={form.control}
-                                name="preferences"
-                                render={({ field }) => {
-                                  return (
-                                    <FormItem
-                                      key={pref.id}
-                                      className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-lg hover:border-primary cursor-pointer"
-                                    >
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={field.value?.includes(pref.id)}
-                                          onCheckedChange={(checked) => {
-                                            return checked
-                                              ? field.onChange([...field.value, pref.id])
-                                              : field.onChange(
-                                                  field.value?.filter(
-                                                    (value) => value !== pref.id
-                                                  )
-                                                );
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <span className="text-xl">{pref.icon}</span>
-                                      <div className="space-y-1">
-                                        <FormLabel className="font-medium">
-                                          {pref.label}
-                                        </FormLabel>
-                                        <p className="text-xs text-muted-foreground">
-                                          {pref.desc}
-                                        </p>
-                                      </div>
-                                    </FormItem>
-                                  );
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-8">
+                      {/* Investment Types */}
+                      <FormField
+                        control={form.control}
+                        name="preferences"
+                        render={() => (
+                          <FormItem>
+                            <FormLabel className="text-lg font-semibold">أنواع الاستثمارات المفضلة</FormLabel>
+                            <div className="grid md:grid-cols-2 gap-3">
+                              {[
+                                { id: "real-estate", label: "العقارات", icon: "🏠", desc: "استثمارات عقارية وأراضي" },
+                                { id: "gold", label: "الذهب", icon: "🥇", desc: "المعادن الثمينة والذهب" },
+                                { id: "stocks", label: "الأسهم", icon: "📈", desc: "أسهم الشركات المحلية والعالمية" },
+                                { id: "crowdfunding", label: "التمويل الجماعي", icon: "👥", desc: "مشاريع التمويل الجماعي" },
+                                { id: "sukuk", label: "الصكوك الإسلامية", icon: "📜", desc: "صكوك متوافقة مع الشريعة" },
+                                { id: "bonds", label: "السندات", icon: "📄", desc: "سندات حكومية وشركات" },
+                                { id: "savings", label: "حسابات الادخار", icon: "🏦", desc: "ودائع وشهادات ادخار" },
+                                { id: "crypto", label: "العملات الرقمية", icon: "₿", desc: "البيتكوين والعملات الرقمية" },
+                              ].map((pref) => (
+                                <FormField
+                                  key={pref.id}
+                                  control={form.control}
+                                  name="preferences"
+                                  render={({ field }) => {
+                                    return (
+                                      <FormItem
+                                        key={pref.id}
+                                        className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-lg hover:border-primary cursor-pointer"
+                                      >
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={field.value?.includes(pref.id)}
+                                            onCheckedChange={(checked) => {
+                                              return checked
+                                                ? field.onChange([...field.value, pref.id])
+                                                : field.onChange(
+                                                    field.value?.filter(
+                                                      (value) => value !== pref.id
+                                                    )
+                                                  );
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <span className="text-xl">{pref.icon}</span>
+                                        <div className="space-y-1">
+                                          <FormLabel className="font-medium">
+                                            {pref.label}
+                                          </FormLabel>
+                                          <p className="text-xs text-muted-foreground">
+                                            {pref.desc}
+                                          </p>
+                                        </div>
+                                      </FormItem>
+                                    );
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Separator />
+
+                      {/* Market Preferences Section */}
+                      <div className="space-y-6">
+                        <h3 className="text-lg font-semibold text-foreground">إعدادات السوق والتفضيلات</h3>
+                        
+                        {/* Target Market */}
+                        <FormField
+                          control={form.control}
+                          name="targetMarket"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                🌍 {t(commonTranslations.targetMarket)}
+                                <span className="text-xs text-muted-foreground">🛈</span>
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="اختر السوق المستهدف" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="UAE">🇦🇪 {t(commonTranslations.marketUAE)}</SelectItem>
+                                  <SelectItem value="Saudi Arabia">🇸🇦 {t(commonTranslations.marketSaudiArabia)}</SelectItem>
+                                  <SelectItem value="Gulf Countries">🏛️ {t(commonTranslations.marketGulf)}</SelectItem>
+                                  <SelectItem value="International">🌍 {t(commonTranslations.marketInternational)}</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <p className="text-xs text-muted-foreground">
+                                {t(commonTranslations.targetMarketHelp)}
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Diversification Preference */}
+                        <FormField
+                          control={form.control}
+                          name="allowDiversification"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-lg">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1">
+                                <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  🔀 {t(commonTranslations.diversification)}
+                                </FormLabel>
+                                <p className="text-xs text-muted-foreground">
+                                  {t(commonTranslations.diversificationHelp)}
+                                </p>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Islamic Compliance */}
+                        <FormField
+                          control={form.control}
+                          name="islamicCompliance"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 border rounded-lg">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1">
+                                <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  🕌 {t(commonTranslations.islamicCompliance)}
+                                </FormLabel>
+                                <p className="text-xs text-muted-foreground">
+                                  {t(commonTranslations.islamicComplianceHelp)}
+                                </p>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                   )}
 
                   {/* Navigation Buttons */}
