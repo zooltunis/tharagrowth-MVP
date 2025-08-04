@@ -201,6 +201,18 @@ ${marketData}
           marketInfo += `- ${property.name}: ${property.price} درهم، الحد الأدنى: ${property.minInvestment} درهم\n`;
         });
       }
+
+      // UAE Crowdfunding projects
+      const uaeCrowdfunding = data.crowdfunding.filter((c: any) => 
+        c.country === 'UAE' || c.location?.includes('UAE')
+      ).slice(0, 3);
+
+      if (uaeCrowdfunding.length > 0) {
+        marketInfo += `\nمشاريع التمويل الجماعي الإماراتية المتاحة:\n`;
+        uaeCrowdfunding.forEach((project: any) => {
+          marketInfo += `- ${project.name}: عائد ${project.expectedReturn}%، الحد الأدنى: ${project.minInvestment} درهم\n`;
+        });
+      }
       
     } else if (targetMarket === 'Saudi Arabia') {
       // Saudi-specific data
@@ -262,6 +274,18 @@ ${marketData}
 
     if (userData.preferences.includes('gold')) {
       filtered.gold = data.gold;
+    }
+
+    if (userData.preferences.includes('crowdfunding')) {
+      filtered.crowdfunding = data.crowdfunding.filter((project: any) => {
+        if (userData.targetMarket === 'UAE') {
+          return project.country === 'UAE' || project.location?.includes('UAE');
+        }
+        if (userData.targetMarket === 'Saudi Arabia') {
+          return project.country === 'KSA' || project.country === 'Saudi Arabia';
+        }
+        return true;
+      });
     }
 
     if (userData.preferences.includes('bonds') || userData.preferences.includes('sukuk')) {
