@@ -22,6 +22,7 @@ import {
 } from "./market-data";
 import OpenAI from "openai";
 import { DynamicRecommendationEngine } from "./dynamic-recommendation-engine";
+import { GeminiRecommendationEngine } from "./gemini-recommendation-engine";
 import { DataProcessor } from "./data-processor";
 
 const openai = new OpenAI({
@@ -35,13 +36,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = userDataSchema.parse(req.body);
       
-      // Generate AI recommendations
-      const recommendations = await generateInvestmentRecommendations(userData);
+      // Generate AI recommendations using Gemini with fallback
+      console.log('🧠 Calling Gemini AI engine directly...');
+      let aiAnalysis;
       
-      // Store the analysis
+      try {
+        const geminiEngine = new GeminiRecommendationEngine();
+        aiAnalysis = await geminiEngine.generateRecommendations(userData);
+        console.log('✅ Gemini AI recommendations generated successfully');
+      } catch (error) {
+        console.log('🔄 Gemini failed, falling back to enhanced dynamic engine...');
+        const fallbackEngine = new DynamicRecommendationEngine();
+        aiAnalysis = await fallbackEngine.generateRecommendations(userData);
+        console.log('✅ Fallback recommendations generated successfully');
+      }
+      
+      // Store the analysis  
       const analysis = await storage.createInvestmentAnalysis({
         ...userData,
-        recommendations
+        allowDiversification: userData.allowDiversification ? 'true' : 'false',
+        islamicCompliance: userData.islamicCompliance ? 'true' : 'false',
+        recommendations: aiAnalysis
       });
       
       res.json(analysis);
@@ -351,26 +366,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateInvestmentRecommendations(userData: any) {
-  console.log('🎯 Starting recommendation generation with dynamic engine');
+  console.log('🧠 Starting recommendation generation with Gemini AI engine');
   console.log('📊 User Data:', {
     age: userData.age,
     income: userData.income,
     budget: userData.investmentBudget,
     risk: userData.riskTolerance,
     goals: userData.goals,
-    preferences: userData.preferences
+    preferences: userData.preferences,
+    targetMarket: userData.targetMarket,
+    islamicCompliance: userData.islamicCompliance,
+    paymentFrequency: userData.paymentFrequency
   });
   
+  console.log('🔑 Using Gemini API Key:', process.env.GEMINI_API_KEY ? 'Available' : 'Missing');
+  
   try {
-    const engine = new DynamicRecommendationEngine();
-    const result = await engine.generateRecommendations(userData);
-    console.log('✅ Dynamic recommendations generated successfully');
-    console.log('📈 Generated', result.recommendations.length, 'recommendations');
-    console.log('💰 Total allocated:', result.totalAllocated);
+    const geminiEngine = new GeminiRecommendationEngine();
+    const result = await geminiEngine.generateRecommendations(userData);
+    console.log('✅ Gemini AI recommendations generated successfully');
+    console.log('📈 Generated', result.recommendations.length, 'AI-powered recommendations');
+    console.log('💰 Total allocated:', result.totalAllocated, userData.currency);
     return result;
   } catch (error) {
-    console.error('❌ Error generating recommendations:', error);
-    throw new Error('فشل في توليد التوصيات الاستثمارية');
+    console.error('❌ Error generating AI recommendations:', error);
+    throw error; // Don't fallback, show the actual error
   }
 }
 
