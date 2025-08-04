@@ -156,8 +156,15 @@ export const commonTranslations = {
   currencyEUR: { ar: 'يورو (EUR)', en: 'Euro (EUR)', fr: 'Euro (EUR)' },
   currencyGBP: { ar: 'جنيه إسترليني (GBP)', en: 'British Pound (GBP)', fr: 'Livre Sterling (GBP)' },
   
+  // Payment frequency
+  paymentFrequency: { ar: 'تكرار الدفع', en: 'Payment Frequency', fr: 'Fréquence de Paiement' },
+  paymentOneTime: { ar: 'دفعة واحدة', en: 'One-time Payment', fr: 'Paiement Unique' },
+  paymentMonthly: { ar: 'شهرياً', en: 'Monthly', fr: 'Mensuel' },
+  paymentAnnual: { ar: 'سنوياً', en: 'Annual', fr: 'Annuel' },
+  
   // Help text
   diversificationHelp: { ar: 'في حالة التحديد، قد تشمل التوصيات الأسهم الأجنبية أو الصكوك الدولية أو خيارات العقارات العالمية', en: 'If selected, recommendations may include foreign stocks, international sukuk, or global real estate options', fr: 'Si sélectionné, les recommandations peuvent inclure des actions étrangères, des sukuk internationaux ou des options immobilières mondiales' },
   islamicComplianceHelp: { ar: 'في حالة التحديد، سيتم تصفية الأسهم غير المتوافقة أو السندات التقليدية', en: 'If selected, filter out non-compliant stocks or conventional bonds', fr: 'Si sélectionné, filtrer les actions non conformes ou les obligations conventionnelles' },
-  targetMarketHelp: { ar: 'هذا الحقل سيؤثر على تصفية الأصول وترتيب الأولويات في التوصيات', en: 'This field will affect asset filtering and prioritization in recommendations', fr: 'Ce champ affectera le filtrage des actifs et la priorisation dans les recommandations' }
+  targetMarketHelp: { ar: 'هذا الحقل سيؤثر على تصفية الأصول وترتيب الأولويات في التوصيات', en: 'This field will affect asset filtering and prioritization in recommendations', fr: 'Ce champ affectera le filtrage des actifs et la priorisation dans les recommandations' },
+  paymentFrequencyHelp: { ar: 'اختر كيفية توزيع استثمارك - دفعة واحدة أو على دفعات منتظمة', en: 'Choose how to distribute your investment - lump sum or regular installments', fr: 'Choisissez comment distribuer votre investissement - somme forfaitaire ou versements réguliers' }
 };

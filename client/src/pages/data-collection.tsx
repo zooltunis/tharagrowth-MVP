@@ -17,6 +17,7 @@ import { userDataSchema, type UserData } from "@shared/schema";
 import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings } from "lucide-react";
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -89,6 +90,7 @@ export default function DataCollectionPage() {
       targetMarket: "UAE",
       allowDiversification: false,
       islamicCompliance: false,
+      paymentFrequency: "one-time",
     },
   });
 
@@ -291,10 +293,39 @@ export default function DataCollectionPage() {
 
                       <FormField
                         control={form.control}
+                        name="paymentFrequency"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              💳 {t(commonTranslations.paymentFrequency)}
+                              <span className="text-xs text-muted-foreground">🛈</span>
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="اختر تكرار الدفع" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="one-time">💰 {t(commonTranslations.paymentOneTime)}</SelectItem>
+                                <SelectItem value="monthly">📅 {t(commonTranslations.paymentMonthly)}</SelectItem>
+                                <SelectItem value="annual">🗓️ {t(commonTranslations.paymentAnnual)}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                              {t(commonTranslations.paymentFrequencyHelp)}
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
                         name="currency"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>العملة</FormLabel>
+                            <FormLabel>العملة المفضلة</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
@@ -302,11 +333,11 @@ export default function DataCollectionPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="AED">{t(commonTranslations.currencyAED)}</SelectItem>
-                                <SelectItem value="SAR">{t(commonTranslations.currencySAR)}</SelectItem>
-                                <SelectItem value="USD">{t(commonTranslations.currencyUSD)}</SelectItem>
-                                <SelectItem value="EUR">{t(commonTranslations.currencyEUR)}</SelectItem>
-                                <SelectItem value="GBP">{t(commonTranslations.currencyGBP)}</SelectItem>
+                                <SelectItem value="AED">🇦🇪 {t(commonTranslations.currencyAED)}</SelectItem>
+                                <SelectItem value="SAR">🇸🇦 {t(commonTranslations.currencySAR)}</SelectItem>
+                                <SelectItem value="USD">🇺🇸 {t(commonTranslations.currencyUSD)}</SelectItem>
+                                <SelectItem value="EUR">🇪🇺 {t(commonTranslations.currencyEUR)}</SelectItem>
+                                <SelectItem value="GBP">🇬🇧 {t(commonTranslations.currencyGBP)}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />

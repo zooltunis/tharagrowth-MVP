@@ -14,6 +14,7 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   targetMarket: text("target_market").notNull(),
   allowDiversification: text("allow_diversification").notNull(),
   islamicCompliance: text("islamic_compliance").notNull(),
+  paymentFrequency: text("payment_frequency").notNull(),
   recommendations: jsonb("recommendations").$type<{
     id: string;
     userData: any;
@@ -68,6 +69,9 @@ export const userDataSchema = z.object({
   }),
   allowDiversification: z.boolean().default(false),
   islamicCompliance: z.boolean().default(false),
+  paymentFrequency: z.enum(["one-time", "monthly", "annual"], {
+    required_error: "يرجى اختيار تكرار الدفع"
+  }),
 });
 
 export type InsertInvestmentAnalysis = z.infer<typeof insertInvestmentAnalysisSchema>;
