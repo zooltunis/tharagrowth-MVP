@@ -6,12 +6,14 @@ InvestWise is a full-stack web application that provides personalized investment
 
 ## Recent Changes
 
-**August 4, 2025**: Successfully implemented Market-Specific Gemini AI Recommendation System:
+**August 4, 2025**: Successfully implemented Comprehensive Investment Platform with Crypto & Bonds:
 - ✅ Fixed Gemini AI engine to use proper market-specific data filtering for UAE vs Saudi markets
 - ✅ Integrated authentic Excel mockdata files (UAE real estate, stocks, sukuk bonds) with AI recommendations
 - ✅ AI now correctly recommends UAE companies when UAE market is selected: Emaar Properties, FAB Bank, ADNOC, Etisalat UAE
+- ✅ Added comprehensive cryptocurrency support: Bitcoin, Ethereum, Cardano, Solana, Polygon with Islamic compliance filtering
+- ✅ Integrated government bonds and corporate sukuk: UAE Treasury bonds, Saudi government sukuk, Aramco bonds
 - ✅ Built comprehensive recommendation system that analyzes user profile + market data to generate personalized strategies
-- ✅ AI provides realistic portfolio allocation with exact amounts from authentic UAE data sources
+- ✅ AI provides realistic portfolio allocation with exact amounts from authentic data sources
 - ✅ Generated detailed strategy explanations with Arabic reasoning for each investment choice
 - ✅ Implemented smart fallback system: Gemini primary engine with Dynamic engine backup
 - ✅ Successfully tested with real Gulf market data integration and Islamic compliance filtering

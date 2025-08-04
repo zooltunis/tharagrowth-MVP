@@ -305,4 +305,24 @@ export class DataProcessor {
       return [];
     }
   }
+
+  async getCryptoData(): Promise<any[]> {
+    try {
+      const data = fs.readFileSync('./data/crypto-currencies.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error loading crypto data:', error);
+      return [];
+    }
+  }
+
+  async getGovernmentBondsData(): Promise<any[]> {
+    try {
+      const data = fs.readFileSync('./data/government-bonds.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error loading government bonds data:', error);
+      return [];
+    }
+  }
 }

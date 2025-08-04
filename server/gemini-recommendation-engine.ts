@@ -50,17 +50,19 @@ export class GeminiRecommendationEngine {
     
     try {
       // Load market data
-      const [stocks, realEstate, gold, bonds, crowdfunding] = await Promise.all([
+      const [stocks, realEstate, gold, bonds, crowdfunding, crypto, governmentBonds] = await Promise.all([
         this.dataProcessor.getStocksData(),
         this.dataProcessor.getRealEstateData(),
         this.dataProcessor.getGoldData(),
         this.dataProcessor.getBondsData(),
-        this.dataProcessor.getCrowdfundingData()
+        this.dataProcessor.getCrowdfundingData(),
+        this.dataProcessor.getCryptoData(),
+        this.dataProcessor.getGovernmentBondsData()
       ]);
 
       // Filter data based on user preferences and compliance
       const filteredData = this.filterDataByPreferences(
-        { stocks, realEstate, gold, bonds, crowdfunding },
+        { stocks, realEstate, gold, bonds, crowdfunding, crypto, governmentBonds },
         userData
       );
 
@@ -213,6 +215,25 @@ ${marketData}
           marketInfo += `- ${project.name}: عائد ${project.expectedReturn}%، الحد الأدنى: ${project.minInvestment} درهم\n`;
         });
       }
+
+      // Crypto currencies
+      if (data.crypto && data.crypto.length > 0) {
+        marketInfo += `\nالعملات الرقمية المتاحة:\n`;
+        data.crypto.slice(0, 4).forEach((crypto: any) => {
+          marketInfo += `- ${crypto.nameArabic} (${crypto.symbol}): ${crypto.price} درهم، عائد متوقع: ${crypto.expectedReturn}%\n`;
+        });
+      }
+
+      // Government bonds
+      const countryBonds = data.governmentBonds.filter((b: any) => 
+        targetMarket === 'UAE' ? b.country === 'UAE' : b.country === 'Saudi Arabia'
+      );
+      if (countryBonds.length > 0) {
+        marketInfo += `\nالسندات الحكومية المتاحة:\n`;
+        countryBonds.forEach((bond: any) => {
+          marketInfo += `- ${bond.name}: عائد ${bond.yield}%، الحد الأدنى: ${bond.minInvestment} درهم\n`;
+        });
+      }
       
     } else if (targetMarket === 'Saudi Arabia') {
       // Saudi-specific data
@@ -247,7 +268,9 @@ ${marketData}
       realEstate: [],
       gold: [],
       bonds: [],
-      crowdfunding: []
+      crowdfunding: [],
+      crypto: [],
+      governmentBonds: []
     };
 
     // Filter based on user preferences
@@ -283,6 +306,30 @@ ${marketData}
         }
         if (userData.targetMarket === 'Saudi Arabia') {
           return project.country === 'KSA' || project.country === 'Saudi Arabia';
+        }
+        return true;
+      });
+    }
+
+    if (userData.preferences.includes('crypto') || userData.preferences.includes('cryptocurrency')) {
+      filtered.crypto = data.crypto.filter((crypto: any) => {
+        if (userData.islamicCompliance) {
+          return crypto.shariahCompliant === true;
+        }
+        return true;
+      });
+    }
+
+    if (userData.preferences.includes('government-bonds') || userData.preferences.includes('bonds')) {
+      filtered.governmentBonds = data.governmentBonds.filter((bond: any) => {
+        if (userData.targetMarket === 'UAE') {
+          return bond.country === 'UAE';
+        }
+        if (userData.targetMarket === 'Saudi Arabia') {
+          return bond.country === 'Saudi Arabia';
+        }
+        if (userData.islamicCompliance) {
+          return bond.shariahCompliant === true;
         }
         return true;
       });
