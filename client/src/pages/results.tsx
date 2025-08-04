@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Header } from "@/components/ui/header";
+import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign, AlertTriangle } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function ResultsPage() {
   const { id } = useParams();
   const chartRef = useRef<HTMLCanvasElement>(null);
+  const { currentLanguage, isRTL } = useLanguage();
+  const { t } = useTranslation();
 
   const { data: analysis, isLoading, error } = useQuery({
     queryKey: ["/api/analysis", id],

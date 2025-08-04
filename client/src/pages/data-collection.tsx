@@ -15,6 +15,7 @@ import { Header } from "@/components/ui/header";
 import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
 import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings } from "lucide-react";
+import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -71,7 +72,7 @@ export default function DataCollectionPage() {
     }
   };
 
-  const currentContent = content[currentLang as keyof typeof content];
+  const currentContent = content[currentLanguage as keyof typeof content] || content.ar;
   const steps = currentContent.steps;
 
   const form = useForm<UserData>({
@@ -187,9 +188,11 @@ export default function DataCollectionPage() {
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-foreground">
-                {currentLang === "en" ? `Step ${currentStep} of 4` :
-                 currentLang === "fr" ? `Étape ${currentStep} sur 4` :
-                 `الخطوة ${currentStep} من 4`}
+                {t({ 
+                  ar: `الخطوة ${currentStep} من 4`,
+                  en: `Step ${currentStep} of 4`,
+                  fr: `Étape ${currentStep} sur 4`
+                })}
               </span>
               <span className="text-sm text-muted-foreground">{currentStepData.progress}%</span>
             </div>

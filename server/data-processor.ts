@@ -251,4 +251,58 @@ export class DataProcessor {
     
     return summary;
   }
+
+  // Data accessor methods for the recommendation engine
+  async getStocksData(): Promise<any[]> {
+    try {
+      const data = fs.readFileSync('./data/stocks-data.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error loading stocks data:', error);
+      return [];
+    }
+  }
+
+  async getRealEstateData(): Promise<any[]> {
+    try {
+      const realEstateData = fs.readFileSync('./data/real-estate-projects.json', 'utf-8');
+      const uaeData = fs.readFileSync('./data/uae-real-estate.json', 'utf-8');
+      const realEstate = JSON.parse(realEstateData);
+      const uae = JSON.parse(uaeData);
+      return [...realEstate, ...uae];
+    } catch (error) {
+      console.error('Error loading real estate data:', error);
+      return [];
+    }
+  }
+
+  async getGoldData(): Promise<any[]> {
+    try {
+      const data = fs.readFileSync('./data/gold-prices.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error loading gold data:', error);
+      return [];
+    }
+  }
+
+  async getBondsData(): Promise<any[]> {
+    try {
+      const data = fs.readFileSync('./data/bonds-sukuk.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error loading bonds data:', error);
+      return [];
+    }
+  }
+
+  async getCrowdfundingData(): Promise<any[]> {
+    try {
+      const data = fs.readFileSync('./data/crowdfunding-projects.json', 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error loading crowdfunding data:', error);
+      return [];
+    }
+  }
 }
