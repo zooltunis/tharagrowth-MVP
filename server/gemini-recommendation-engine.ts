@@ -135,15 +135,22 @@ export class GeminiRecommendationEngine {
   }
 
   private createGeminiPrompt(userData: UserData, data: any, budget: number): string {
-    // Simple and direct prompt to avoid API errors
+    // Get market-specific data based on user's target market
+    const marketData = this.getMarketSpecificData(data, userData.targetMarket);
+    
     const prompt = `
-خبير مالي خليجي: أنصح مستخدم عمره ${userData.age}، دخله ${userData.income}، ميزانيته ${budget} درهم، مخاطره ${userData.riskTolerance}.
+خبير مالي إماراتي متخصص في السوق الإماراتي: أنصح مستثمر عمره ${userData.age}، دخله ${userData.income}، ميزانيته ${budget} درهم إماراتي، مخاطره ${userData.riskTolerance}.
 
-أسعار السوق:
-- أرامكو: 27.85 ريال/سهم
-- الراجحي: 85.2 ريال/سهم  
-- سابك: 89.5 ريال/سهم
-- ذهب: 180 ريال/جرام
+${userData.targetMarket === 'UAE' ? 'البيانات الحقيقية للسوق الإماراتي فقط:' : 'البيانات الحقيقية للسوق:'}
+${marketData}
+
+قواعد إلزامية:
+- يجب استخدام الشركات والاستثمارات الإماراتية المذكورة أعلاه فقط
+- ${userData.targetMarket === 'UAE' ? 'FORBIDDEN: أرامكو، الراجحي، سابك، الاتصالات السعودية - هذه شركات سعودية وليست إماراتية' : ''}
+- ${userData.targetMarket === 'UAE' ? 'REQUIRED: استخدم فقط الشركات الإماراتية: إعمار، FAB، ADCB، أدنوك، اتصالات الإمارات' : ''}
+- ${userData.targetMarket === 'UAE' ? 'إذا اختار المستخدم UAE كسوق مستهدف، لا تذكر أي شركات سعودية نهائياً' : ''}
+- ${userData.islamicCompliance ? 'تأكد من التوافق مع الشريعة الإسلامية' : ''}
+- راعِ تفضيلات المستخدم: ${userData.preferences.join('، ')}
 
 أعط 3-4 توصيات بتنسيق JSON فقط:
 {
@@ -169,6 +176,57 @@ export class GeminiRecommendationEngine {
 }`;
 
     return prompt;
+  }
+
+  private getMarketSpecificData(data: any, targetMarket: string): string {
+    let marketInfo = '';
+    
+    if (targetMarket === 'UAE') {
+      // Force UAE-specific data with explicit UAE companies only
+      marketInfo += `الشركات الإماراتية المتاحة حصرياً (لا تستخدم أي شركات أخرى):\n`;
+      marketInfo += `- إعمار العقارية (EMAAR): 4.85 درهم/سهم، العائد: 8.1%، بورصة دبي\n`;
+      marketInfo += `- بنك أبوظبي الأول (FAB): 18.2 درهم/سهم، العائد: 4.8%، بورصة أبوظبي\n`;
+      marketInfo += `- بنك أبوظبي التجاري (ADCB): 9.15 درهم/سهم، العائد: 5.4%، بورصة أبوظبي\n`;
+      marketInfo += `- أدنوك للتوزيع (ADNOC): 3.95 درهم/سهم، العائد: 6.5%، بورصة أبوظبي\n`;
+      marketInfo += `- اتصالات الإمارات (Etisalat): 15.6 درهم/سهم، العائد: 7.2%، بورصة أبوظبي\n`;
+
+      // UAE Real Estate from data
+      const uaeRealEstate = data.realEstate.filter((r: any) => 
+        r.location?.includes('الإمارات') || r.location?.includes('UAE') || r.location?.includes('Dubai')
+      ).slice(0, 3);
+
+      if (uaeRealEstate.length > 0) {
+        marketInfo += `\nالعقارات الإماراتية المتاحة:\n`;
+        uaeRealEstate.forEach((property: any) => {
+          marketInfo += `- ${property.name}: ${property.price} درهم، الحد الأدنى: ${property.minInvestment} درهم\n`;
+        });
+      }
+      
+    } else if (targetMarket === 'Saudi Arabia') {
+      // Saudi-specific data
+      const saudiStocks = data.stocks.filter((s: any) => 
+        s.exchange === 'Tadawul' || s.country === 'Saudi Arabia'
+      ).slice(0, 5);
+
+      marketInfo += `الأسهم السعودية المتاحة:\n`;
+      saudiStocks.forEach((stock: any) => {
+        marketInfo += `- ${stock.name}: ${stock.price} ريال/سهم، العائد: ${stock.expectedReturn}%\n`;
+      });
+    }
+
+    // Common data for all markets
+    marketInfo += `\nالذهب: ${data.gold[0]?.price || 270} درهم/جرام\n`;
+    
+    const islamicBonds = data.bonds.filter((b: any) => 
+      b.type === 'sukuk' || b.shariahCompliant === true
+    ).slice(0, 2);
+    
+    marketInfo += `الصكوك المتاحة:\n`;
+    islamicBonds.forEach((bond: any) => {
+      marketInfo += `- ${bond.name}: عائد ${bond.expectedReturn}% سنوياً\n`;
+    });
+
+    return marketInfo;
   }
 
   private filterDataByPreferences(data: any, userData: UserData) {

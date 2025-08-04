@@ -54,9 +54,62 @@
     "sector": "العقارات",
     "marketCap": 29000000000,
     "peRatio": 14.2,
-    "dividendYield": 4.8,
+    "dividendYield": 8.1,
     "currency": "AED",
     "exchange": "DFM",
-    "country": "الإمارات"
+    "country": "UAE",
+    "expectedReturn": 8.1
+  },
+  {
+    "symbol": "ADCB",
+    "name": "بنك أبوظبي التجاري",
+    "price": 9.15,
+    "sector": "البنوك",
+    "marketCap": 85000000000,
+    "peRatio": 12.8,
+    "dividendYield": 5.4,
+    "currency": "AED",
+    "exchange": "ADX",
+    "country": "UAE",
+    "expectedReturn": 5.4
+  },
+  {
+    "symbol": "FAB",
+    "name": "بنك أبوظبي الأول",
+    "price": 18.2,
+    "sector": "البنوك",
+    "marketCap": 156000000000,
+    "peRatio": 15.1,
+    "dividendYield": 4.8,
+    "currency": "AED",
+    "exchange": "ADX",
+    "country": "UAE",
+    "expectedReturn": 4.8
+  },
+  {
+    "symbol": "ADNOC",
+    "name": "أدنوك للتوزيع",
+    "price": 3.95,
+    "sector": "النفط والغاز",
+    "marketCap": 79000000000,
+    "peRatio": 18.7,
+    "dividendYield": 6.5,
+    "currency": "AED",
+    "exchange": "ADX",
+    "country": "UAE",
+    "expectedReturn": 6.5
+  },
+  {
+    "symbol": "ETISALAT",
+    "name": "اتصالات الإمارات",
+    "price": 15.6,
+    "sector": "الاتصالات",
+    "marketCap": 127000000000,
+    "peRatio": 16.9,
+    "dividendYield": 7.2,
+    "currency": "AED",
+    "exchange": "ADX",
+    "country": "UAE",
+    "expectedReturn": 7.2
   }
 ]
