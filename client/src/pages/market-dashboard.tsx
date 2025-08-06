@@ -61,7 +61,48 @@ export default function MarketDashboard() {
           change24h: 2.45,
           changePercent24h: 1.0
         },
-        activeStocks: [
+        activeStocks: selectedCurrency === 'SAR' ? [
+          {
+            symbol: '2222',
+            name: 'أرامكو السعودية',
+            price: 28.45,
+            change: 0.55,
+            changePercent: 1.97,
+            volume: 2150000,
+            sector: 'طاقة',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: '1180',
+            name: 'الهيئة السعودية للكهرباء',
+            price: 23.20,
+            change: -0.45,
+            changePercent: -1.90,
+            volume: 875000,
+            sector: 'مرافق عامة',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: '1120',
+            name: 'الراجحي المصرفية',
+            price: 85.50,
+            change: 1.20,
+            changePercent: 1.42,
+            volume: 1100000,
+            sector: 'مصارف',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: '2010',
+            name: 'سابك',
+            price: 92.80,
+            change: -1.30,
+            changePercent: -1.38,
+            volume: 950000,
+            sector: 'كيماويات',
+            lastUpdated: new Date().toISOString()
+          }
+        ] : [
           {
             symbol: 'EMAAR',
             name: 'إعمار العقارية',
@@ -93,7 +134,34 @@ export default function MarketDashboard() {
             lastUpdated: new Date().toISOString()
           }
         ],
-        newRealEstateProjects: [
+        newRealEstateProjects: selectedCurrency === 'SAR' ? [
+          {
+            id: '1',
+            name: 'مدينة الرياض الجديدة',
+            developer: 'شركة الراجحي للاستثمار العقاري',
+            location: 'الرياض',
+            propertyType: 'شقق سكنية',
+            startingPrice: 425000,
+            currency: 'SAR',
+            roi: 7.8,
+            paymentPlan: 'دفع 15% مقدم',
+            salesStatus: 'متوفر',
+            launchDate: '2024-03-01'
+          },
+          {
+            id: '2',
+            name: 'واحة جدة',
+            developer: 'دار الأركان',
+            location: 'جدة',
+            propertyType: 'فلل',
+            startingPrice: 850000,
+            currency: 'SAR',
+            roi: 6.5,
+            paymentPlan: 'دفع 20% مقدم',
+            salesStatus: 'متوفر',
+            launchDate: '2024-02-15'
+          }
+        ] : [
           {
             id: '1',
             name: 'داون تاون دبي',
@@ -128,7 +196,7 @@ export default function MarketDashboard() {
   });
 
   const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 2
@@ -136,7 +204,7 @@ export default function MarketDashboard() {
   };
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ar-SA', {
+    return new Date(dateString).toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -244,7 +312,7 @@ export default function MarketDashboard() {
                     <span className={`font-bold ${
                       marketData.goldPrice.changePercent24h >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {marketData.goldPrice.changePercent24h.toFixed(2)}%
+                      {Number(marketData.goldPrice.changePercent24h.toFixed(2)).toLocaleString('en-US')}%
                     </span>
                   </div>
                 </div>
@@ -277,7 +345,7 @@ export default function MarketDashboard() {
                         )}
                       </div>
                       <div className="text-left">
-                        <p className="text-lg font-bold">{stock.price.toFixed(2)} ريال</p>
+                        <p className="text-lg font-bold">{Number(stock.price.toFixed(2)).toLocaleString('en-US')} ريال</p>
                         <div className="flex items-center">
                           {stock.changePercent >= 0 ? (
                             <TrendingUp className="h-3 w-3 text-green-600 ml-1" />
@@ -287,14 +355,14 @@ export default function MarketDashboard() {
                           <span className={`text-sm font-medium ${
                             stock.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {stock.changePercent.toFixed(2)}%
+                            {Number(stock.changePercent.toFixed(2)).toLocaleString('en-US')}%
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="text-xs text-gray-500 flex justify-between">
-                      <span>الحجم: {stock.volume.toLocaleString()}</span>
-                      <span>التغيير: {stock.change.toFixed(2)} ريال</span>
+                      <span>الحجم: {stock.volume.toLocaleString('en-US')}</span>
+                      <span>التغيير: {Number(stock.change.toFixed(2)).toLocaleString('en-US')} ريال</span>
                     </div>
                   </div>
                 ))}
@@ -345,7 +413,7 @@ export default function MarketDashboard() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">العائد المتوقع:</span>
-                        <span className="font-medium text-blue-600">{project.roi}% سنوياً</span>
+                        <span className="font-medium text-blue-600">{Number(project.roi).toLocaleString('en-US')}% سنوياً</span>
                       </div>
                       <div className="text-xs text-gray-500 mt-2">
                         <div className="flex items-center">
