@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/ui/header";
 import { TrendingUp, Shield, Coins, Brain, AlertTriangle, Sparkles, BarChart3, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import logoPath from "@assets/TharaGrowth Logo - Emblem Style with Calligraphy Twist_20250803_194834_0000_1754247313539.png";
 
 export default function WelcomePage() {
-  const [currentLang, setCurrentLang] = useState("ar");
+  const { currentLanguage, isRTL } = useLanguage();
+  const currentLang = currentLanguage;
 
   const content = {
     ar: {
@@ -76,8 +77,8 @@ export default function WelcomePage() {
   const currentContent = content[currentLang as keyof typeof content];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50" dir={currentLang === "ar" ? "rtl" : "ltr"}>
-      <Header currentLang={currentLang} onLanguageChange={setCurrentLang} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50" dir={isRTL ? "rtl" : "ltr"}>
+      <Header />
       
       <main className="max-w-7xl mx-auto px-4 py-16">
         {/* Hero Section */}
