@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BookOpen, TrendingUp, Shield, Globe, AlertTriangle, ExternalLink } from "lucide-react";
+import { Link } from "wouter";
+import { BookOpen, TrendingUp, Shield, Globe, AlertTriangle, ExternalLink, Home } from "lucide-react";
 
 interface NewsArticle {
   title: string;
@@ -301,13 +302,23 @@ export default function EducationPage() {
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{content.title}</h1>
-          <p className="text-gray-600 mt-2">
-            {currentLanguage === 'ar' ? 'تعلم أساسيات الاستثمار والتخطيط المالي' :
-             currentLanguage === 'fr' ? 'Apprenez les bases de l\'investissement et de la planification financière' :
-             'Learn investment basics and financial planning'}
-          </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{content.title}</h1>
+            <p className="text-gray-600 mt-2">
+              {currentLanguage === 'ar' ? 'تعلم أساسيات الاستثمار والتخطيط المالي' :
+               currentLanguage === 'fr' ? 'Apprenez les bases de l\'investissement et de la planification financière' :
+               'Learn investment basics and financial planning'}
+            </p>
+          </div>
+          <Link href="/">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              {currentLanguage === 'ar' ? 'الرئيسية' :
+               currentLanguage === 'fr' ? 'Accueil' :
+               'Home'}
+            </Button>
+          </Link>
         </div>
 
         {/* Legal Disclaimer */}

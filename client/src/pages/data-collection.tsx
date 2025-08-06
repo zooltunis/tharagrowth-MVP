@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Header } from "@/components/ui/header";
 import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
-import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings } from "lucide-react";
+import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings, Home } from "lucide-react";
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -607,17 +607,30 @@ export default function DataCollectionPage() {
 
                   {/* Navigation Buttons */}
                   <div className="flex justify-between pt-6 border-t">
-                    {currentStep > 1 && (
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={prevStep}
-                        className="flex items-center gap-2"
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                        {currentContent.buttons.prev}
-                      </Button>
-                    )}
+                    <div className="flex gap-3">
+                      <Link href="/">
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          <Home className="h-4 w-4" />
+                          {t({ ar: "الرئيسية", en: "Home", fr: "Accueil" })}
+                        </Button>
+                      </Link>
+                      {currentStep > 1 && (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={prevStep}
+                          className="flex items-center gap-2"
+                        >
+                          <ArrowLeft className="h-4 w-4" />
+                          {currentContent.buttons.prev}
+                        </Button>
+                      )}
+                    </div>
                     
                     {currentStep < 4 ? (
                       <Button 

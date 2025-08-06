@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/ui/header";
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
-import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign, AlertTriangle } from "lucide-react";
+import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign, AlertTriangle, Home } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function ResultsPage() {
@@ -365,12 +365,13 @@ export default function ResultsPage() {
           <Link href="/data-collection">
             <Button variant="outline" className="w-full sm:w-auto">
               <RotateCcw className="ml-2 h-4 w-4" />
-              إجراء تحليل جديد
+              {t({ ar: "إجراء تحليل جديد", en: "New Analysis", fr: "Nouvelle Analyse" })}
             </Button>
           </Link>
           <Link href="/">
             <Button className="w-full sm:w-auto">
-              العودة للرئيسية
+              <Home className="ml-2 h-4 w-4" />
+              {t({ ar: "العودة للرئيسية", en: "Back to Home", fr: "Retour à l'accueil" })}
             </Button>
           </Link>
         </div>
