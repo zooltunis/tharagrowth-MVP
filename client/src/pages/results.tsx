@@ -200,6 +200,40 @@ export default function ResultsPage() {
     return translations[level] ? t(translations[level]) : level;
   };
 
+  const translateAssetName = (assetName: string) => {
+    const translations: { [key: string]: { ar: string, en: string, fr: string } } = {
+      // شركات الأسهم
+      'Emaar Properties': { ar: 'شركة إعمار العقارية', en: 'Emaar Properties', fr: 'Emaar Properties' },
+      'First Abu Dhabi Bank': { ar: 'بنك أبو ظبي الأول', en: 'First Abu Dhabi Bank', fr: 'Première Banque d\'Abu Dhabi' },
+      'Emirates NBD': { ar: 'بنك الإمارات دبي الوطني', en: 'Emirates NBD', fr: 'Emirates NBD' },
+      'ADNOC Distribution': { ar: 'أدنوك للتوزيع', en: 'ADNOC Distribution', fr: 'ADNOC Distribution' },
+      'Dubai Islamic Bank': { ar: 'بنك دبي الإسلامي', en: 'Dubai Islamic Bank', fr: 'Banque Islamique de Dubaï' },
+      'Aldar Properties': { ar: 'شركة الدار العقارية', en: 'Aldar Properties', fr: 'Aldar Properties' },
+      'Etisalat UAE': { ar: 'اتصالات الإمارات', en: 'Etisalat UAE', fr: 'Etisalat EAU' },
+      'Saudi Aramco': { ar: 'أرامكو السعودية', en: 'Saudi Aramco', fr: 'Saudi Aramco' },
+      'Al Rajhi Bank': { ar: 'مصرف الراجحي', en: 'Al Rajhi Bank', fr: 'Banque Al Rajhi' },
+      'Saudi Basic Industries': { ar: 'الصناعات الأساسية السعودية', en: 'Saudi Basic Industries', fr: 'Industries de Base Saoudiennes' },
+      
+      // أسماء عربية موجودة
+      'إعمار العقارية': { ar: 'إعمار العقارية', en: 'Emaar Properties', fr: 'Emaar Properties' },
+      'شركة إعمار العقارية': { ar: 'شركة إعمار العقارية', en: 'Emaar Properties', fr: 'Emaar Properties' },
+      'اتصالات الإمارات': { ar: 'اتصالات الإمارات', en: 'Etisalat UAE', fr: 'Etisalat EAU' },
+      'بنك أبو ظبي الأول': { ar: 'بنك أبو ظبي الأول', en: 'First Abu Dhabi Bank', fr: 'Première Banque d\'Abu Dhabi' },
+      
+      // استثمارات أخرى
+      'Gold Bars': { ar: 'سبائك الذهب', en: 'Gold Bars', fr: 'Lingots d\'Or' },
+      'Gold Coins': { ar: 'عملات الذهب', en: 'Gold Coins', fr: 'Pièces d\'Or' },
+      'UAE Government Bonds': { ar: 'سندات الحكومة الإماراتية', en: 'UAE Government Bonds', fr: 'Obligations Gouvernementales des EAU' },
+      'Saudi Government Sukuk': { ar: 'صكوك الحكومة السعودية', en: 'Saudi Government Sukuk', fr: 'Sukuk Gouvernementaux Saoudiens' },
+      
+      // مشاريع التمويل الجماعي والناشئة
+      'Tech Startup - AI Solutions': { ar: 'شركة ناشئة تقنية - حلول الذكاء الاصطناعي', en: 'Tech Startup - AI Solutions', fr: 'Startup Technologique - Solutions IA' },
+      'Real Estate Development - Luxury Villas': { ar: 'تطوير عقاري - فيلات فاخرة', en: 'Real Estate Development - Luxury Villas', fr: 'Développement Immobilier - Villas de Luxe' },
+      'Fintech Innovation - Mobile Wallet': { ar: 'ابتكار التكنولوجيا المالية - محفظة الهاتف المحمول', en: 'Fintech Innovation - Mobile Wallet', fr: 'Innovation Fintech - Portefeuille Mobile' }
+    };
+    return translations[assetName] ? t(translations[assetName]) : assetName;
+  };
+
   const formatCurrency = (amount: number) => {
     const currency = analysis?.currency || 'AED';
     const locale = currentLanguage === 'ar' ? 'ar-AE' : currentLanguage === 'fr' ? 'fr-FR' : 'en-US';
@@ -302,7 +336,7 @@ export default function ResultsPage() {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <CardTitle className="text-lg">{recommendation.asset || recommendation.title}</CardTitle>
+                        <CardTitle className="text-lg">{translateAssetName(recommendation.asset || recommendation.title)}</CardTitle>
                         <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.category || recommendation.type)}</p>
                       </div>
                       <Badge 

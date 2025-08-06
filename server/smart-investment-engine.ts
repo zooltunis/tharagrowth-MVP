@@ -132,9 +132,10 @@ export class SmartInvestmentEngine {
       2. اعط مبالغ محددة وليس نسب مئوية
       3. اشرح منطق التوزيع بناءً على استراتيجيات استثمار معروفة
       4. تأكد أن المجموع لا يتجاوز الميزانية المتاحة
-      5. **يجب أن تكون جميع النصوص باللغة العربية فقط** - analysis, strategy, riskAssessment, reason
+      5. **يجب أن تكون جميع النصوص باللغة العربية فقط** - analysis, strategy, riskAssessment, reason, asset names
       6. مستويات المخاطر: منخفض، متوسط، عالي (فقط هذه الكلمات)
-      7. إجابتك يجب أن تكون باللغة العربية 100%`,
+      7. أسماء الأصول يجب أن تكون بالعربية: مثل "شركة إعمار العقارية" وليس "Emaar Properties"
+      8. إجابتك يجب أن تكون باللغة العربية 100% بما في ذلك أسماء الشركات والأصول`,
       
       en: `You are a professional investment expert specialized in Gulf financial markets.
       Your task is to analyze the investor profile and provide accurate and detailed investment recommendations using only the real data available.
@@ -144,9 +145,10 @@ export class SmartInvestmentEngine {
       2. Give specific amounts, not percentages
       3. Explain the allocation logic based on known investment strategies
       4. Ensure the total does not exceed the available budget
-      5. **ALL texts MUST be in English ONLY** - analysis, strategy, riskAssessment, reason
+      5. **ALL texts MUST be in English ONLY** - analysis, strategy, riskAssessment, reason, asset names
       6. Risk levels: Low, Medium, High (only these exact words)
-      7. Your response must be 100% in English`,
+      7. Asset names must be in English: like "Emaar Properties" not "شركة إعمار العقارية"
+      8. Your response must be 100% in English including company and asset names`,
       
       fr: `Vous êtes un expert en investissement professionnel spécialisé dans les marchés financiers du Golfe.
       Votre tâche est d'analyser le profil de l'investisseur et de fournir des recommandations d'investissement précises et détaillées en utilisant uniquement les données réelles disponibles.
@@ -156,9 +158,10 @@ export class SmartInvestmentEngine {
       2. Donnez des montants spécifiques, pas des pourcentages
       3. Expliquez la logique de répartition basée sur des stratégies d'investissement connues
       4. Assurez-vous que le total ne dépasse pas le budget disponible
-      5. **TOUS les textes DOIVENT être en français UNIQUEMENT** - analysis, strategy, riskAssessment, reason
+      5. **TOUS les textes DOIVENT être en français UNIQUEMENT** - analysis, strategy, riskAssessment, reason, asset names
       6. Niveaux de risque: Faible, Moyen, Élevé (uniquement ces mots exacts)
-      7. Votre réponse doit être 100% en français`
+      7. Les noms d'actifs doivent être en français: comme "Emaar Properties" pas "شركة إعمار العقارية"
+      8. Votre réponse doit être 100% en français y compris les noms d'entreprises et d'actifs`
     };
 
     return instructions[language as keyof typeof instructions] || instructions.ar;
