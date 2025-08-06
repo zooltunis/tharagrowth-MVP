@@ -104,10 +104,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "العربية الاقتصادية"
           },
           {
+            title: "مصرف الإمارات المركزي يطلق منصة رقمية جديدة للخدمات المصرفية",
+            description: "المنصة تهدف لتعزيز الشمول المالي وتطوير قطاع التكنولوجيا المالية في الإمارات",
+            url: "https://example.com/news/2",
+            publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+            source: "الإمارات اليوم"
+          },
+          {
             title: "صندوق الاستثمارات العامة يعلن عن استثمارات جديدة بقيمة 50 مليار ريال",
             description: "تركز الاستثمارات على التقنية المالية والطاقة المتجددة والذكاء الاصطناعي",
-            url: "https://example.com/news/2",
-            publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+            url: "https://example.com/news/3",
+            publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
             source: "الاقتصادية"
           },
           {
@@ -125,10 +132,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "الإمارات اليوم"
           },
           {
+            title: "بورصة أبوظبي تسجل أعلى مستوى لها في العام الجاري",
+            description: "المؤشر العام يرتفع 3.2% مدفوعاً بأداء قوي لأسهم البنوك والطاقة",
+            url: "https://example.com/news/5",
+            publishedAt: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+            source: "البيان الاقتصادي"
+          },
+          {
+            title: "شركة أرامكو السعودية تعلن عن استثمارات في الطاقة المتجددة بـ15 مليار دولار",
+            description: "الاستثمارات تركز على الهيدروجين الأخضر والطاقة الشمسية وتقنيات تخزين الطاقة",
+            url: "https://example.com/news/6",
+            publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+            source: "العربية نت"
+          },
+          {
+            title: "إعمار العقارية تطلق مشروعاً سكنياً جديداً بقيمة 8 مليار درهم",
+            description: "المشروع يتضمن 3,500 وحدة سكنية ومرافق تجارية في منطقة دبي الجنوبية",
+            url: "https://example.com/news/7",
+            publishedAt: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(),
+            source: "الخليج الاقتصادي"
+          },
+          {
             title: "البنك المركزي السعودي يبقي أسعار الفائدة دون تغيير عند 5.5%",
             description: "قرار يأتي وسط استقرار مؤشرات التضخم وتحسن النمو الاقتصادي",
-            url: "https://example.com/news/5",
-            publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
+            url: "https://example.com/news/8",
+            publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
             source: "رويترز العربية"
           }
         ],
@@ -141,9 +169,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "Arabia Business"
           },
           {
+            title: "UAE Central Bank Launches New Digital Banking Platform",
+            description: "Platform aims to enhance financial inclusion and develop fintech sector",
+            url: "https://example.com/news/2",
+            publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+            source: "Emirates Today"
+          },
+          {
             title: "Public Investment Fund Announces New $13.3B Investment Initiative",
             description: "Investments focus on fintech, renewable energy, and artificial intelligence",
-            url: "https://example.com/news/2",
+            url: "https://example.com/news/3",
             publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
             source: "Financial Times"
           },
@@ -162,9 +197,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "Gulf News"
           },
           {
+            title: "Abu Dhabi Securities Exchange Hits Yearly High",
+            description: "Main index rises 3.2% driven by strong banking and energy stocks performance",
+            url: "https://example.com/news/5",
+            publishedAt: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+            source: "Gulf News"
+          },
+          {
+            title: "Saudi Aramco Announces $15B Renewable Energy Investment",
+            description: "Investments focus on green hydrogen, solar power, and energy storage technologies",
+            url: "https://example.com/news/6",
+            publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+            source: "Arabia Business"
+          },
+          {
             title: "Saudi Central Bank Keeps Interest Rates Unchanged at 5.5%",
             description: "Decision comes amid stable inflation indicators and improved economic growth",
-            url: "https://example.com/news/5",
+            url: "https://example.com/news/7",
             publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
             source: "Reuters"
           }
@@ -178,9 +227,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "Arabia Business FR"
           },
           {
+            title: "La Banque Centrale des Émirats Lance une Nouvelle Plateforme Bancaire Numérique",
+            description: "La plateforme vise à renforcer l'inclusion financière et développer le secteur fintech",
+            url: "https://example.com/news/2",
+            publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+            source: "Emirates Today FR"
+          },
+          {
             title: "Le Fonds d'Investissement Public Annonce une Nouvelle Initiative de 50 Milliards SAR",
             description: "Les investissements se concentrent sur la fintech, l'énergie renouvelable et l'IA",
-            url: "https://example.com/news/2",
+            url: "https://example.com/news/3",
             publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
             source: "Les Échos"
           },
@@ -199,9 +255,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             source: "Gulf News FR"
           },
           {
+            title: "La Bourse d'Abu Dhabi Atteint son Plus Haut Niveau de l'Année",
+            description: "L'indice principal monte de 3,2% porté par les performances des banques et de l'énergie",
+            url: "https://example.com/news/5",
+            publishedAt: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+            source: "Gulf News FR"
+          },
+          {
+            title: "Aramco Saoudite Annonce 15 Milliards $ d'Investissements dans l'Énergie Renouvelable",
+            description: "Les investissements portent sur l'hydrogène vert, l'énergie solaire et les technologies de stockage",
+            url: "https://example.com/news/6",
+            publishedAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+            source: "Arabia Business FR"
+          },
+          {
             title: "La Banque Centrale Saoudienne Maintient les Taux d'Intérêt à 5,5%",
             description: "Décision prise dans un contexte d'indicateurs d'inflation stables et de croissance économique améliorée",
-            url: "https://example.com/news/5",
+            url: "https://example.com/news/7",
             publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
             source: "Reuters France"
           }
