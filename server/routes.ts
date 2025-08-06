@@ -45,9 +45,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: rec.category,
           category: rec.category as any,
           title: rec.asset,
+          asset: rec.asset,  // اسم الأصل المالي
           description: rec.reason,
+          reason: rec.reason,  // سبب التوصية
           price: rec.amount.toString(),
-          expectedReturn: rec.expectedReturn.toString() + '%',
+          amount: rec.amount,  // المبلغ بصيغة رقمية
+          quantity: rec.quantity,  // الكمية
+          expectedReturn: (rec.expectedReturn * 100).toFixed(1),  // العائد المتوقع كنسبة مئوية
           paymentPlan: 'N/A',
           riskLevel: rec.riskLevel as any,
           timeline: '1 year',
