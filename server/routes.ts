@@ -1,33 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { userDataSchema, type DetailedRecommendation } from "@shared/schema";
-import { getRecommendationsByCategory, getAllRecommendations } from "./investment-data";
-import { 
-  getGoldPrice, 
-  getStockData, 
-  realEstateProjects, 
-  sukukBondsData, 
-  crowdfundingProjects,
-  calculateGoldRecommendation,
-  type RealEstateProject,
-  type StockData 
-} from "./api-integrations";
-import {
-  getMarketSummary,
-  getLiveGoldPrice,
-  getCurrencyRates,
-  convertCurrency,
-  getActiveStocks
-} from "./market-data";
-import OpenAI from "openai";
-import { DynamicRecommendationEngine } from "./dynamic-recommendation-engine";
-import { GeminiRecommendationEngine } from "./gemini-recommendation-engine";
-import { DataProcessor } from "./data-processor";
+import { userDataSchema } from "@shared/schema";
+import { SmartInvestmentEngine } from "./smart-investment-engine";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "sk-fake-key"
-});
+// Smart Investment Engine using Gemini AI
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -36,20 +13,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = userDataSchema.parse(req.body);
       
-      // Generate AI recommendations using Gemini with fallback
-      console.log('🧠 Calling Gemini AI engine directly...');
-      let aiAnalysis;
+      // Generate smart investment recommendations using Gemini AI
+      console.log('🧠 بدء نظام التوصية الذكي الجديد...');
       
-      try {
-        const geminiEngine = new GeminiRecommendationEngine();
-        aiAnalysis = await geminiEngine.generateRecommendations(userData);
-        console.log('✅ Gemini AI recommendations generated successfully');
-      } catch (error) {
-        console.log('🔄 Gemini failed, falling back to enhanced dynamic engine...');
-        const fallbackEngine = new DynamicRecommendationEngine();
-        aiAnalysis = await fallbackEngine.generateRecommendations(userData);
-        console.log('✅ Fallback recommendations generated successfully');
-      }
+      const investmentEngine = new SmartInvestmentEngine();
+      const investmentProfile = {
+        budget: parseInt(userData.investmentBudget.replace(/,/g, '')),
+        currency: userData.currency,
+        goals: userData.goals,
+        timeHorizon: userData.age === '18-25' ? 'طويل الأجل' : 
+                    userData.age === '26-35' ? 'متوسط إلى طويل الأجل' : 'متوسط الأجل',
+        riskTolerance: userData.riskTolerance,
+        preferences: userData.preferences,
+        targetMarket: userData.targetMarket,
+        islamicCompliance: userData.islamicCompliance
+      };
+
+      const aiAnalysis = await investmentEngine.generateSmartRecommendations(investmentProfile);
+      console.log('✅ تم توليد التوصيات الذكية بنجاح');
       
       // Store the analysis  
       const analysis = await storage.createInvestmentAnalysis({
@@ -84,74 +65,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Live Market Data endpoint
+  // Simple market data endpoint (using static data)
   app.get("/api/market-data", async (req, res) => {
     try {
-      const currency = (req.query.currency as string) || 'SAR';
-      const marketData = await getMarketSummary(currency);
-      res.json(marketData);
-    } catch (error: any) {
-      console.error("Market data error:", error);
-      res.status(500).json({ message: "خطأ في جلب بيانات السوق" });
-    }
-  });
-
-  // Gold price endpoint
-  app.get("/api/gold-price", async (req, res) => {
-    try {
-      const currency = (req.query.currency as string) || 'SAR';
-      const goldPrice = await getLiveGoldPrice(currency);
-      res.json(goldPrice);
-    } catch (error: any) {
-      console.error("Gold price error:", error);
-      res.status(500).json({ message: "خطأ في جلب سعر الذهب" });
-    }
-  });
-
-  // Currency conversion endpoint
-  app.get("/api/currency-rates", async (req, res) => {
-    try {
-      const baseCurrency = (req.query.base as string) || 'USD';
-      const rates = await getCurrencyRates(baseCurrency);
-      res.json(rates);
-    } catch (error: any) {
-      console.error("Currency rates error:", error);
-      res.status(500).json({ message: "خطأ في جلب أسعار العملات" });
-    }
-  });
-
-  // Convert currency endpoint
-  app.post("/api/convert-currency", async (req, res) => {
-    try {
-      const { amount, fromCurrency, toCurrency } = req.body;
-      
-      if (!amount || !fromCurrency || !toCurrency) {
-        return res.status(400).json({ message: "معاملات مطلوبة: amount, fromCurrency, toCurrency" });
-      }
-      
-      const convertedAmount = await convertCurrency(amount, fromCurrency, toCurrency);
       res.json({
-        originalAmount: amount,
-        fromCurrency,
-        toCurrency,
-        convertedAmount,
+        goldPrice: { pricePerGram: 246.68, currency: 'AED' },
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error("Currency conversion error:", error);
-      res.status(500).json({ message: "خطأ في تحويل العملة" });
-    }
-  });
-
-  // Active stocks endpoint
-  app.get("/api/active-stocks", async (req, res) => {
-    try {
-      const market = (req.query.market as string) || 'TADAWUL';
-      const stocks = await getActiveStocks(market);
-      res.json(stocks);
-    } catch (error: any) {
-      console.error("Stocks data error:", error);
-      res.status(500).json({ message: "خطأ في جلب بيانات الأسهم" });
+      console.error("Market data error:", error);
+      res.status(500).json({ message: "خطأ في جلب بيانات السوق" });
     }
   });
 
