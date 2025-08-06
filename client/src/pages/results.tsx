@@ -93,7 +93,7 @@ export default function ResultsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600 mb-4" />
-          <p className="text-gray-600">جاري تحميل التوصيات...</p>
+          <p className="text-gray-600">{t({ ar: "جاري تحميل التوصيات...", en: "Loading recommendations...", fr: "Chargement des recommandations..." })}</p>
         </div>
       </div>
     );
@@ -104,10 +104,10 @@ export default function ResultsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md">
           <AlertCircle className="mx-auto h-12 w-12 text-red-600 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
-          <p className="text-gray-600 mb-4">حدث خطأ أثناء تحميل التوصيات الاستثمارية</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t({ ar: "خطأ في تحميل البيانات", en: "Error Loading Data", fr: "Erreur de Chargement des Données" })}</h3>
+          <p className="text-gray-600 mb-4">{t({ ar: "حدث خطأ أثناء تحميل التوصيات الاستثمارية", en: "An error occurred while loading investment recommendations", fr: "Une erreur s'est produite lors du chargement des recommandations d'investissement" })}</p>
           <Link href="/">
-            <Button>العودة للرئيسية</Button>
+            <Button>{t({ ar: "العودة للرئيسية", en: "Back to Home", fr: "Retour à l'accueil" })}</Button>
           </Link>
         </div>
       </div>
@@ -119,10 +119,10 @@ export default function ResultsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md">
           <AlertCircle className="mx-auto h-12 w-12 text-yellow-600 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد توصيات</h3>
-          <p className="text-gray-600 mb-4">لم يتم العثور على توصيات لهذا التحليل</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t({ ar: "لا توجد توصيات", en: "No Recommendations", fr: "Aucune Recommandation" })}</h3>
+          <p className="text-gray-600 mb-4">{t({ ar: "لم يتم العثور على توصيات لهذا التحليل", en: "No recommendations found for this analysis", fr: "Aucune recommandation trouvée pour cette analyse" })}</p>
           <Link href="/">
-            <Button>العودة للرئيسية</Button>
+            <Button>{t({ ar: "العودة للرئيسية", en: "Back to Home", fr: "Retour à l'accueil" })}</Button>
           </Link>
         </div>
       </div>
@@ -167,22 +167,26 @@ export default function ResultsPage() {
   ];
 
   const translateType = (type: string) => {
-    const translations: { [key: string]: string } = {
-      'stocks': 'الأسهم',
-      'real-estate': 'العقارات',
-      'gold': 'الذهب',
-      'bonds': 'السندات',
-      'savings': 'الادخار',
-      'crypto': 'العملات المشفرة',
-      'crowdfunding': 'التمويل الجماعي'
+    const translations: { [key: string]: { ar: string, en: string, fr: string } } = {
+      'stocks': { ar: 'الأسهم', en: 'Stocks', fr: 'Actions' },
+      'real-estate': { ar: 'العقارات', en: 'Real Estate', fr: 'Immobilier' },
+      'gold': { ar: 'الذهب', en: 'Gold', fr: 'Or' },
+      'bonds': { ar: 'السندات', en: 'Bonds', fr: 'Obligations' },
+      'savings': { ar: 'الادخار', en: 'Savings', fr: 'Épargne' },
+      'crypto': { ar: 'العملات المشفرة', en: 'Cryptocurrencies', fr: 'Cryptomonnaies' },
+      'crowdfunding': { ar: 'التمويل الجماعي', en: 'Crowdfunding', fr: 'Financement Participatif' },
+      'sukuk': { ar: 'الصكوك', en: 'Sukuk', fr: 'Sukuk' }
     };
-    return translations[type] || type;
+    return translations[type] ? t(translations[type]) : type;
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    const currency = analysis?.currency || 'AED';
+    const locale = currentLanguage === 'ar' ? 'ar-AE' : currentLanguage === 'fr' ? 'fr-FR' : 'en-US';
+    
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: 'SAR',
+      currency: currency,
       minimumFractionDigits: 0
     }).format(amount);
   };
@@ -195,35 +199,35 @@ export default function ResultsPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4">
             <Check className="text-white text-2xl" size={24} />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">توصياتك الاستثمارية</h1>
-          <p className="text-gray-600">تم إنشاء محفظة استثمارية مخصصة حسب ملفك الشخصي</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t({ ar: "توصياتك الاستثمارية", en: "Your Investment Recommendations", fr: "Vos Recommandations d'Investissement" })}</h1>
+          <p className="text-gray-600">{t({ ar: "تم إنشاء محفظة استثمارية مخصصة حسب ملفك الشخصي", en: "A customized investment portfolio created based on your profile", fr: "Un portefeuille d'investissement personnalisé créé selon votre profil" })}</p>
         </div>
 
         {/* Investment Summary */}
         <Card className="shadow-lg border-gray-100 mb-8">
           <CardHeader>
-            <CardTitle>ملخص المحفظة الاستثمارية</CardTitle>
+            <CardTitle>{t({ ar: "ملخص المحفظة الاستثمارية", en: "Investment Portfolio Summary", fr: "Résumé du Portefeuille d'Investissement" })}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
                 <DollarSign className="mx-auto h-8 w-8 text-blue-600 mb-2" />
-                <h4 className="font-bold text-blue-900">إجمالي الاستثمار</h4>
+                <h4 className="font-bold text-blue-900">{t({ ar: "إجمالي الاستثمار", en: "Total Investment", fr: "Investissement Total" })}</h4>
                 <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalAllocated)}</p>
               </div>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
                 <TrendingUp className="mx-auto h-8 w-8 text-green-600 mb-2" />
-                <h4 className="font-bold text-green-900">العائد المتوقع</h4>
+                <h4 className="font-bold text-green-900">{t({ ar: "العائد المتوقع", en: "Expected Return", fr: "Rendement Attendu" })}</h4>
                 <p className="text-2xl font-bold text-green-600">{expectedReturn}%</p>
               </div>
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
                 <Shield className="mx-auto h-8 w-8 text-purple-600 mb-2" />
-                <h4 className="font-bold text-purple-900">مستوى المخاطر</h4>
+                <h4 className="font-bold text-purple-900">{t({ ar: "مستوى المخاطر", en: "Risk Level", fr: "Niveau de Risque" })}</h4>
                 <p className="text-xl font-bold text-purple-600">{riskLevel}</p>
               </div>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
                 <Clock className="mx-auto h-8 w-8 text-orange-600 mb-2" />
-                <h4 className="font-bold text-orange-900">الاستراتيجية</h4>
+                <h4 className="font-bold text-orange-900">{t({ ar: "الاستراتيجية", en: "Strategy", fr: "Stratégie" })}</h4>
                 <p className="text-xl font-bold text-orange-600">{strategy}</p>
               </div>
             </div>
@@ -233,7 +237,7 @@ export default function ResultsPage() {
               <div className="grid lg:grid-cols-2 gap-8 mb-6">
                 {/* Pie Chart */}
                 <div>
-                  <h4 className="font-bold text-lg mb-4">توزيع المحفظة</h4>
+                  <h4 className="font-bold text-lg mb-4">{t({ ar: "توزيع المحفظة", en: "Portfolio Allocation", fr: "Répartition du Portefeuille" })}</h4>
                   <div className="relative h-64">
                     <canvas ref={chartRef} className="max-w-full"></canvas>
                   </div>
@@ -241,7 +245,7 @@ export default function ResultsPage() {
 
                 {/* Allocation Details */}
                 <div>
-                  <h4 className="font-bold text-lg mb-4">تفاصيل التوزيع</h4>
+                  <h4 className="font-bold text-lg mb-4">{t({ ar: "تفاصيل التوزيع", en: "Allocation Details", fr: "Détails de la Répartition" })}</h4>
                   <div className="space-y-3">
                     {Object.entries(allocation).map(([type, percentage], index) => (
                       <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -271,7 +275,7 @@ export default function ResultsPage() {
         {/* Detailed Recommendations Section */}
         {recommendations && recommendations.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">التوصيات التفصيلية</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">{t({ ar: "التوصيات التفصيلية", en: "Detailed Recommendations", fr: "Recommandations Détaillées" })}</h2>
             <div className="grid lg:grid-cols-2 gap-6">
               {recommendations.map((recommendation: any, index: number) => (
                 <Card key={index} className="shadow-lg border-gray-100 hover:shadow-xl transition-shadow">
@@ -298,33 +302,33 @@ export default function ResultsPage() {
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium text-gray-500">المبلغ:</span>
-                        <p className="font-bold">{recommendation.amount?.toLocaleString()} درهم</p>
+                        <span className="font-medium text-gray-500">{t({ ar: "المبلغ:", en: "Amount:", fr: "Montant:" })}</span>
+                        <p className="font-bold">{formatCurrency(recommendation.amount || 0)}</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-500">الكمية:</span>
+                        <span className="font-medium text-gray-500">{t({ ar: "الكمية:", en: "Quantity:", fr: "Quantité:" })}</span>
                         <p className="font-bold">{recommendation.quantity}</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-500">العائد المتوقع:</span>
+                        <span className="font-medium text-gray-500">{t({ ar: "العائد المتوقع:", en: "Expected Return:", fr: "Rendement Attendu:" })}</span>
                         <p className="font-bold text-green-600">{recommendation.expectedReturn}%</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-500">العملة:</span>
-                        <p className="font-bold">AED</p>
+                        <span className="font-medium text-gray-500">{t({ ar: "العملة:", en: "Currency:", fr: "Devise:" })}</span>
+                        <p className="font-bold">{analysis?.currency || 'AED'}</p>
                       </div>
                     </div>
 
                     {recommendation.paymentPlan && (
                       <div>
-                        <span className="font-medium text-gray-500">خطة الدفع:</span>
+                        <span className="font-medium text-gray-500">{t({ ar: "خطة الدفع:", en: "Payment Plan:", fr: "Plan de Paiement:" })}</span>
                         <p className="text-sm">{recommendation.paymentPlan}</p>
                       </div>
                     )}
 
                     {recommendation.features && recommendation.features.length > 0 && (
                       <div>
-                        <span className="font-medium text-gray-500 mb-2 block">المميزات:</span>
+                        <span className="font-medium text-gray-500 mb-2 block">{t({ ar: "المميزات:", en: "Features:", fr: "Caractéristiques:" })}</span>
                         <ul className="text-sm space-y-1">
                           {recommendation.features.map((feature: string, idx: number) => (
                             <li key={idx} className="flex items-center">
@@ -347,14 +351,17 @@ export default function ResultsPage() {
           <Card className="shadow-lg border-yellow-200 bg-yellow-50">
             <CardContent className="text-center py-12">
               <AlertTriangle className="mx-auto h-16 w-16 text-yellow-600 mb-4" />
-              <h3 className="text-xl font-bold text-yellow-900 mb-2">لا توجد توصيات متاحة</h3>
+              <h3 className="text-xl font-bold text-yellow-900 mb-2">{t({ ar: "لا توجد توصيات متاحة", en: "No Recommendations Available", fr: "Aucune Recommandation Disponible" })}</h3>
               <p className="text-yellow-700 mb-6">
-                لم نتمكن من العثور على استثمارات مناسبة ضمن المعايير المحددة. 
-                قد تحتاج إلى تعديل مبلغ الاستثمار أو تفضيلات الاستثمار.
+                {t({ 
+                  ar: "لم نتمكن من العثور على استثمارات مناسبة ضمن المعايير المحددة. قد تحتاج إلى تعديل مبلغ الاستثمار أو تفضيلات الاستثمار.",
+                  en: "We could not find suitable investments within the specified criteria. You may need to adjust the investment amount or investment preferences.",
+                  fr: "Nous n'avons pas pu trouver d'investissements appropriés selon les critères spécifiés. Vous devrez peut-être ajuster le montant d'investissement ou les préférences d'investissement."
+                })}
               </p>
               <div className="space-y-2 text-sm text-yellow-700">
-                <p>المبلغ المتاح: {formatCurrency(totalAllocated)}</p>
-                <p>المبلغ المتبقي: {formatCurrency(remainingAmount)}</p>
+                <p>{t({ ar: "المبلغ المتاح:", en: "Available Amount:", fr: "Montant Disponible:" })} {formatCurrency(totalAllocated)}</p>
+                <p>{t({ ar: "المبلغ المتبقي:", en: "Remaining Amount:", fr: "Montant Restant:" })} {formatCurrency(remainingAmount)}</p>
               </div>
             </CardContent>
           </Card>
@@ -381,11 +388,13 @@ export default function ResultsPage() {
           <div className="flex items-start">
             <AlertTriangle className="h-6 w-6 text-red-600 ml-3 mt-1 flex-shrink-0" />
             <div>
-              <h4 className="font-bold text-red-900 mb-2">إخلاء مسؤولية قانونية</h4>
+              <h4 className="font-bold text-red-900 mb-2">{t({ ar: "إخلاء مسؤولية قانونية", en: "Legal Disclaimer", fr: "Avertissement Légal" })}</h4>
               <p className="text-red-800 text-sm leading-relaxed">
-                هذه التوصيات مخصصة لأغراض تعليمية فقط وليست استشارة مالية مهنية. 
-                يجب عليك استشارة مستشار مالي مؤهل قبل اتخاذ أي قرارات استثمارية. 
-                قد تفقد بعض أو كل أموالك المستثمرة. الأداء السابق لا يضمن النتائج المستقبلية.
+                {t({ 
+                  ar: "هذه التوصيات مخصصة لأغراض تعليمية فقط وليست استشارة مالية مهنية. يجب عليك استشارة مستشار مالي مؤهل قبل اتخاذ أي قرارات استثمارية. قد تفقد بعض أو كل أموالك المستثمرة. الأداء السابق لا يضمن النتائج المستقبلية.",
+                  en: "These recommendations are for educational purposes only and are not professional financial advice. You should consult a qualified financial advisor before making any investment decisions. You may lose some or all of your invested money. Past performance does not guarantee future results.",
+                  fr: "Ces recommandations sont à des fins éducatives uniquement et ne constituent pas des conseils financiers professionnels. Vous devriez consulter un conseiller financier qualifié avant de prendre toute décision d'investissement. Vous pourriez perdre une partie ou la totalité de votre argent investi. Les performances passées ne garantissent pas les résultats futurs."
+                })}
               </p>
             </div>
           </div>
