@@ -133,9 +133,9 @@ export default function ResultsPage() {
   const recommendations = analysis.recommendations.recommendations || [];
   const totalAllocated = analysis.recommendations.totalAllocated || 0;
   const remainingAmount = parseFloat(analysis.investmentBudget.replace(/,/g, '')) - totalAllocated;
-  const summary = analysis.recommendations.analysis || "لا يوجد ملخص متاح";
-  const strategy = analysis.recommendations.strategy || "غير محدد";
-  const riskLevel = analysis.recommendations.riskAssessment || "غير محدد";
+  const summary = analysis.recommendations.analysis || t({ ar: "لا يوجد ملخص متاح", en: "No summary available", fr: "Aucun résumé disponible" });
+  const strategy = analysis.recommendations.strategy || t({ ar: "غير محدد", en: "Not specified", fr: "Non spécifié" });
+  const riskLevel = analysis.recommendations.riskAssessment || t({ ar: "غير محدد", en: "Not specified", fr: "Non spécifié" });
   
   // Calculate allocation from new recommendations structure
   const allocation: Record<string, number> = {};

@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { userDataSchema } from "@shared/schema";
 import { SmartInvestmentEngine } from "./smart-investment-engine";
+import { DataProcessor } from "./data-processor";
 
 // Smart Investment Engine using Gemini AI
 
@@ -26,18 +27,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         riskTolerance: userData.riskTolerance,
         preferences: userData.preferences,
         targetMarket: userData.targetMarket,
-        islamicCompliance: userData.islamicCompliance
+        islamicCompliance: userData.islamicCompliance,
+        language: userData.language || 'ar'
       };
 
       const aiAnalysis = await investmentEngine.generateSmartRecommendations(investmentProfile);
       console.log('✅ تم توليد التوصيات الذكية بنجاح');
       
-      // Store the analysis  
+      // Store the analysis with proper format for database
+      const formattedAnalysis = {
+        id: Date.now().toString(),
+        userData,
+        strategy: aiAnalysis.strategy,
+        riskProfile: aiAnalysis.riskAssessment,
+        recommendations: aiAnalysis.recommendations.map((rec: any) => ({
+          id: rec.asset + '_' + Date.now(),
+          type: rec.category,
+          category: rec.category as any,
+          title: rec.asset,
+          description: rec.reason,
+          price: rec.amount.toString(),
+          expectedReturn: rec.expectedReturn.toString() + '%',
+          paymentPlan: 'N/A',
+          riskLevel: rec.riskLevel as any,
+          timeline: '1 year',
+          recommendation: 'شراء قوي' as any,
+          minimumInvestment: rec.amount.toString(),
+          features: [rec.reason]
+        })),
+        totalAllocated: aiAnalysis.totalAllocated,
+        remainingAmount: parseInt(userData.investmentBudget.replace(/,/g, '')) - aiAnalysis.totalAllocated,
+        analysis: aiAnalysis.analysis,
+        generatedAt: new Date().toISOString()
+      };
+      
       const analysis = await storage.createInvestmentAnalysis({
         ...userData,
         allowDiversification: userData.allowDiversification ? 'true' : 'false',
         islamicCompliance: userData.islamicCompliance ? 'true' : 'false',
-        recommendations: aiAnalysis
+        recommendations: formattedAnalysis
       });
       
       res.json(analysis);
@@ -358,33 +386,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function generateInvestmentRecommendations(userData: any) {
-  console.log('🧠 Starting recommendation generation with Gemini AI engine');
-  console.log('📊 User Data:', {
-    age: userData.age,
-    income: userData.income,
-    budget: userData.investmentBudget,
-    risk: userData.riskTolerance,
-    goals: userData.goals,
-    preferences: userData.preferences,
-    targetMarket: userData.targetMarket,
-    islamicCompliance: userData.islamicCompliance,
-    paymentFrequency: userData.paymentFrequency
-  });
-  
-  console.log('🔑 Using Gemini API Key:', process.env.GEMINI_API_KEY ? 'Available' : 'Missing');
-  
-  try {
-    const geminiEngine = new GeminiRecommendationEngine();
-    const result = await geminiEngine.generateRecommendations(userData);
-    console.log('✅ Gemini AI recommendations generated successfully');
-    console.log('📈 Generated', result.recommendations.length, 'AI-powered recommendations');
-    console.log('💰 Total allocated:', result.totalAllocated, userData.currency);
-    return result;
-  } catch (error) {
-    console.error('❌ Error generating AI recommendations:', error);
-    throw error; // Don't fallback, show the actual error
-  }
-}
-
-// This function is deprecated - using SmartRecommendationEngine instead
+// This function is deprecated - using SmartInvestmentEngine instead

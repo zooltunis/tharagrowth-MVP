@@ -15,6 +15,7 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   allowDiversification: text("allow_diversification").notNull(),
   islamicCompliance: text("islamic_compliance").notNull(),
   paymentFrequency: text("payment_frequency").notNull(),
+  language: text("language").default("ar"),
   recommendations: jsonb("recommendations").$type<{
     id: string;
     userData: any;
@@ -53,6 +54,7 @@ export const insertInvestmentAnalysisSchema = createInsertSchema(investmentAnaly
 
 export const userDataSchema = z.object({
   age: z.string().min(1, "يرجى اختيار العمر"),
+  language: z.string().default("ar"),
   income: z.string().min(1, "يرجى اختيار الدخل الشهري"),
   investmentBudget: z.string().min(1, "يرجى إدخال مبلغ الاستثمار"),
   currency: z.enum(["AED", "SAR", "USD", "EUR", "GBP"], {
