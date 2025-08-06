@@ -132,8 +132,9 @@ export class SmartInvestmentEngine {
       2. اعط مبالغ محددة وليس نسب مئوية
       3. اشرح منطق التوزيع بناءً على استراتيجيات استثمار معروفة
       4. تأكد أن المجموع لا يتجاوز الميزانية المتاحة
-      5. استخدم اللغة العربية في جميع النصوص والتحليلات
-      6. مستويات المخاطر: منخفض، متوسط، عالي`,
+      5. **يجب أن تكون جميع النصوص باللغة العربية فقط** - analysis, strategy, riskAssessment, reason
+      6. مستويات المخاطر: منخفض، متوسط، عالي (فقط هذه الكلمات)
+      7. إجابتك يجب أن تكون باللغة العربية 100%`,
       
       en: `You are a professional investment expert specialized in Gulf financial markets.
       Your task is to analyze the investor profile and provide accurate and detailed investment recommendations using only the real data available.
@@ -143,8 +144,9 @@ export class SmartInvestmentEngine {
       2. Give specific amounts, not percentages
       3. Explain the allocation logic based on known investment strategies
       4. Ensure the total does not exceed the available budget
-      5. Use English language in all texts and analysis
-      6. Risk levels: Low, Medium, High`,
+      5. **ALL texts MUST be in English ONLY** - analysis, strategy, riskAssessment, reason
+      6. Risk levels: Low, Medium, High (only these exact words)
+      7. Your response must be 100% in English`,
       
       fr: `Vous êtes un expert en investissement professionnel spécialisé dans les marchés financiers du Golfe.
       Votre tâche est d'analyser le profil de l'investisseur et de fournir des recommandations d'investissement précises et détaillées en utilisant uniquement les données réelles disponibles.
@@ -154,8 +156,9 @@ export class SmartInvestmentEngine {
       2. Donnez des montants spécifiques, pas des pourcentages
       3. Expliquez la logique de répartition basée sur des stratégies d'investissement connues
       4. Assurez-vous que le total ne dépasse pas le budget disponible
-      5. Utilisez la langue française dans tous les textes et analyses
-      6. Niveaux de risque: Faible, Moyen, Élevé`
+      5. **TOUS les textes DOIVENT être en français UNIQUEMENT** - analysis, strategy, riskAssessment, reason
+      6. Niveaux de risque: Faible, Moyen, Élevé (uniquement ces mots exacts)
+      7. Votre réponse doit être 100% en français`
     };
 
     return instructions[language as keyof typeof instructions] || instructions.ar;

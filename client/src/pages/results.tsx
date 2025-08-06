@@ -169,15 +169,35 @@ export default function ResultsPage() {
   const translateType = (type: string) => {
     const translations: { [key: string]: { ar: string, en: string, fr: string } } = {
       'stocks': { ar: 'الأسهم', en: 'Stocks', fr: 'Actions' },
+      'Stocks': { ar: 'الأسهم', en: 'Stocks', fr: 'Actions' },
+      'أسهم': { ar: 'الأسهم', en: 'Stocks', fr: 'Actions' },
+      'Equities': { ar: 'الأسهم', en: 'Stocks', fr: 'Actions' },
       'real-estate': { ar: 'العقارات', en: 'Real Estate', fr: 'Immobilier' },
       'gold': { ar: 'الذهب', en: 'Gold', fr: 'Or' },
       'bonds': { ar: 'السندات', en: 'Bonds', fr: 'Obligations' },
+      'Fixed Income': { ar: 'الدخل الثابت', en: 'Fixed Income', fr: 'Revenu Fixe' },
+      'صكوك': { ar: 'الصكوك', en: 'Sukuk', fr: 'Sukuk' },
       'savings': { ar: 'الادخار', en: 'Savings', fr: 'Épargne' },
       'crypto': { ar: 'العملات المشفرة', en: 'Cryptocurrencies', fr: 'Cryptomonnaies' },
       'crowdfunding': { ar: 'التمويل الجماعي', en: 'Crowdfunding', fr: 'Financement Participatif' },
       'sukuk': { ar: 'الصكوك', en: 'Sukuk', fr: 'Sukuk' }
     };
     return translations[type] ? t(translations[type]) : type;
+  };
+
+  const translateRiskLevel = (level: string) => {
+    const translations: { [key: string]: { ar: string, en: string, fr: string } } = {
+      'منخفض': { ar: 'منخفض', en: 'Low', fr: 'Faible' },
+      'Low': { ar: 'منخفض', en: 'Low', fr: 'Faible' },
+      'Faible': { ar: 'منخفض', en: 'Low', fr: 'Faible' },
+      'متوسط': { ar: 'متوسط', en: 'Medium', fr: 'Moyen' },
+      'Medium': { ar: 'متوسط', en: 'Medium', fr: 'Moyen' },
+      'Moyen': { ar: 'متوسط', en: 'Medium', fr: 'Moyen' },
+      'عالي': { ar: 'عالي', en: 'High', fr: 'Élevé' },
+      'High': { ar: 'عالي', en: 'High', fr: 'Élevé' },
+      'Élevé': { ar: 'عالي', en: 'High', fr: 'Élevé' }
+    };
+    return translations[level] ? t(translations[level]) : level;
   };
 
   const formatCurrency = (amount: number) => {
@@ -282,17 +302,17 @@ export default function ResultsPage() {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <CardTitle className="text-lg">{recommendation.asset}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.category)}</p>
+                        <CardTitle className="text-lg">{recommendation.asset || recommendation.title}</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.category || recommendation.type)}</p>
                       </div>
                       <Badge 
                         variant={
-                          recommendation.riskLevel === 'منخفض' || recommendation.riskLevel === 'Low' ? 'default' :
-                          recommendation.riskLevel === 'متوسط' || recommendation.riskLevel === 'Medium' ? 'secondary' : 'destructive'
+                          recommendation.riskLevel === 'منخفض' || recommendation.riskLevel === 'Low' || recommendation.riskLevel === 'Faible' ? 'default' :
+                          recommendation.riskLevel === 'متوسط' || recommendation.riskLevel === 'Medium' || recommendation.riskLevel === 'Moyen' ? 'secondary' : 'destructive'
                         }
                         className="shrink-0"
                       >
-                        {recommendation.riskLevel}
+                        {translateRiskLevel(recommendation.riskLevel)}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -311,7 +331,7 @@ export default function ResultsPage() {
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">{t({ ar: "العائد المتوقع:", en: "Expected Return:", fr: "Rendement Attendu:" })}</span>
-                        <p className="font-bold text-green-600">{recommendation.expectedReturn}%</p>
+                        <p className="font-bold text-green-600">{recommendation.expectedReturn}{recommendation.expectedReturn?.toString().includes('%') ? '' : '%'}</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">{t({ ar: "العملة:", en: "Currency:", fr: "Devise:" })}</span>
