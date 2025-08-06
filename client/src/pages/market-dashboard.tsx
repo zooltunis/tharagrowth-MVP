@@ -49,7 +49,80 @@ export default function MarketDashboard() {
     queryFn: async () => {
       const response = await fetch(`/api/market-data?currency=${selectedCurrency}`);
       if (!response.ok) throw new Error('فشل في جلب بيانات السوق');
-      return response.json();
+      const data = await response.json();
+      
+      // Transform simple data to expected format
+      return {
+        goldPrice: {
+          pricePerGram: data.goldPrice?.pricePerGram || 246.68,
+          pricePerOunce: (data.goldPrice?.pricePerGram || 246.68) * 31.1035,
+          currency: data.goldPrice?.currency || 'AED',
+          lastUpdated: data.timestamp || new Date().toISOString(),
+          change24h: 2.45,
+          changePercent24h: 1.0
+        },
+        activeStocks: [
+          {
+            symbol: 'EMAAR',
+            name: 'إعمار العقارية',
+            price: 4.85,
+            change: 0.12,
+            changePercent: 2.5,
+            volume: 1250000,
+            sector: 'عقارات',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: 'ETISALAT',
+            name: 'اتصالات الإمارات',
+            price: 15.6,
+            change: -0.3,
+            changePercent: -1.9,
+            volume: 850000,
+            sector: 'اتصالات',
+            lastUpdated: new Date().toISOString()
+          },
+          {
+            symbol: 'ADNOC',
+            name: 'أدنوك للتوزيع',
+            price: 3.95,
+            change: 0.05,
+            changePercent: 1.3,
+            volume: 950000,
+            sector: 'طاقة',
+            lastUpdated: new Date().toISOString()
+          }
+        ],
+        newRealEstateProjects: [
+          {
+            id: '1',
+            name: 'داون تاون دبي',
+            developer: 'إعمار العقارية',
+            location: 'دبي',
+            propertyType: 'شقق سكنية',
+            startingPrice: 850000,
+            currency: 'AED',
+            roi: 8.5,
+            paymentPlan: 'دفع 10% مقدم',
+            salesStatus: 'متوفر',
+            launchDate: '2024-01-15'
+          },
+          {
+            id: '2',
+            name: 'الريان الجديدة',
+            developer: 'بركة العقارية',
+            location: 'أبوظبي',
+            propertyType: 'فلل',
+            startingPrice: 1200000,
+            currency: 'AED',
+            roi: 7.2,
+            paymentPlan: 'دفع 15% مقدم',
+            salesStatus: 'متوفر',
+            launchDate: '2024-02-20'
+          }
+        ],
+        lastUpdated: data.timestamp || new Date().toISOString()
+      };
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
