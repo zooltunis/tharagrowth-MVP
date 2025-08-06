@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { BookOpen, TrendingUp, Shield, Globe, AlertTriangle, ExternalLink } from "lucide-react";
 
 interface NewsArticle {
@@ -284,13 +283,13 @@ const educationalContent = {
 };
 
 export default function EducationPage() {
-  const [selectedLanguage, setSelectedLanguage] = useState<'ar' | 'en' | 'fr'>('ar');
-  const content = educationalContent[selectedLanguage];
+  const { currentLanguage, isRTL } = useLanguage();
+  const content = educationalContent[currentLanguage];
 
   const { data: newsArticles, isLoading: newsLoading, error: newsError } = useQuery<NewsArticle[]>({
-    queryKey: ['/api/financial-news', selectedLanguage],
+    queryKey: ['/api/financial-news', currentLanguage],
     queryFn: async () => {
-      const response = await fetch(`/api/financial-news?lang=${selectedLanguage}`);
+      const response = await fetch(`/api/financial-news?lang=${currentLanguage}`);
       if (!response.ok) throw new Error('Failed to fetch news');
       return response.json();
     },
@@ -298,26 +297,17 @@ export default function EducationPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-6" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{content.title}</h1>
-            <p className="text-gray-600 mt-2">تعلم أساسيات الاستثمار والتخطيط المالي</p>
-          </div>
-          
-          <Select value={selectedLanguage} onValueChange={(value: 'ar' | 'en' | 'fr') => setSelectedLanguage(value)}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ar">العربية</SelectItem>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="fr">Français</SelectItem>
-            </SelectContent>
-          </Select>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{content.title}</h1>
+          <p className="text-gray-600 mt-2">
+            {currentLanguage === 'ar' ? 'تعلم أساسيات الاستثمار والتخطيط المالي' :
+             currentLanguage === 'fr' ? 'Apprenez les bases de l\'investissement et de la planification financière' :
+             'Learn investment basics and financial planning'}
+          </p>
         </div>
 
         {/* Legal Disclaimer */}
