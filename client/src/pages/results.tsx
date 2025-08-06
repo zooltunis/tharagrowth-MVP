@@ -42,8 +42,8 @@ export default function ResultsPage() {
     
     if (totalAmount > 0) {
       recommendations.forEach((rec: any) => {
-        const category = rec.type;
-        allocation[category] = (allocation[category] || 0) + parseFloat(rec.price || '0');
+        const category = rec.category || 'other';
+        allocation[category] = (allocation[category] || 0) + (rec.amount || 0);
       });
 
       // Convert to percentages
@@ -129,20 +129,20 @@ export default function ResultsPage() {
     );
   }
 
-  // Extract data from the new structure
+  // Extract data from the new smart investment system structure
   const recommendations = analysis.recommendations.recommendations || [];
   const totalAllocated = analysis.recommendations.totalAllocated || 0;
-  const remainingAmount = analysis.recommendations.remainingAmount || 0;
+  const remainingAmount = parseFloat(analysis.investmentBudget.replace(/,/g, '')) - totalAllocated;
   const summary = analysis.recommendations.analysis || "لا يوجد ملخص متاح";
   const strategy = analysis.recommendations.strategy || "غير محدد";
-  const riskLevel = analysis.recommendations.riskProfile || "غير محدد";
+  const riskLevel = analysis.recommendations.riskAssessment || "غير محدد";
   
-  // Calculate allocation from recommendations for display
+  // Calculate allocation from new recommendations structure
   const allocation: Record<string, number> = {};
   if (recommendations.length > 0 && totalAllocated > 0) {
     recommendations.forEach((rec: any) => {
-      const category = rec.type;
-      allocation[category] = (allocation[category] || 0) + parseFloat(rec.price || '0');
+      const category = rec.category || 'other';
+      allocation[category] = (allocation[category] || 0) + (rec.amount || 0);
     });
     
     // Convert to percentages
@@ -151,11 +151,11 @@ export default function ResultsPage() {
     });
   }
   
-  // Calculate expected return from recommendations
+  // Calculate expected return from new recommendations structure
   let expectedReturn = "8-12";
   if (recommendations.length > 0) {
     const avgReturn = recommendations.reduce((sum: number, rec: any) => {
-      const returnValue = parseFloat(rec.expectedReturn?.replace('%', '') || '8');
+      const returnValue = parseFloat(String(rec.expectedReturn || 8));
       return sum + returnValue;
     }, 0) / recommendations.length;
     expectedReturn = avgReturn.toFixed(1);
@@ -278,13 +278,13 @@ export default function ResultsPage() {
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <CardTitle className="text-lg">{recommendation.title}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.type)}</p>
+                        <CardTitle className="text-lg">{recommendation.asset}</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">{translateType(recommendation.category)}</p>
                       </div>
                       <Badge 
                         variant={
-                          recommendation.riskLevel === 'منخفض' ? 'default' :
-                          recommendation.riskLevel === 'متوسط' ? 'secondary' : 'destructive'
+                          recommendation.riskLevel === 'منخفض' || recommendation.riskLevel === 'Low' ? 'default' :
+                          recommendation.riskLevel === 'متوسط' || recommendation.riskLevel === 'Medium' ? 'secondary' : 'destructive'
                         }
                         className="shrink-0"
                       >
@@ -294,24 +294,24 @@ export default function ResultsPage() {
                   </CardHeader>
                   
                   <CardContent className="space-y-4">
-                    <p className="text-gray-700">{recommendation.description}</p>
+                    <p className="text-gray-700">{recommendation.reason}</p>
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="font-medium text-gray-500">المبلغ:</span>
-                        <p className="font-bold">{formatCurrency(parseFloat(recommendation.price || '0'))}</p>
+                        <p className="font-bold">{recommendation.amount?.toLocaleString()} درهم</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">الكمية:</span>
-                        <p className="font-bold">1</p>
+                        <p className="font-bold">{recommendation.quantity}</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">العائد المتوقع:</span>
-                        <p className="font-bold text-green-600">{recommendation.expectedReturn}</p>
+                        <p className="font-bold text-green-600">{recommendation.expectedReturn}%</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-500">العملة:</span>
-                        <p className="font-bold">SAR</p>
+                        <p className="font-bold">AED</p>
                       </div>
                     </div>
 
