@@ -227,19 +227,19 @@ export default function DataCollectionPage() {
                         name="age"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>العمر</FormLabel>
+                            <FormLabel>{t({ ar: "العمر", en: "Age", fr: "Âge" })}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="اختر عمرك" />
+                                  <SelectValue placeholder={t({ ar: "اختر عمرك", en: "Select your age", fr: "Choisissez votre âge" })} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="18-25">18-25 سنة</SelectItem>
-                                <SelectItem value="26-35">26-35 سنة</SelectItem>
-                                <SelectItem value="36-45">36-45 سنة</SelectItem>
-                                <SelectItem value="46-55">46-55 سنة</SelectItem>
-                                <SelectItem value="55+">أكثر من 55 سنة</SelectItem>
+                                <SelectItem value="18-25">{t({ ar: "18-25 سنة", en: "18-25 years", fr: "18-25 ans" })}</SelectItem>
+                                <SelectItem value="26-35">{t({ ar: "26-35 سنة", en: "26-35 years", fr: "26-35 ans" })}</SelectItem>
+                                <SelectItem value="36-45">{t({ ar: "36-45 سنة", en: "36-45 years", fr: "36-45 ans" })}</SelectItem>
+                                <SelectItem value="46-55">{t({ ar: "46-55 سنة", en: "46-55 years", fr: "46-55 ans" })}</SelectItem>
+                                <SelectItem value="55+">{t({ ar: "أكثر من 55 سنة", en: "55+ years", fr: "55+ ans" })}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -252,19 +252,19 @@ export default function DataCollectionPage() {
                         name="income"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>الراتب الشهري</FormLabel>
+                            <FormLabel>{t({ ar: "الراتب الشهري", en: "Monthly Income", fr: "Revenu Mensuel" })}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="اختر راتبك الشهري" />
+                                  <SelectValue placeholder={t({ ar: "اختر راتبك الشهري", en: "Select your monthly income", fr: "Choisissez votre revenu mensuel" })} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="0-5000">أقل من 5,000 ريال</SelectItem>
-                                <SelectItem value="5000-15000">5,000 - 15,000 ريال</SelectItem>
-                                <SelectItem value="15000-30000">15,000 - 30,000 ريال</SelectItem>
-                                <SelectItem value="30000-50000">30,000 - 50,000 ريال</SelectItem>
-                                <SelectItem value="50000+">أكثر من 50,000 ريال</SelectItem>
+                                <SelectItem value="0-5000">{t({ ar: "أقل من 5,000 ريال", en: "Less than 5,000", fr: "Moins de 5,000" })}</SelectItem>
+                                <SelectItem value="5000-15000">{t({ ar: "5,000 - 15,000 ريال", en: "5,000 - 15,000", fr: "5,000 - 15,000" })}</SelectItem>
+                                <SelectItem value="15000-30000">{t({ ar: "15,000 - 30,000 ريال", en: "15,000 - 30,000", fr: "15,000 - 30,000" })}</SelectItem>
+                                <SelectItem value="30000-50000">{t({ ar: "30,000 - 50,000 ريال", en: "30,000 - 50,000", fr: "30,000 - 50,000" })}</SelectItem>
+                                <SelectItem value="50000+">{t({ ar: "أكثر من 50,000 ريال", en: "More than 50,000", fr: "Plus de 50,000" })}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -277,13 +277,13 @@ export default function DataCollectionPage() {
                         name="investmentBudget"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>مبلغ الاستثمار المخطط له</FormLabel>
+                            <FormLabel>{t({ ar: "مبلغ الاستثمار المخطط له", en: "Planned Investment Amount", fr: "Montant d'Investissement Prévu" })}</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 {...field}
                                 onChange={(e) => field.onChange(e.target.value)}
-                                placeholder="مثال: 50000"
+                                placeholder={t({ ar: "مثال: 50000", en: "Example: 50000", fr: "Exemple : 50000" })}
                               />
                             </FormControl>
                             <FormMessage />
@@ -303,7 +303,7 @@ export default function DataCollectionPage() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="اختر تكرار الدفع" />
+                                  <SelectValue placeholder={t({ ar: "اختر تكرار الدفع", en: "Select payment frequency", fr: "Choisissez la fréquence de paiement" })} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -325,7 +325,7 @@ export default function DataCollectionPage() {
                         name="currency"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>العملة المفضلة</FormLabel>
+                            <FormLabel>{t({ ar: "العملة المفضلة", en: "Preferred Currency", fr: "Devise Préférée" })}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
@@ -354,15 +354,39 @@ export default function DataCollectionPage() {
                       name="goals"
                       render={() => (
                         <FormItem>
-                          <FormLabel>ما هي أهدافك من الاستثمار؟ (اختر كل ما يناسبك)</FormLabel>
+                          <FormLabel>{t({ ar: "ما هي أهدافك من الاستثمار؟ (اختر كل ما يناسبك)", en: "What are your investment goals? (Select all that apply)", fr: "Quels sont vos objectifs d'investissement ? (Sélectionnez tout ce qui s'applique)" })}</FormLabel>
                           <div className="grid md:grid-cols-2 gap-3">
                             {[
-                              { id: "retirement", label: "التقاعد", desc: "ادخار للتقاعد والمستقبل" },
-                              { id: "education", label: "تعليم الأطفال", desc: "تكاليف التعليم الجامعي" },
-                              { id: "house", label: "شراء منزل", desc: "دفعة أولى أو شراء عقار" },
-                              { id: "travel", label: "السفر", desc: "السفر والإجازات" },
-                              { id: "emergency", label: "صندوق الطوارئ", desc: "احتياطي للظروف الطارئة" },
-                              { id: "investment", label: "زيادة الثروة", desc: "تنمية رأس المال" },
+                              { 
+                                id: "retirement", 
+                                label: t({ ar: "التقاعد", en: "Retirement", fr: "Retraite" }),
+                                desc: t({ ar: "ادخار للتقاعد والمستقبل", en: "Save for retirement and future", fr: "Épargner pour la retraite et l'avenir" })
+                              },
+                              { 
+                                id: "education", 
+                                label: t({ ar: "تعليم الأطفال", en: "Children's Education", fr: "Éducation des Enfants" }),
+                                desc: t({ ar: "تكاليف التعليم الجامعي", en: "University education costs", fr: "Coûts de l'éducation universitaire" })
+                              },
+                              { 
+                                id: "house", 
+                                label: t({ ar: "شراء منزل", en: "Buy a House", fr: "Acheter une Maison" }),
+                                desc: t({ ar: "دفعة أولى أو شراء عقار", en: "Down payment or property purchase", fr: "Acompte ou achat immobilier" })
+                              },
+                              { 
+                                id: "travel", 
+                                label: t({ ar: "السفر", en: "Travel", fr: "Voyage" }),
+                                desc: t({ ar: "السفر والإجازات", en: "Travel and vacations", fr: "Voyages et vacances" })
+                              },
+                              { 
+                                id: "emergency", 
+                                label: t({ ar: "صندوق الطوارئ", en: "Emergency Fund", fr: "Fonds d'Urgence" }),
+                                desc: t({ ar: "احتياطي للظروف الطارئة", en: "Reserve for emergencies", fr: "Réserve pour les urgences" })
+                              },
+                              { 
+                                id: "investment", 
+                                label: t({ ar: "زيادة الثروة", en: "Wealth Growth", fr: "Croissance de Richesse" }),
+                                desc: t({ ar: "تنمية رأس المال", en: "Capital growth", fr: "Croissance du capital" })
+                              },
                             ].map((goal) => (
                               <FormField
                                 key={goal.id}
@@ -415,7 +439,7 @@ export default function DataCollectionPage() {
                       name="riskTolerance"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel>ما هو مستوى تحملك للمخاطر؟</FormLabel>
+                          <FormLabel>{t({ ar: "ما هو مستوى تحملك للمخاطر؟", en: "What is your risk tolerance level?", fr: "Quel est votre niveau de tolérance au risque ?" })}</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={field.onChange}
@@ -423,9 +447,24 @@ export default function DataCollectionPage() {
                               className="space-y-4"
                             >
                               {[
-                                { value: "low", label: "مخاطر منخفضة", desc: "أفضل الاستثمارات الآمنة حتى لو كان العائد أقل", color: "text-green-600" },
-                                { value: "medium", label: "مخاطر متوسطة", desc: "يمكنني تحمل بعض التذبذب مقابل عوائد أفضل", color: "text-yellow-600" },
-                                { value: "high", label: "مخاطر عالية", desc: "أسعى للعوائد العالية وأتحمل التذبذب الكبير", color: "text-red-600" },
+                                { 
+                                  value: "low", 
+                                  label: t({ ar: "مخاطر منخفضة", en: "Low Risk", fr: "Risque Faible" }),
+                                  desc: t({ ar: "أفضل الاستثمارات الآمنة حتى لو كان العائد أقل", en: "I prefer safe investments even if returns are lower", fr: "Je préfère les investissements sûrs même si les rendements sont plus faibles" }),
+                                  color: "text-green-600" 
+                                },
+                                { 
+                                  value: "medium", 
+                                  label: t({ ar: "مخاطر متوسطة", en: "Medium Risk", fr: "Risque Moyen" }),
+                                  desc: t({ ar: "يمكنني تحمل بعض التذبذب مقابل عوائد أفضل", en: "I can handle some volatility for better returns", fr: "Je peux gérer une certaine volatilité pour de meilleurs rendements" }),
+                                  color: "text-yellow-600" 
+                                },
+                                { 
+                                  value: "high", 
+                                  label: t({ ar: "مخاطر عالية", en: "High Risk", fr: "Risque Élevé" }),
+                                  desc: t({ ar: "أسعى للعوائد العالية وأتحمل التذبذب الكبير", en: "I seek high returns and can handle significant volatility", fr: "Je recherche des rendements élevés et peux gérer une volatilité importante" }),
+                                  color: "text-red-600" 
+                                },
                               ].map((risk) => (
                                 <FormItem
                                   key={risk.value}
@@ -461,17 +500,57 @@ export default function DataCollectionPage() {
                         name="preferences"
                         render={() => (
                           <FormItem>
-                            <FormLabel className="text-lg font-semibold">أنواع الاستثمارات المفضلة</FormLabel>
+                            <FormLabel className="text-lg font-semibold">{t({ ar: "أنواع الاستثمارات المفضلة", en: "Preferred Investment Types", fr: "Types d'Investissements Préférés" })}</FormLabel>
                             <div className="grid md:grid-cols-2 gap-3">
                               {[
-                                { id: "real-estate", label: "العقارات", icon: "🏠", desc: "استثمارات عقارية وأراضي" },
-                                { id: "gold", label: "الذهب", icon: "🥇", desc: "المعادن الثمينة والذهب" },
-                                { id: "stocks", label: "الأسهم", icon: "📈", desc: "أسهم الشركات المحلية والعالمية" },
-                                { id: "crowdfunding", label: "التمويل الجماعي", icon: "👥", desc: "مشاريع التمويل الجماعي" },
-                                { id: "sukuk", label: "الصكوك الإسلامية", icon: "📜", desc: "صكوك متوافقة مع الشريعة" },
-                                { id: "bonds", label: "السندات", icon: "📄", desc: "سندات حكومية وشركات" },
-                                { id: "savings", label: "حسابات الادخار", icon: "🏦", desc: "ودائع وشهادات ادخار" },
-                                { id: "crypto", label: "العملات الرقمية", icon: "₿", desc: "البيتكوين والعملات الرقمية" },
+                                { 
+                                  id: "real-estate", 
+                                  label: t({ ar: "العقارات", en: "Real Estate", fr: "Immobilier" }),
+                                  icon: "🏠", 
+                                  desc: t({ ar: "استثمارات عقارية وأراضي", en: "Property and land investments", fr: "Investissements immobiliers et fonciers" })
+                                },
+                                { 
+                                  id: "gold", 
+                                  label: t({ ar: "الذهب", en: "Gold", fr: "Or" }),
+                                  icon: "🥇", 
+                                  desc: t({ ar: "المعادن الثمينة والذهب", en: "Precious metals and gold", fr: "Métaux précieux et or" })
+                                },
+                                { 
+                                  id: "stocks", 
+                                  label: t({ ar: "الأسهم", en: "Stocks", fr: "Actions" }),
+                                  icon: "📈", 
+                                  desc: t({ ar: "أسهم الشركات المحلية والعالمية", en: "Local and international company shares", fr: "Actions d'entreprises locales et internationales" })
+                                },
+                                { 
+                                  id: "crowdfunding", 
+                                  label: t({ ar: "التمويل الجماعي", en: "Crowdfunding", fr: "Financement Participatif" }),
+                                  icon: "👥", 
+                                  desc: t({ ar: "مشاريع التمويل الجماعي", en: "Crowdfunding projects", fr: "Projets de financement participatif" })
+                                },
+                                { 
+                                  id: "sukuk", 
+                                  label: t({ ar: "الصكوك الإسلامية", en: "Islamic Sukuk", fr: "Sukuk Islamiques" }),
+                                  icon: "📜", 
+                                  desc: t({ ar: "صكوك متوافقة مع الشريعة", en: "Sharia-compliant bonds", fr: "Obligations conformes à la charia" })
+                                },
+                                { 
+                                  id: "bonds", 
+                                  label: t({ ar: "السندات", en: "Bonds", fr: "Obligations" }),
+                                  icon: "📄", 
+                                  desc: t({ ar: "سندات حكومية وشركات", en: "Government and corporate bonds", fr: "Obligations gouvernementales et d'entreprise" })
+                                },
+                                { 
+                                  id: "savings", 
+                                  label: t({ ar: "حسابات الادخار", en: "Savings Accounts", fr: "Comptes d'Épargne" }),
+                                  icon: "🏦", 
+                                  desc: t({ ar: "ودائع وشهادات ادخار", en: "Deposits and savings certificates", fr: "Dépôts et certificats d'épargne" })
+                                },
+                                { 
+                                  id: "crypto", 
+                                  label: t({ ar: "العملات الرقمية", en: "Cryptocurrencies", fr: "Cryptomonnaies" }),
+                                  icon: "₿", 
+                                  desc: t({ ar: "البيتكوين والعملات الرقمية", en: "Bitcoin and digital currencies", fr: "Bitcoin et monnaies numériques" })
+                                },
                               ].map((pref) => (
                                 <FormField
                                   key={pref.id}
@@ -521,7 +600,7 @@ export default function DataCollectionPage() {
 
                       {/* Market Preferences Section */}
                       <div className="space-y-6">
-                        <h3 className="text-lg font-semibold text-foreground">إعدادات السوق والتفضيلات</h3>
+                        <h3 className="text-lg font-semibold text-foreground">{t({ ar: "إعدادات السوق والتفضيلات", en: "Market Settings and Preferences", fr: "Paramètres de Marché et Préférences" })}</h3>
                         
                         {/* Target Market */}
                         <FormField
