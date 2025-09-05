@@ -16,7 +16,7 @@ export default function ResultsPage() {
   const { t } = useTranslation();
 
   const { data: analysis, isLoading, error } = useQuery({
-    queryKey: ["/api/analysis", id],
+    queryKey: [`/api/analysis/${id}`],
     enabled: !!id,
   }) as { data: any, isLoading: boolean, error: any };
 
