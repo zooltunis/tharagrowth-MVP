@@ -59,7 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Store the analysis with proper format for database
       const formattedAnalysis = {
-        id: `analysis_${Date.now()}`,
+        id: `temp_${Date.now()}`,
         userData,
         strategy: aiAnalysis.strategy,
         riskProfile: aiAnalysis.riskAssessment,
@@ -96,9 +96,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         income: userData.income,
         investmentBudget: userData.investmentBudget,
         currency: userData.currency,
-        goals: userData.goals,
+        goals: Array.from(userData.goals),
         riskTolerance: userData.riskTolerance,
-        preferences: userData.preferences,
+        preferences: Array.from(userData.preferences),
         targetMarket: userData.targetMarket,
         allowDiversification: userData.allowDiversification ? 'true' : 'false',
         islamicCompliance: userData.islamicCompliance ? 'true' : 'false',

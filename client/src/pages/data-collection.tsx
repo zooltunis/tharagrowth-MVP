@@ -114,8 +114,6 @@ export default function DataCollectionPage() {
       return response.json();
     },
     onSuccess: (data) => {
-      console.log('✅ نجح التحليل، البيانات المرجعة:', data);
-      console.log('🔗 التوجيه إلى:', `/results/${data.id}`);
       toast({
         title: "تم تحليل البيانات بنجاح",
         description: "سيتم توجيهك إلى صفحة النتائج",
@@ -159,7 +157,6 @@ export default function DataCollectionPage() {
   const handleLoginSuccess = () => {
     // If we have pending form data, submit it after successful login
     if (pendingFormData) {
-      console.log('🔑 تسجيل الدخول نجح، إرسال البيانات للتحليل...');
       analyzeMutation.mutate(pendingFormData);
       setPendingFormData(null);
     }
