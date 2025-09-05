@@ -20,6 +20,18 @@ export default function ResultsPage() {
     enabled: !!id,
   }) as { data: any, isLoading: boolean, error: any };
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 Results Page Debug:', {
+      id,
+      analysis,
+      isLoading,
+      error,
+      hasRecommendations: !!analysis?.recommendations,
+      recommendationsStructure: analysis?.recommendations ? Object.keys(analysis.recommendations) : null
+    });
+  }, [id, analysis, isLoading, error]);
+
   useEffect(() => {
     if (analysis?.recommendations?.recommendations && chartRef.current) {
       renderPieChart();
