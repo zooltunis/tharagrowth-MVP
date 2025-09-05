@@ -59,7 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Store the analysis with proper format for database
       const formattedAnalysis = {
-        id: Date.now().toString(),
+        id: `analysis_${Date.now()}`,
         userData,
         strategy: aiAnalysis.strategy,
         riskProfile: aiAnalysis.riskAssessment,
