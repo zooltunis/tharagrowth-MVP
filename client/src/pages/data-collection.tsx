@@ -18,13 +18,18 @@ import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings, 
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginModal from "@/components/LoginModal";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<UserData | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { currentLanguage, isRTL } = useLanguage();
   const { t } = useTranslation();
+  const { user, loading } = useAuth();
 
   const content = {
     ar: {
@@ -137,7 +142,25 @@ export default function DataCollectionPage() {
   };
 
   const onSubmit = (data: UserData) => {
+    // Check if user is authenticated
+    if (!user) {
+      // Store form data and show login modal
+      setPendingFormData(data);
+      setShowLoginModal(true);
+      return;
+    }
+    
+    // User is authenticated, proceed with analysis
     analyzeMutation.mutate(data);
+  };
+
+  const handleLoginSuccess = () => {
+    // If we have pending form data, submit it after successful login
+    if (pendingFormData) {
+      analyzeMutation.mutate(pendingFormData);
+      setPendingFormData(null);
+    }
+    setShowLoginModal(false);
   };
 
   const currentStepData = steps.find(step => step.id === currentStep)!;
@@ -738,6 +761,13 @@ export default function DataCollectionPage() {
           </Card>
         </div>
       </main>
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
     </div>
   );
 }

@@ -1,9 +1,22 @@
-import { pgTable, text, serial, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, jsonb, varchar, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { sql } from 'drizzle-orm';
+
+// Users table for Firebase authentication
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey(), // Firebase UID
+  email: varchar("email").unique(),
+  name: varchar("name"),
+  photoURL: varchar("photo_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 
 export const investmentAnalyses = pgTable("investment_analyses", {
   id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id), // Link to authenticated user
   age: text("age").notNull(),
   income: text("income").notNull(),
   investmentBudget: text("investment_amount").notNull(),
@@ -76,6 +89,8 @@ export const userDataSchema = z.object({
   }),
 });
 
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
 export type InsertInvestmentAnalysis = z.infer<typeof insertInvestmentAnalysisSchema>;
 export type InvestmentAnalysis = typeof investmentAnalyses.$inferSelect;
 export type UserData = z.infer<typeof userDataSchema>;

@@ -9,6 +9,29 @@ import { DataProcessor } from "./data-processor";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Firebase Auth - Save user to database
+  app.post("/api/auth/save-user", async (req, res) => {
+    try {
+      const { id, email, name, photoURL } = req.body;
+      
+      if (!id) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      const user = await storage.saveUser({
+        id,
+        email: email || null,
+        name: name || null,
+        photoURL: photoURL || null,
+      });
+      
+      res.json(user);
+    } catch (error: any) {
+      console.error("Error saving user:", error);
+      res.status(500).json({ message: "Failed to save user" });
+    }
+  });
+  
   // Analyze investment data using AI
   app.post("/api/analyze", async (req, res) => {
     try {
@@ -51,7 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           price: rec.amount.toString(),
           amount: rec.amount,  // المبلغ بصيغة رقمية
           quantity: rec.quantity,  // الكمية
-          expectedReturn: (rec.expectedReturn * 100).toFixed(1),  // العائد المتوقع كنسبة مئوية
+          expectedReturn: typeof rec.expectedReturn === 'number' 
+            ? (rec.expectedReturn * 100).toFixed(1)  
+            : rec.expectedReturn.toString(),  // العائد المتوقع كنسبة مئوية
           paymentPlan: 'N/A',
           riskLevel: rec.riskLevel as any,
           timeline: '1 year',
@@ -66,9 +91,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const analysis = await storage.createInvestmentAnalysis({
-        ...userData,
+        userId: null, // Will be set to actual user ID after authentication
+        age: userData.age,
+        income: userData.income,
+        investmentBudget: userData.investmentBudget,
+        currency: userData.currency,
+        goals: userData.goals,
+        riskTolerance: userData.riskTolerance,
+        preferences: userData.preferences,
+        targetMarket: userData.targetMarket,
         allowDiversification: userData.allowDiversification ? 'true' : 'false',
         islamicCompliance: userData.islamicCompliance ? 'true' : 'false',
+        paymentFrequency: userData.paymentFrequency,
+        language: userData.language,
         recommendations: formattedAnalysis
       });
       
