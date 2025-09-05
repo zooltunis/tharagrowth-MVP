@@ -31,7 +31,20 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   language: text("language").default("ar"),
   recommendations: jsonb("recommendations").$type<{
     id: string;
-    userData: any;
+    userData: {
+      age: string;
+      income: string;
+      investmentBudget: string;
+      currency: string;
+      goals: string[];
+      riskTolerance: string;
+      preferences: string[];
+      targetMarket: string;
+      allowDiversification: boolean;
+      islamicCompliance: boolean;
+      paymentFrequency: string;
+      language: string;
+    };
     strategy: string;
     riskProfile: string;
     recommendations: DetailedRecommendation[];
