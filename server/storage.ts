@@ -15,7 +15,7 @@ export class DatabaseStorage implements IStorage {
       console.log('💾 محاولة حفظ التحليل في قاعدة البيانات...');
       const [analysis] = await db
         .insert(investmentAnalyses)
-        .values([insertAnalysis])
+        .values(insertAnalysis)
         .returning();
       console.log('✅ تم حفظ التحليل بنجاح في قاعدة البيانات');
       return analysis;
@@ -65,7 +65,9 @@ export class DatabaseStorage implements IStorage {
         .onConflictDoUpdate({
           target: users.id,
           set: {
-            ...insertUser,
+            email: insertUser.email,
+            name: insertUser.name,
+            photoURL: insertUser.photoURL,
             updatedAt: new Date(),
           },
         })

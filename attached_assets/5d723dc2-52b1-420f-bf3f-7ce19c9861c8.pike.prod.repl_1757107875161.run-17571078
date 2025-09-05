@@ -1,0 +1,24 @@
+5d723dc2-52b1-420f-b…ke.prod.repl.run/:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+multi-tabs.js:4806 Injected CSS loaded successfully
+api/auth/save-user:1  Failed to load resource: the server responded with a status of 500 ()
+index-Yn9W0FJE.js:1617 Failed to save user to database
+a @ index-Yn9W0FJE.js:1617
+api/analyze:1  Failed to load resource: the server responded with a status of 504 ()
+index-Yn9W0FJE.js:48  GET https://5d723dc2-52b1-420f-bf3f-7ce19c9861c8.pike.prod.repl.run/api/analysis/1757107859626 404 (Not Found)
+(anonymous) @ index-Yn9W0FJE.js:48
+i @ index-Yn9W0FJE.js:48
+b @ index-Yn9W0FJE.js:48
+start @ index-Yn9W0FJE.js:48
+fetch @ index-Yn9W0FJE.js:48
+Sa @ index-Yn9W0FJE.js:48
+onSubscribe @ index-Yn9W0FJE.js:48
+subscribe @ index-Yn9W0FJE.js:48
+(anonymous) @ index-Yn9W0FJE.js:48
+i_ @ index-Yn9W0FJE.js:38
+dd @ index-Yn9W0FJE.js:40
+io @ index-Yn9W0FJE.js:40
+Y2 @ index-Yn9W0FJE.js:40
+qs @ index-Yn9W0FJE.js:40
+Gv @ index-Yn9W0FJE.js:40
+Us @ index-Yn9W0FJE.js:38
+(anonymous) @ index-Yn9W0FJE.js:40
