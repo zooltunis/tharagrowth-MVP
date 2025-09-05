@@ -12,13 +12,15 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   async createInvestmentAnalysis(insertAnalysis: InsertInvestmentAnalysis): Promise<InvestmentAnalysis> {
     try {
+      console.log('💾 محاولة حفظ التحليل في قاعدة البيانات...');
       const [analysis] = await db
         .insert(investmentAnalyses)
         .values(insertAnalysis)
         .returning();
+      console.log('✅ تم حفظ التحليل بنجاح في قاعدة البيانات');
       return analysis;
     } catch (error) {
-      console.error('Database error, using fallback storage:', error);
+      console.error('❌ خطأ في قاعدة البيانات، استخدام التخزين المؤقت:', error);
       // Fallback to memory storage
       return this.createMemoryAnalysis(insertAnalysis);
     }
