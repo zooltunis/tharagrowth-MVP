@@ -59,12 +59,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Store the analysis with proper format for database
       const formattedAnalysis = {
-        id: `temp_${Date.now()}`,
         userData,
         strategy: aiAnalysis.strategy,
         riskProfile: aiAnalysis.riskAssessment,
-        recommendations: aiAnalysis.recommendations.map((rec: any) => ({
-          id: rec.asset + '_' + Date.now(),
+        recommendations: aiAnalysis.recommendations.map((rec: any, index: number) => ({
+          id: rec.asset + '_' + (index + 1),
           type: rec.category,
           category: rec.category as any,
           title: rec.asset,

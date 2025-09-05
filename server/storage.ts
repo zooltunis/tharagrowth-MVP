@@ -42,7 +42,7 @@ export class DatabaseStorage implements IStorage {
 
   private createMemoryAnalysis(data: InsertInvestmentAnalysis): InvestmentAnalysis {
     // Create a temporary storage for this session
-    const id = Date.now();
+    const id = Math.floor(Math.random() * 1000000) + 1000;
     const analysis = { id, ...data } as InvestmentAnalysis;
     
     // For now, just return the analysis without persistent storage
