@@ -15,14 +15,14 @@ export class DatabaseStorage implements IStorage {
       console.log('💾 محاولة حفظ التحليل في قاعدة البيانات...');
       const [analysis] = await db
         .insert(investmentAnalyses)
-        .values(insertAnalysis)
+        .values([insertAnalysis])
         .returning();
       console.log('✅ تم حفظ التحليل بنجاح في قاعدة البيانات');
       return analysis;
     } catch (error) {
-      console.error('❌ خطأ في قاعدة البيانات، استخدام التخزين المؤقت:', error);
-      // Fallback to memory storage
-      return this.createMemoryAnalysis(insertAnalysis);
+      console.error('❌ خطأ حرج في قاعدة البيانات:', error);
+      // No fallback - throw error to force proper handling
+      throw new Error('Database save failed - cannot proceed without valid ID');
     }
   }
 
