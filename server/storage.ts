@@ -15,7 +15,7 @@ export class DatabaseStorage implements IStorage {
       console.log('💾 محاولة حفظ التحليل في قاعدة البيانات...');
       const [analysis] = await db
         .insert(investmentAnalyses)
-        .values([insertAnalysis])
+        .values(insertAnalysis)
         .returning();
       console.log('✅ تم حفظ التحليل بنجاح في قاعدة البيانات');
       return analysis;
@@ -40,22 +40,9 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  private createMemoryAnalysis(data: InsertInvestmentAnalysis): InvestmentAnalysis {
-    // Create a temporary storage for this session
-    const id = Math.floor(Math.random() * 1000000) + 1000;
-    const analysis = { id, ...data } as InvestmentAnalysis;
-    
-    // For now, just return the analysis without persistent storage
-    console.log('Using temporary storage for analysis ID:', id);
-    return analysis;
-  }
-
-  private getMemoryAnalysis(id: number): InvestmentAnalysis | undefined {
-    // For temporary implementation, return undefined
-    // This will be handled by the frontend appropriately
-    console.log('Memory storage lookup for ID:', id);
-    return undefined;
-  }
+  // Memory storage removed - all data must go through database
+  // private createMemoryAnalysis removed to prevent random IDs
+  // private getMemoryAnalysis removed to prevent 404 errors
 
   async saveUser(insertUser: InsertUser): Promise<User> {
     try {
