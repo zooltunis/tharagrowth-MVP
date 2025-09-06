@@ -11,25 +11,29 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { Header } from "@/components/ui/header";
+// Header disabled temporarily (requires authentication)
+// import { Header } from "@/components/ui/header";
 import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
 import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings, Home } from "lucide-react";
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/contexts/AuthContext";
-import LoginModal from "@/components/LoginModal";
+// Authentication disabled temporarily
+// import { useAuth } from "@/contexts/AuthContext";
+// import LoginModal from "@/components/LoginModal";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState<UserData | null>(null);
+  // Authentication disabled temporarily
+  // const [showLoginModal, setShowLoginModal] = useState(false);
+  // const [pendingFormData, setPendingFormData] = useState<UserData | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { currentLanguage, isRTL } = useLanguage();
   const { t } = useTranslation();
-  const { user, loading } = useAuth();
+  // Authentication disabled temporarily
+  // const { user, loading } = useAuth();
 
   const content = {
     ar: {
@@ -142,33 +146,26 @@ export default function DataCollectionPage() {
   };
 
   const onSubmit = (data: UserData) => {
-    // Check if user is authenticated
-    if (!user) {
-      // Store form data and show login modal
-      setPendingFormData(data);
-      setShowLoginModal(true);
-      return;
-    }
-    
-    // User is authenticated, proceed with analysis
+    // Proceed directly with analysis (authentication disabled)
     analyzeMutation.mutate(data);
   };
 
-  const handleLoginSuccess = () => {
-    // If we have pending form data, submit it after successful login
-    if (pendingFormData) {
-      analyzeMutation.mutate(pendingFormData);
-      setPendingFormData(null);
-    }
-    setShowLoginModal(false);
-  };
+  // Authentication handlers disabled temporarily
+  // const handleLoginSuccess = () => {
+  //   if (pendingFormData) {
+  //     analyzeMutation.mutate(pendingFormData);
+  //     setPendingFormData(null);
+  //   }
+  //   setShowLoginModal(false);
+  // };
 
   const currentStepData = steps.find(step => step.id === currentStep)!;
   const StepIcon = currentStepData.icon;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50" dir={isRTL ? "rtl" : "ltr"}>
-      <Header />
+      {/* Header disabled temporarily */}
+      {/* <Header /> */}
       
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
@@ -762,12 +759,12 @@ export default function DataCollectionPage() {
         </div>
       </main>
       
-      {/* Login Modal */}
-      <LoginModal 
+      {/* Login Modal disabled temporarily */}
+      {/* <LoginModal 
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onSuccess={handleLoginSuccess}
-      />
+      /> */}
     </div>
   );
 }
