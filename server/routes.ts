@@ -109,8 +109,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(analysis);
     } catch (error: any) {
       console.error("Analysis error:", error);
-      res.status(400).json({ 
-        message: error.message || "فشل في تحليل البيانات"
+      
+      // Handle Gemini API overload specifically
+      if (error.message === 'GEMINI_OVERLOADED') {
+        return res.status(503).json({ 
+          message: 'خدمة الذكاء الاصطناعي محمّلة حالياً. يرجى المحاولة بعد دقيقة.',
+          error: 'gemini_overloaded',
+          retryAfter: 60
+        });
+      }
+      
+      // Handle validation errors
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ 
+          message: 'بيانات غير صحيحة',
+          error: 'validation_error',
+          details: error.errors 
+        });
+      }
+      
+      // General error
+      res.status(500).json({ 
+        message: error.message || 'خطأ في الخادم، يرجى المحاولة مرة أخرى',
+        error: 'internal_error'
       });
     }
   });

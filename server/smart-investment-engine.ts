@@ -116,8 +116,14 @@ export class SmartInvestmentEngine {
 
       return result;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ خطأ في توليد التوصيات الذكية:', error);
+      
+      // Handle specific Gemini API errors
+      if (error.status === 503 || error.message?.includes('overloaded')) {
+        throw new Error('GEMINI_OVERLOADED');
+      }
+      
       throw new Error('فشل في توليد التوصيات الاستثمارية الذكية');
     }
   }
