@@ -47,6 +47,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const saveUserToDatabase = async (user: User) => {
     try {
+      console.log('🔍 Attempting to save user to database:', {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL
+      });
+      
       const response = await fetch('/api/auth/save-user', {
         method: 'POST',
         headers: {
@@ -61,10 +68,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        console.error('Failed to save user to database');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Failed to save user to database:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+      } else {
+        const userData = await response.json();
+        console.log('✅ User saved successfully to database:', userData.id);
       }
     } catch (error) {
-      console.error('Error saving user to database:', error);
+      console.error('❌ Error saving user to database:', error);
     }
   };
 

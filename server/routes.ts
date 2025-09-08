@@ -12,23 +12,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Firebase Auth - Save user to database
   app.post("/api/auth/save-user", async (req, res) => {
     try {
+      console.log('📥 Save user request received:', JSON.stringify(req.body, null, 2));
       const { id, email, name, photoURL } = req.body;
       
       if (!id) {
-        return res.status(400).json({ message: "User ID is required" });
+        console.error('❌ No user ID provided in request');
+        return res.status(400).json({ message: "User ID (Firebase UID) is required" });
       }
       
-      const user = await storage.saveUser({
+      console.log('✅ Valid Firebase UID received:', id);
+      
+      const userData = {
         id,
         email: email || null,
         name: name || null,
         photoURL: photoURL || null,
-      });
+      };
+      
+      console.log('💾 Attempting to save user:', userData);
+      const user = await storage.saveUser(userData);
+      console.log('✅ User saved successfully:', user.id);
       
       res.json(user);
     } catch (error: any) {
-      console.error("Error saving user:", error);
-      res.status(500).json({ message: "Failed to save user" });
+      console.error("❌ Critical error saving user:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        constraint: error.constraint
+      });
+      res.status(500).json({ 
+        message: "Failed to save user", 
+        error: error.message,
+        code: error.code 
+      });
     }
   });
   
