@@ -34,9 +34,8 @@ export class DatabaseStorage implements IStorage {
         .where(eq(investmentAnalyses.id, id));
       return analysis || undefined;
     } catch (error) {
-      console.error('Database error, using fallback storage:', error);
-      // Fallback to memory storage
-      return this.getMemoryAnalysis(id);
+      console.error('Database error getting analysis:', error);
+      return undefined;
     }
   }
 

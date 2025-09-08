@@ -37,6 +37,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = userDataSchema.parse(req.body);
       
+      // Ensure user exists in database if Firebase UID is provided
+      if (userData.userId) {
+        console.log('🔍 فحص وجود المستخدم:', userData.userId);
+        try {
+          const existingUser = await storage.getUser(userData.userId);
+          if (!existingUser) {
+            console.log('👤 إنشاء مستخدم جديد...');
+            await storage.saveUser({
+              id: userData.userId,
+              email: null,
+              name: null,
+              photoURL: null,
+            });
+            console.log('✅ تم إنشاء مستخدم جديد تلقائياً:', userData.userId);
+          } else {
+            console.log('✅ المستخدم موجود بالفعل:', userData.userId);
+          }
+        } catch (userError) {
+          console.error('❌ خطأ في إدارة المستخدم:', userError);
+          // Try to create user anyway
+          try {
+            await storage.saveUser({
+              id: userData.userId,
+              email: null,
+              name: null,
+              photoURL: null,
+            });
+            console.log('✅ تم إنشاء المستخدم في المحاولة الثانية');
+          } catch (createError) {
+            console.error('❌ فشل في إنشاء المستخدم:', createError);
+          }
+        }
+      }
+      
       // Generate smart investment recommendations using Gemini AI
       console.log('🧠 بدء نظام التوصية الذكي الجديد...');
       
