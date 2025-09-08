@@ -19,21 +19,18 @@ import { ArrowRight, ArrowLeft, Brain, Loader2, User, Target, Shield, Settings, 
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-// Authentication disabled temporarily
-// import { useAuth } from "@/contexts/AuthContext";
-// import LoginModal from "@/components/LoginModal";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginModal from "@/components/LoginModal";
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
-  // Authentication disabled temporarily
-  // const [showLoginModal, setShowLoginModal] = useState(false);
-  // const [pendingFormData, setPendingFormData] = useState<UserData | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<UserData | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { currentLanguage, isRTL } = useLanguage();
   const { t } = useTranslation();
-  // Authentication disabled temporarily
-  // const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   const content = {
     ar: {
@@ -108,11 +105,16 @@ export default function DataCollectionPage() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, language: currentLanguage }),
+        body: JSON.stringify({ 
+          ...data, 
+          language: currentLanguage,
+          userId: user?.uid || null // Include Firebase UID if user is logged in
+        }),
       });
       
       if (!response.ok) {
-        throw new Error('فشل في تحليل البيانات');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'فشل في تحليل البيانات');
       }
       
       return response.json();
@@ -146,18 +148,23 @@ export default function DataCollectionPage() {
   };
 
   const onSubmit = (data: UserData) => {
-    // Proceed directly with analysis (authentication disabled)
-    analyzeMutation.mutate(data);
+    // If user is logged in, proceed with analysis
+    if (user) {
+      analyzeMutation.mutate(data);
+    } else {
+      // User not logged in - show login modal
+      setPendingFormData(data);
+      setShowLoginModal(true);
+    }
   };
 
-  // Authentication handlers disabled temporarily
-  // const handleLoginSuccess = () => {
-  //   if (pendingFormData) {
-  //     analyzeMutation.mutate(pendingFormData);
-  //     setPendingFormData(null);
-  //   }
-  //   setShowLoginModal(false);
-  // };
+  const handleLoginSuccess = () => {
+    if (pendingFormData) {
+      analyzeMutation.mutate(pendingFormData);
+      setPendingFormData(null);
+    }
+    setShowLoginModal(false);
+  };
 
   const currentStepData = steps.find(step => step.id === currentStep)!;
   const StepIcon = currentStepData.icon;
@@ -760,11 +767,11 @@ export default function DataCollectionPage() {
       </main>
       
       {/* Login Modal disabled temporarily */}
-      {/* <LoginModal 
+      <LoginModal 
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onSuccess={handleLoginSuccess}
-      /> */}
+      />
     </div>
   );
 }

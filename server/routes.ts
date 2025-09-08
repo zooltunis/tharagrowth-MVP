@@ -59,6 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Store the analysis with proper format for database
       const formattedAnalysis = {
+        id: `analysis_${Date.now()}`, // Add required ID field
         userData,
         strategy: aiAnalysis.strategy,
         riskProfile: aiAnalysis.riskAssessment,
@@ -90,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const analysis = await storage.createInvestmentAnalysis({
-        userId: null, // Will be set to actual user ID after authentication
+        userId: userData.userId || null, // Use Firebase UID if provided, null for anonymous users
         age: userData.age,
         income: userData.income,
         investmentBudget: userData.investmentBudget,

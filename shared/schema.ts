@@ -100,6 +100,9 @@ export const userDataSchema = z.object({
   paymentFrequency: z.enum(["one-time", "monthly", "annual"], {
     required_error: "يرجى اختيار تكرار الدفع"
   }),
+  
+  // Firebase UID (optional - null for anonymous users)
+  userId: z.string().nullable().optional(),
 });
 
 export type User = typeof users.$inferSelect;
