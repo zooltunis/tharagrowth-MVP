@@ -127,9 +127,25 @@ export default function DataCollectionPage() {
       setLocation(`/results/${data.id}`);
     },
     onError: (error: any) => {
+      console.error('Analysis error:', error);
+      
+      let title = "خطأ في التحليل";
+      let description = "حدث خطأ أثناء تحليل البيانات";
+      
+      if (error.message?.includes('504') || error.message?.includes('timeout')) {
+        title = "انتهت مهلة الطلب";
+        description = "الطلب يستغرق وقتاً أطول من المعتاد. يرجى المحاولة مرة أخرى.";
+      } else if (error.message?.includes('503') || error.message?.includes('overloaded')) {
+        title = "الخدمة مزدحمة";
+        description = "الخدمة مزدحمة حالياً. يرجى المحاولة بعد دقيقة.";
+      } else if (error.message?.includes('unauthorized-domain')) {
+        title = "خطأ في المصادقة";
+        description = "يجب إضافة النطاق الحالي إلى Firebase Console في الأنطقة المصرح بها.";
+      }
+      
       toast({
-        title: "خطأ في التحليل",
-        description: error.message || "حدث خطأ أثناء تحليل البيانات",
+        title,
+        description,
         variant: "destructive",
       });
     },
