@@ -1,0 +1,40 @@
+You are an expert project assistant. Your task is to prepare this project for automatic deployment to Firebase Hosting via GitHub Actions. The goal is to have everything ready so that I do not need to install Firebase CLI on this machine. Follow these steps:
+
+1. **Firebase Configuration**
+   - Update `firebaseConfig` to use only the stable Firebase Hosting domain: "tharagrowth-mvp.web.app".
+   - Remove or replace any temporary Replit domains (*.repl.run).
+   - Confirm that authDomain, projectId, storageBucket, messagingSenderId, and appId are correct.
+
+2. **Package.json Scripts**
+   - Ensure the project has a build script, e.g., `"build": "react-scripts build"`.
+   - Add a deploy script: `"deploy-firebase": "npm run build && echo 'Deployment handled via GitHub Actions'"`.
+   - Do not attempt to deploy via CLI on this machine.
+
+3. **GitHub Actions Workflow**
+   - Create `.github/workflows/firebase-deploy.yml` with the following:
+     - Trigger: on push to `main` branch.
+     - Steps:
+       1. Checkout repository.
+       2. Setup Node.js environment.
+       3. Install dependencies (`npm install`).
+       4. Build project (`npm run build`).
+       5. Deploy to Firebase Hosting using `npx firebase-tools deploy --only hosting --project tharagrowth-mvp`.
+     - Authentication via a GitHub secret `FIREBASE_TOKEN`.
+     - Output Firebase Hosting URL after deployment.
+
+4. **Instructions for User**
+   - If any information is missing (Firebase project alias, GitHub repository link), explicitly ask before proceeding.
+   - Provide step-by-step instructions to:
+     1. Add `FIREBASE_TOKEN` secret to GitHub repository.
+     2. Push changes to GitHub for automatic deployment.
+
+5. **Summary**
+   - After preparing everything, output a summary with:
+     - npm scripts added.
+     - Path of the GitHub Actions workflow file.
+     - Expected Firebase Hosting URL.
+     - Instructions to trigger the first deployment.
+
+6. **Restrictions**
+   - Do not attempt to install or use Firebase CLI on Replit.
+   - No temporary domains (*.repl.run) should remain in the project.
