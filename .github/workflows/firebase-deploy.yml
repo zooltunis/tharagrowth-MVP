@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install
         
-      - name: Build project
-        run: npm run build
+      - name: Build frontend only
+        run: npx vite build
         
       - name: Deploy to Firebase Hosting
         run: npx firebase-tools deploy --only hosting --project tharagrowth-mvp
