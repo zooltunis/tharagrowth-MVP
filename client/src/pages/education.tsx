@@ -424,8 +424,8 @@ export default function EducationPage() {
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
                           {new Date(article.publishedAt).toLocaleDateString(
-                            selectedLanguage === 'ar' ? 'ar-SA' : 
-                            selectedLanguage === 'fr' ? 'fr-FR' : 'en-US'
+                            currentLanguage === 'ar' ? 'ar-SA' : 
+                            currentLanguage === 'fr' ? 'fr-FR' : 'en-US'
                           )}
                         </p>
                       </div>
