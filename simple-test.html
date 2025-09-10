@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working TharaGrowth Test</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .container { 
+            background: rgba(255,255,255,0.1); 
+            padding: 40px; 
+            border-radius: 15px; 
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-size: 3em; margin-bottom: 20px; }
+        .title { font-size: 2.5em; margin-bottom: 10px; font-weight: bold; }
+        .subtitle { font-size: 1.2em; margin-bottom: 30px; opacity: 0.9; }
+        .status { 
+            background: rgba(0,255,0,0.2); 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: 2px solid #00ff00;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { background: #ff5252; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1 class="title">TharaGrowth</h1>
+        <p class="subtitle">منصة التوصيات الاستثمارية الذكية</p>
+        
+        <div class="status">
+            ✅ Firebase Hosting is Working!<br>
+            🌐 Domain: <span id="domain"></span>
+        </div>
+        
+        <p>This confirms Firebase deployment works. If you see this page, the hosting is configured correctly.</p>
+        
+        <a href="/" class="btn">🏠 Try Main App</a>
+        <a href="/debug.html" class="btn">🔍 Debug Mode</a>
+    </div>
+    
+    <script>
+        document.getElementById('domain').textContent = window.location.href;
+        
+        // Test Firebase config loading
+        console.log('✅ Basic JavaScript execution works');
+        console.log('📍 Current URL:', window.location.href);
+        console.log('🕐 Page loaded at:', new Date().toISOString());
+    </script>
+</body>
+</html>
