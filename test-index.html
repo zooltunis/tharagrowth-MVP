@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TharaGrowth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 TharaGrowth Deployment Test</h1>
+        <div id="status">Loading...</div>
+        
+        <script>
+            document.getElementById('status').innerHTML = `
+                <div class="success">✅ Static HTML loads correctly!</div>
+                <p><strong>Domain:</strong> ${window.location.hostname}</p>
+                <p><strong>Full URL:</strong> ${window.location.href}</p>
+                <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                <hr>
+                <p>If you see this, Firebase Hosting is working. The main app issue is likely:</p>
+                <ul>
+                    <li>Missing environment variables (Firebase config)</li>
+                    <li>JavaScript bundle errors</li>
+                    <li>Build configuration issues</li>
+                </ul>
+            `;
+        </script>
+    </div>
+</body>
+</html>
