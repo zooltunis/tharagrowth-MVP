@@ -1,12 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { 
   User, 
-  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult,
   signOut as firebaseSignOut, 
   onAuthStateChanged,
   AuthError
 } from 'firebase/auth';
-import { auth, googleProvider } from '../lib/firebase';
+import { auth, googleProvider, db } from '../lib/firebase';
+import { doc, setDoc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -31,68 +33,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-      
-      // If user is authenticated, save to database
-      if (user) {
-        saveUserToDatabase(user);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const saveUserToDatabase = async (user: User) => {
+  const saveUserToFirestore = async (user: User) => {
     try {
-      console.log('🔍 Attempting to save user to database:', {
+      console.log('🔍 Attempting to save user to Firestore:', {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL
       });
       
-      const response = await fetch('/api/auth/save-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Check if user already exists to handle createdAt properly
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        // New user - set both createdAt and updatedAt
+        await setDoc(userRef, {
           id: user.uid,
           email: user.email,
           name: user.displayName,
           photoURL: user.photoURL,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('❌ Failed to save user to database:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         });
+        console.log('✅ New user created in Firestore:', user.uid);
       } else {
-        const userData = await response.json();
-        console.log('✅ User saved successfully to database:', userData.id);
+        // Existing user - only update updatedAt and other fields
+        await updateDoc(userRef, {
+          email: user.email,
+          name: user.displayName,
+          photoURL: user.photoURL,
+          updatedAt: serverTimestamp(),
+        });
+        console.log('✅ Existing user updated in Firestore:', user.uid);
       }
     } catch (error) {
-      console.error('❌ Error saving user to database:', error);
+      console.error('❌ Error saving user to Firestore:', error);
     }
   };
+
+  useEffect(() => {
+    // Handle redirect result on page load
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
+          console.log('✅ User signed in via redirect:', result.user.email);
+          saveUserToFirestore(result.user);
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Error handling redirect result:', error);
+        setError(error.message);
+      });
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+      
+      // Only save authenticated users to Firestore
+      if (user) {
+        saveUserToFirestore(user);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const signInWithGoogle = async () => {
     try {
       setError(null);
       setLoading(true);
-      await signInWithPopup(auth, googleProvider);
+      // Use redirect instead of popup to avoid Cross-Origin-Opener-Policy issues
+      await signInWithRedirect(auth, googleProvider);
     } catch (error) {
       const authError = error as AuthError;
       setError(authError.message);
       console.error('Error signing in with Google:', authError);
-    } finally {
       setLoading(false);
     }
   };
