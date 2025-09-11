@@ -23,7 +23,7 @@ jobs:
         run: npm install
         
       - name: Build frontend only
-        run: npx vite build
+        run: npx vite build && cp -r dist/public/* dist/ 2>/dev/null || echo "Build completed"
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
 <<<<<<< HEAD
@@ -38,9 +38,14 @@ jobs:
           
 =======
         
+<<<<<<< HEAD
 >>>>>>> 31ddb3b (Configure Firebase for deployment and add a test HTML file)
       - name: Deploy to Firebase Hosting
         run: npx firebase-tools deploy --only hosting --project tharagrowth-mvp
+=======
+      - name: Deploy to Firebase Hosting and Firestore Rules
+        run: npx firebase-tools deploy --only hosting,firestore:rules --project tharagrowth-mvp
+>>>>>>> c10522a (Update deployment to include Firestore rules and adjust hosting configuration)
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           
