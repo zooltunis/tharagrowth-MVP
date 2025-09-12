@@ -265,7 +265,7 @@ export default function MarketDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BarChart3 className="ml-2 h-5 w-5" />
-                الأسهم النشطة - السوق السعودي
+                الأسهم النشطة - الأسواق الإماراتية
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -283,24 +283,24 @@ export default function MarketDashboard() {
                         )}
                       </div>
                       <div className="text-left">
-                        <p className="text-lg font-bold">{Number(stock.price.toFixed(2)).toLocaleString('en-US')} ريال</p>
+                        <p className="text-lg font-bold">{Number((stock.price || 0).toFixed(2)).toLocaleString('en-US')} AED</p>
                         <div className="flex items-center">
-                          {stock.changePercent >= 0 ? (
+                          {(stock.changePercent || 0) >= 0 ? (
                             <TrendingUp className="h-3 w-3 text-green-600 ml-1" />
                           ) : (
                             <TrendingDown className="h-3 w-3 text-red-600 ml-1" />
                           )}
                           <span className={`text-sm font-medium ${
-                            stock.changePercent >= 0 ? 'text-green-600' : 'text-red-600'
+                            (stock.changePercent || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {Number(stock.changePercent.toFixed(2)).toLocaleString('en-US')}%
+                            {Number((stock.changePercent || 0).toFixed(2)).toLocaleString('en-US')}%
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="text-xs text-gray-500 flex justify-between">
-                      <span>الحجم: {stock.volume.toLocaleString('en-US')}</span>
-                      <span>التغيير: {Number(stock.change.toFixed(2)).toLocaleString('en-US')} ريال</span>
+                      <span>الحجم: {(stock.volume || 0).toLocaleString('en-US')}</span>
+                      <span>التغيير: {Number((stock.change || 0).toFixed(2)).toLocaleString('en-US')} AED</span>
                     </div>
                   </div>
                 ))}

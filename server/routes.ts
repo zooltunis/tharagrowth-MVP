@@ -53,6 +53,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analyze investment data using AI
   app.post("/api/analyze", async (req, res) => {
     try {
+      console.log('🔍 Raw request body received:', JSON.stringify(req.body, null, 2));
+      console.log('🔍 Body keys:', Object.keys(req.body));
+      console.log('🔍 Body types:', Object.fromEntries(Object.entries(req.body).map(([k, v]) => [k, typeof v])));
+      
       const userData = userDataSchema.parse(req.body);
       
       // Ensure user exists in database if Firebase UID is provided
@@ -174,10 +178,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle validation errors
       if (error.name === 'ZodError') {
+        console.error("❌ خطأ في التحقق من صحة البيانات:");
+        console.error("❌ Validation errors:", JSON.stringify(error.errors, null, 2));
+        console.error("❌ Input data:", JSON.stringify(req.body, null, 2));
         return res.status(400).json({ 
           message: 'بيانات غير صحيحة',
           error: 'validation_error',
-          details: error.errors 
+          details: error.errors.map((e: any) => ({
+            field: e.path.join('.'),
+            message: e.message,
+            code: e.code,
+            received: e.received
+          }))
         });
       }
       

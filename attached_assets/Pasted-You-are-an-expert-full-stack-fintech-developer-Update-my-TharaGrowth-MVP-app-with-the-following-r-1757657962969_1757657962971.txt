@@ -1,0 +1,33 @@
+You are an expert full-stack fintech developer. 
+Update my TharaGrowth MVP app with the following real estate and currency rules, taking into account three payment options: "One-time payment", "Monthly", and "Yearly":
+
+1. Currency:
+   - All investments, budgets, and outputs must be in AED (United Arab Emirates Dirham).
+   - Remove any other currencies and currency selectors from the frontend.
+   - Convert any incoming data (stocks, gold, real estate prices) to AED if they are in other currencies.
+
+2. Real estate logic using existing Dropdown (payment method):
+   - Dropdown values: "One-time payment", "Monthly", "Yearly".
+   - If "One-time payment" is selected:
+     - If investment amount < 100,000 AED, disable direct real estate investment options.
+     - Recommend alternatives: UAE REITs or real estate crowdfunding platforms.
+     - If investment amount >= threshold, allow direct property investment.
+       - Show estimated down payment (20% of property value).
+       - Optionally show illustrative monthly or yearly payments.
+   - If "Monthly" is selected:
+     - Allow direct property investments if budget covers the down payment.
+     - Calculate monthly installments based on a typical property financing period (e.g., 3–5 years).
+   - If "Yearly" is selected:
+     - Allow direct property investments if budget covers down payment.
+     - Calculate yearly installments based on a typical property financing period.
+
+3. Recommendations Output:
+   - All portfolio suggestions must be in AED.
+   - Provide clear messages depending on the payment method:
+     * "Your investment amount is not enough for direct real estate with a single payment. Suggested alternatives: REITs or crowdfunding."
+     * "You can afford a direct property investment. Estimated down payment: 50,000 AED. Monthly installments: 7,000 AED for 5 years."
+     * "You can afford a direct property investment. Estimated down payment: 50,000 AED. Yearly installments: 84,000 AED for 5 years."
+
+4. UI/UX:
+   - Update all labels, placeholders, and summaries to show AED explicitly.
+   - Ensure the Dropdown selection automatically updates recommendation logic in the backend.
