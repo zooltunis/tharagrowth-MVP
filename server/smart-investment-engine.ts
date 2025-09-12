@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { DataProcessor } from "./data-processor";
+import { CurrencyConverter } from "./currency-converter";
 
 interface UserInvestmentProfile {
   budget: number;
@@ -34,12 +35,14 @@ interface SmartRecommendationResult {
 export class SmartInvestmentEngine {
   private ai: GoogleGenAI;
   private dataProcessor: DataProcessor;
+  private currencyConverter: CurrencyConverter;
 
   constructor() {
     this.ai = new GoogleGenAI({ 
       apiKey: process.env.GEMINI_API_KEY || "" 
     });
     this.dataProcessor = new DataProcessor();
+    this.currencyConverter = CurrencyConverter.getInstance();
   }
 
   async generateSmartRecommendations(profile: UserInvestmentProfile): Promise<SmartRecommendationResult> {
@@ -57,10 +60,16 @@ export class SmartInvestmentEngine {
         this.dataProcessor.getGovernmentBondsData()
       ]);
 
-      // تصفية البيانات حسب تفضيلات المستخدم
-      const filteredData = this.filterDataByPreferences({
+      // تحويل جميع البيانات إلى الدرهم الإماراتي وتصفيتها للسوق الإماراتي فقط
+      const uaeOnlyData = this.filterForUAEMarketsOnly({
         stocks, realEstate, gold, bonds, crowdfunding, crypto, governmentBonds
-      }, profile);
+      });
+      
+      // تحويل جميع العملات إلى الدرهم الإماراتي
+      const convertedData = this.convertAllDataToAED(uaeOnlyData);
+      
+      // تصفية البيانات حسب تفضيلات المستخدم
+      const filteredData = this.filterDataByPreferences(convertedData, profile);
 
       // بناء prompt شامل للـ Gemini
       const prompt = this.buildInvestmentPrompt(profile, filteredData);
@@ -234,7 +243,7 @@ export class SmartInvestmentEngine {
     
     let prompt = `${currentLang.intro}
 
-1. ${currentLang.budget}: ${budget.toLocaleString()} ${profile.currency}
+1. ${currentLang.budget}: ${budget.toLocaleString()} AED
 2. ${currentLang.goal}: ${goals.join(', ')}
 3. ${currentLang.timeHorizon}: ${timeHorizon}
 4. ${currentLang.risk}: ${riskTolerance}
@@ -249,7 +258,7 @@ export class SmartInvestmentEngine {
     if (data.stocks?.length > 0) {
       prompt += `\n📈 ${currentLang.stocks}:\n`;
       data.stocks.slice(0, 8).forEach((stock: any) => {
-        prompt += `- ${stock.nameArabic || stock.name}: ${profile.currency} ${stock.price}, ${currentLang.expectedReturn || 'Expected Return'} ${stock.expectedReturn}%, ${currentLang.sector || 'Sector'}: ${stock.sector}\n`;
+        prompt += `- ${stock.nameArabic || stock.name}: AED ${stock.price}, Expected Return ${stock.expectedReturn || 'N/A'}%, Sector: ${stock.sector || 'N/A'}\n`;
       });
     }
 
@@ -257,7 +266,7 @@ export class SmartInvestmentEngine {
     if (data.gold?.length > 0) {
       prompt += `\n🥇 ${currentLang.gold}:\n`;
       data.gold.forEach((item: any) => {
-        prompt += `- ${item.type}: ${profile.currency} ${item.pricePerGram} ${currentLang.perGram || 'per gram'}\n`;
+        prompt += `- ${item.type}: AED ${item.pricePerGram} per gram\n`;
       });
     }
 
@@ -265,7 +274,7 @@ export class SmartInvestmentEngine {
     if (data.realEstate?.length > 0) {
       prompt += `\n🏠 ${currentLang.realEstate}:\n`;
       data.realEstate.slice(0, 5).forEach((property: any) => {
-        prompt += `- ${property.name}: ${profile.currency} ${property.price}, ${currentLang.annualReturn || 'Annual Return'} ${property.expectedReturn}%, ${currentLang.location || 'Location'}: ${property.location}\n`;
+        prompt += `- ${property.name}: AED ${property.price}, Annual Return ${property.expectedReturn || 'N/A'}%, Location: ${property.location || 'N/A'}\n`;
       });
     }
 
@@ -273,7 +282,7 @@ export class SmartInvestmentEngine {
     if (data.crowdfunding?.length > 0) {
       prompt += `\n👥 ${currentLang.crowdfunding}:\n`;
       data.crowdfunding.forEach((project: any) => {
-        prompt += `- ${project.name}: ${currentLang.minimum || 'Minimum'} ${profile.currency} ${project.minInvestment}, ${currentLang.expectedReturn || 'Expected Return'} ${project.expectedReturn}%\n`;
+        prompt += `- ${project.name}: Minimum AED ${project.minInvestment}, Expected Return ${project.expectedReturn || 'N/A'}%\n`;
       });
     }
 
@@ -281,15 +290,15 @@ export class SmartInvestmentEngine {
     if (data.crypto?.length > 0) {
       prompt += `\n₿ ${currentLang.crypto}:\n`;
       data.crypto.forEach((crypto: any) => {
-        prompt += `- ${crypto.nameArabic} (${crypto.symbol}): ${profile.currency} ${crypto.price}, ${currentLang.expectedReturn || 'Expected Return'} ${crypto.expectedReturn}%\n`;
+        prompt += `- ${crypto.nameArabic} (${crypto.symbol}): AED ${crypto.price}, Expected Return ${crypto.expectedReturn || 'N/A'}%\n`;
       });
     }
 
     // إضافة السندات الحكومية
     if (data.governmentBonds?.length > 0) {
-      prompt += `\n📜 ${currentLang.bonds || 'Bonds & Sukuk'}:\n`;
+      prompt += `\n📜 Bonds & Sukuk:\n`;
       data.governmentBonds.forEach((bond: any) => {
-        prompt += `- ${bond.name}: ${currentLang.minimum || 'Minimum'} ${profile.currency} ${bond.minInvestment}, ${currentLang.yield || 'Yield'} ${bond.yield}%\n`;
+        prompt += `- ${bond.name}: Minimum AED ${bond.minInvestment}, Yield ${bond.yield || 'N/A'}%\n`;
       });
     }
 
@@ -300,9 +309,68 @@ export class SmartInvestmentEngine {
 4. يجب أن تكون التوصية مفصلة مثل: "50000 درهم في 588 سهم من شركة إعمار بسعر 85 درهم"
 5. قدم تحليلاً موجزاً يشرح سبب اختيار هذا التوزيع
 
-تأكد أن إجمالي المبالغ لا يتجاوز ${budget} درهم المتاحة.`;
+تأكد أن إجمالي المبالغ لا يتجاوز ${budget} درهم إماراتي المتاحة.`;
 
     return prompt;
+  }
+
+  /**
+   * Filter all data to UAE markets only (DFM, ADX, UAE real estate, UAE gold)
+   */
+  private filterForUAEMarketsOnly(data: any) {
+    return {
+      stocks: data.stocks.filter((stock: any) => 
+        stock.exchange === 'DFM' || 
+        stock.exchange === 'ADX' || 
+        stock.market === 'UAE' ||
+        stock.country === 'الإمارات' ||
+        stock.country === 'UAE'
+      ),
+      realEstate: data.realEstate.filter((property: any) => 
+        property.country === 'UAE' || 
+        property.location === 'الإمارات' ||
+        property.location?.includes('UAE') ||
+        property.location?.includes('Dubai') ||
+        property.location?.includes('Abu Dhabi') ||
+        property.location?.includes('Sharjah')
+      ),
+      gold: data.gold.filter((item: any) => 
+        item.supplier?.includes('UAE') || 
+        item.location?.includes('Dubai') ||
+        !item.location || // Include generic gold items
+        item.supplier?.includes('Dubai')
+      ),
+      bonds: data.bonds.filter((bond: any) => 
+        bond.issuer?.includes('UAE') || 
+        bond.country === 'UAE' ||
+        bond.market === 'UAE'
+      ),
+      crowdfunding: data.crowdfunding.filter((project: any) => 
+        project.country === 'UAE' || 
+        project.location?.includes('UAE') ||
+        project.location?.includes('Dubai')
+      ),
+      crypto: data.crypto, // Crypto is location-independent
+      governmentBonds: data.governmentBonds.filter((bond: any) => 
+        bond.issuer?.includes('UAE') || 
+        bond.country === 'UAE'
+      )
+    };
+  }
+
+  /**
+   * Convert all market data to AED currency
+   */
+  private convertAllDataToAED(data: any) {
+    return {
+      stocks: this.currencyConverter.convertMarketDataToAED(data.stocks),
+      realEstate: this.currencyConverter.convertMarketDataToAED(data.realEstate),
+      gold: this.currencyConverter.convertMarketDataToAED(data.gold),
+      bonds: this.currencyConverter.convertMarketDataToAED(data.bonds),
+      crowdfunding: this.currencyConverter.convertMarketDataToAED(data.crowdfunding),
+      crypto: this.currencyConverter.convertMarketDataToAED(data.crypto),
+      governmentBonds: this.currencyConverter.convertMarketDataToAED(data.governmentBonds)
+    };
   }
 
   private filterDataByPreferences(data: any, profile: UserInvestmentProfile) {
@@ -316,28 +384,14 @@ export class SmartInvestmentEngine {
       governmentBonds: []
     };
 
-    // تصفية الأسهم
+    // تصفية الأسهم (الآن مقتصرة على الإمارات فقط)
     if (profile.preferences.includes('stocks')) {
-      filtered.stocks = data.stocks.filter((stock: any) => {
-        // تصفية حسب السوق المستهدف
-        if (profile.targetMarket === 'UAE') {
-          return stock.market === 'UAE' || stock.exchange === 'DFM' || stock.exchange === 'ADX';
-        }
-        if (profile.targetMarket === 'Saudi Arabia') {
-          return stock.market === 'Saudi Arabia' || stock.exchange === 'TADAWUL';
-        }
-        return true;
-      });
+      filtered.stocks = data.stocks; // Already filtered for UAE markets
     }
 
-    // تصفية العقارات
+    // تصفية العقارات (الآن مقتصرة على الإمارات فقط)
     if (profile.preferences.includes('real-estate')) {
-      filtered.realEstate = data.realEstate.filter((property: any) => {
-        if (profile.targetMarket === 'UAE') {
-          return property.country === 'UAE';
-        }
-        return true;
-      });
+      filtered.realEstate = data.realEstate; // Already filtered for UAE markets
     }
 
     // تصفية الذهب
