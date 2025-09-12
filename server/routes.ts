@@ -107,6 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         preferences: userData.preferences,
         targetMarket: userData.targetMarket,
         islamicCompliance: userData.islamicCompliance,
+        paymentFrequency: userData.paymentFrequency,
         language: userData.language || 'ar'
       };
 

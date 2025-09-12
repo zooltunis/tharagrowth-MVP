@@ -11,6 +11,7 @@ interface UserInvestmentProfile {
   preferences: string[];
   targetMarket: string;
   islamicCompliance: boolean;
+  paymentFrequency: string;
   language?: string;
 }
 
@@ -22,6 +23,11 @@ interface InvestmentRecommendation {
   reason: string;
   expectedReturn: number;
   riskLevel: string;
+  downPayment?: number;
+  monthlyInstallment?: number;
+  yearlyInstallment?: number;
+  financingPeriod?: number;
+  paymentMethod?: string;
 }
 
 interface SmartRecommendationResult {
@@ -183,7 +189,7 @@ export class SmartInvestmentEngine {
   }
 
   private buildInvestmentPrompt(profile: UserInvestmentProfile, data: any): string {
-    const { budget, goals, timeHorizon, riskTolerance, targetMarket, islamicCompliance, language } = profile;
+    const { budget, goals, timeHorizon, riskTolerance, targetMarket, islamicCompliance, paymentFrequency, language } = profile;
     
     const prompts = {
       ar: {
@@ -200,6 +206,7 @@ export class SmartInvestmentEngine {
         realEstate: `العقارات المتاحة`,
         crowdfunding: `مشاريع Crowdfunding`,
         crypto: `العملات الرقمية`,
+        payment: `طريقة الدفع`,
         yes: `نعم`,
         no: `لا`
       },
@@ -217,6 +224,7 @@ export class SmartInvestmentEngine {
         realEstate: `Available real estate`,
         crowdfunding: `Crowdfunding projects`,
         crypto: `Cryptocurrencies`,
+        payment: `Payment method`,
         yes: `Yes`,
         no: `No`
       },
@@ -234,6 +242,7 @@ export class SmartInvestmentEngine {
         realEstate: `Immobilier disponible`,
         crowdfunding: `Projets de financement participatif`,
         crypto: `Cryptomonnaies`,
+        payment: `Méthode de paiement`,
         yes: `Oui`,
         no: `Non`
       }
@@ -249,8 +258,9 @@ export class SmartInvestmentEngine {
 4. ${currentLang.risk}: ${riskTolerance}
 5. ${currentLang.market}: ${targetMarket}
 6. ${currentLang.islamic}: ${islamicCompliance ? currentLang.yes : currentLang.no}
+7. ${currentLang.payment}: ${paymentFrequency}
 
-7. ${currentLang.data}:
+8. ${currentLang.data}:
 
 `;
 
@@ -270,11 +280,33 @@ export class SmartInvestmentEngine {
       });
     }
 
-    // إضافة بيانات العقارات
+    // إضافة بيانات العقارات المحسنة مع تفاصيل الدفع
     if (data.realEstate?.length > 0) {
-      prompt += `\n🏠 ${currentLang.realEstate}:\n`;
-      data.realEstate.slice(0, 5).forEach((property: any) => {
-        prompt += `- ${property.name}: AED ${property.price}, Annual Return ${property.expectedReturn || 'N/A'}%, Location: ${property.location || 'N/A'}\n`;
+      prompt += `\n🏠 ${currentLang.realEstate} (Enhanced Analysis):\n`;
+      data.realEstate.forEach((property: any) => {
+        prompt += `- ${property.asset}: AED ${property.amount}`;
+        if (property.downPayment) {
+          prompt += `, Down Payment: AED ${property.downPayment}`;
+        }
+        if (property.monthlyInstallment) {
+          prompt += `, Monthly: AED ${property.monthlyInstallment}`;
+        }
+        if (property.yearlyInstallment) {
+          prompt += `, Yearly: AED ${property.yearlyInstallment}`;
+        }
+        prompt += `, Return: ${property.expectedReturn}%, Location: ${property.location || 'N/A'}`;
+        prompt += `, Payment Method: ${property.paymentMethod}`;
+        prompt += `\n  Reason: ${property.reason}\n`;
+      });
+    }
+    
+    // إضافة البدائل العقارية إذا كانت متوفرة
+    if (data.realEstateAlternatives?.length > 0) {
+      prompt += `\n🏠 Real Estate Alternatives (REITs/Crowdfunding):\n`;
+      data.realEstateAlternatives.forEach((alternative: any) => {
+        prompt += `- ${alternative.message}\n`;
+        prompt += `  Recommended: ${alternative.recommendedOptions.join(', ')}\n`;
+        prompt += `  Reason: ${alternative.reason}\n`;
       });
     }
 
@@ -389,9 +421,11 @@ export class SmartInvestmentEngine {
       filtered.stocks = data.stocks; // Already filtered for UAE markets
     }
 
-    // تصفية العقارات (الآن مقتصرة على الإمارات فقط)
+    // تصفية العقارات باستخدام المنطق المحسن للدفع
     if (profile.preferences.includes('real-estate')) {
-      filtered.realEstate = data.realEstate; // Already filtered for UAE markets
+      const realEstateAnalysis = this.analyzeRealEstateOptions(profile, data.realEstate);
+      filtered.realEstate = realEstateAnalysis.recommendations;
+      filtered.realEstateAlternatives = realEstateAnalysis.alternatives;
     }
 
     // تصفية الذهب
@@ -436,5 +470,151 @@ export class SmartInvestmentEngine {
     }
 
     return filtered;
+  }
+
+  /**
+   * Enhanced real estate logic with payment method calculations
+   */
+  private analyzeRealEstateOptions(profile: UserInvestmentProfile, realEstateData: any[]) {
+    const budget = profile.budget;
+    const paymentMethod = profile.paymentFrequency;
+    const language = profile.language || 'ar';
+    
+    console.log(`🏠 Analyzing real estate options for budget: ${budget} AED, payment method: ${paymentMethod}`);
+    
+    const realEstateRecommendations: any[] = [];
+    const alternatives: any[] = [];
+    
+    // Real estate threshold for direct investment: 100,000 AED
+    const DIRECT_REAL_ESTATE_THRESHOLD = 100000;
+    const DOWN_PAYMENT_PERCENTAGE = 0.20; // 20% down payment
+    const FINANCING_PERIOD_YEARS = 5; // Default financing period
+    
+    if (paymentMethod === 'one-time') {
+      // One-time payment logic
+      if (budget < DIRECT_REAL_ESTATE_THRESHOLD) {
+        // Recommend alternatives: REITs or crowdfunding
+        const message = language === 'ar' 
+          ? `مبلغ الاستثمار الخاص بك غير كافٍ للاستثمار العقاري المباشر بدفعة واحدة. البدائل المقترحة: صناديق الاستثمار العقاري (REITs) أو منصات التمويل الجماعي.`
+          : `Your investment amount is not enough for direct real estate with a single payment. Suggested alternatives: REITs or crowdfunding.`;
+          
+        alternatives.push({
+          type: 'alternative',
+          message,
+          recommendedOptions: ['REITs', 'crowdfunding'],
+          reason: language === 'ar' 
+            ? 'المبلغ أقل من الحد الأدنى للاستثمار العقاري المباشر (100,000 درهم)'
+            : 'Amount below minimum threshold for direct real estate investment (100,000 AED)'
+        });
+      } else {
+        // Allow direct property investment
+        const suitableProperties = realEstateData.filter((property: any) => {
+          const propertyPrice = property.price || property.startingPrice || 0;
+          return propertyPrice <= budget;
+        });
+        
+        suitableProperties.forEach((property: any) => {
+          const propertyPrice = property.price || property.startingPrice || 0;
+          const downPayment = propertyPrice * DOWN_PAYMENT_PERCENTAGE;
+          
+          if (budget >= propertyPrice) {
+            const message = language === 'ar'
+              ? `يمكنك تحمل استثمار عقاري مباشر. الدفعة المقدرة: ${downPayment.toLocaleString()} درهم.`
+              : `You can afford a direct property investment. Estimated down payment: ${downPayment.toLocaleString()} AED.`;
+              
+            realEstateRecommendations.push({
+              asset: property.name || property.title,
+              category: 'real-estate',
+              amount: propertyPrice,
+              quantity: '1 property',
+              reason: message,
+              expectedReturn: property.expectedReturn || property.roi || 7,
+              riskLevel: 'متوسط',
+              downPayment: downPayment,
+              paymentMethod: 'one-time',
+              location: property.location,
+              developer: property.developer
+            });
+          }
+        });
+      }
+    } else if (paymentMethod === 'monthly') {
+      // Monthly payment logic
+      const suitableProperties = realEstateData.filter((property: any) => {
+        const propertyPrice = property.price || property.startingPrice || 0;
+        const downPayment = propertyPrice * DOWN_PAYMENT_PERCENTAGE;
+        return downPayment <= budget; // Budget should cover down payment
+      });
+      
+      suitableProperties.forEach((property: any) => {
+        const propertyPrice = property.price || property.startingPrice || 0;
+        const downPayment = propertyPrice * DOWN_PAYMENT_PERCENTAGE;
+        const remainingAmount = propertyPrice - downPayment;
+        const monthlyInstallment = remainingAmount / (FINANCING_PERIOD_YEARS * 12);
+        
+        if (budget >= downPayment) {
+          const message = language === 'ar'
+            ? `يمكنك تحمل استثمار عقاري مباشر. الدفعة المقدرة: ${downPayment.toLocaleString()} درهم. الأقساط الشهرية: ${monthlyInstallment.toLocaleString()} درهم لمدة ${FINANCING_PERIOD_YEARS} سنوات.`
+            : `You can afford a direct property investment. Estimated down payment: ${downPayment.toLocaleString()} AED. Monthly installments: ${monthlyInstallment.toLocaleString()} AED for ${FINANCING_PERIOD_YEARS} years.`;
+            
+          realEstateRecommendations.push({
+            asset: property.name || property.title,
+            category: 'real-estate',
+            amount: downPayment,
+            quantity: '1 property',
+            reason: message,
+            expectedReturn: property.expectedReturn || property.roi || 7,
+            riskLevel: 'متوسط',
+            downPayment: downPayment,
+            monthlyInstallment: monthlyInstallment,
+            financingPeriod: FINANCING_PERIOD_YEARS,
+            paymentMethod: 'monthly',
+            location: property.location,
+            developer: property.developer
+          });
+        }
+      });
+    } else if (paymentMethod === 'annual') {
+      // Yearly payment logic
+      const suitableProperties = realEstateData.filter((property: any) => {
+        const propertyPrice = property.price || property.startingPrice || 0;
+        const downPayment = propertyPrice * DOWN_PAYMENT_PERCENTAGE;
+        return downPayment <= budget; // Budget should cover down payment
+      });
+      
+      suitableProperties.forEach((property: any) => {
+        const propertyPrice = property.price || property.startingPrice || 0;
+        const downPayment = propertyPrice * DOWN_PAYMENT_PERCENTAGE;
+        const remainingAmount = propertyPrice - downPayment;
+        const yearlyInstallment = remainingAmount / FINANCING_PERIOD_YEARS;
+        
+        if (budget >= downPayment) {
+          const message = language === 'ar'
+            ? `يمكنك تحمل استثمار عقاري مباشر. الدفعة المقدرة: ${downPayment.toLocaleString()} درهم. الأقساط السنوية: ${yearlyInstallment.toLocaleString()} درهم لمدة ${FINANCING_PERIOD_YEARS} سنوات.`
+            : `You can afford a direct property investment. Estimated down payment: ${downPayment.toLocaleString()} AED. Yearly installments: ${yearlyInstallment.toLocaleString()} AED for ${FINANCING_PERIOD_YEARS} years.`;
+            
+          realEstateRecommendations.push({
+            asset: property.name || property.title,
+            category: 'real-estate',
+            amount: downPayment,
+            quantity: '1 property',
+            reason: message,
+            expectedReturn: property.expectedReturn || property.roi || 7,
+            riskLevel: 'متوسط',
+            downPayment: downPayment,
+            yearlyInstallment: yearlyInstallment,
+            financingPeriod: FINANCING_PERIOD_YEARS,
+            paymentMethod: 'annual',
+            location: property.location,
+            developer: property.developer
+          });
+        }
+      });
+    }
+    
+    return {
+      recommendations: realEstateRecommendations,
+      alternatives: alternatives
+    };
   }
 }
