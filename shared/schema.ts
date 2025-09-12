@@ -20,7 +20,7 @@ export const investmentAnalyses = pgTable("investment_analyses", {
   age: text("age").notNull(),
   income: text("income").notNull(),
   investmentBudget: text("investment_amount").notNull(),
-  currency: text("currency").notNull(),
+  currency: text("currency").notNull().default("AED"),
   goals: jsonb("goals").$type<string[]>().notNull(),
   riskTolerance: text("risk_tolerance").notNull(),
   preferences: jsonb("preferences").$type<string[]>().notNull(),
@@ -35,7 +35,7 @@ export const investmentAnalyses = pgTable("investment_analyses", {
       age: string;
       income: string;
       investmentBudget: string;
-      currency: string;
+      currency: "AED";
       goals: string[];
       riskTolerance: string;
       preferences: string[];
@@ -83,9 +83,7 @@ export const userDataSchema = z.object({
   language: z.string().default("ar"),
   income: z.string().min(1, "يرجى اختيار الدخل الشهري"),
   investmentBudget: z.string().min(1, "يرجى إدخال مبلغ الاستثمار"),
-  currency: z.enum(["AED", "SAR", "USD", "EUR", "GBP"], {
-    required_error: "يرجى اختيار العملة"
-  }),
+  currency: z.literal("AED").default("AED"),
 
   goals: z.array(z.string()).min(1, "يرجى اختيار هدف واحد على الأقل"),
   riskTolerance: z.string().min(1, "يرجى اختيار مستوى تحمل المخاطر"),
