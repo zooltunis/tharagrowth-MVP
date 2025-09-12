@@ -205,12 +205,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Simple market data endpoint (using static data)
+  // Market data endpoint (AED-only, UAE markets focus)
   app.get("/api/market-data", async (req, res) => {
     try {
+      const currencyConverter = (await import("./currency-converter")).CurrencyConverter.getInstance();
+      
+      // UAE Gold prices in AED
+      const goldPriceAED = {
+        pricePerGram: 248.50, // Current UAE gold price per gram in AED
+        currency: 'AED',
+        market: 'UAE'
+      };
+
+      // UAE Stock exchanges (DFM/ADX) sample data in AED
+      const uaeStocks = [
+        { symbol: 'EMAAR', name: 'إعمار العقارية', price: 5.45, exchange: 'DFM', currency: 'AED' },
+        { symbol: 'DIB', name: 'بنك دبي الإسلامي', price: 6.82, exchange: 'DFM', currency: 'AED' },
+        { symbol: 'ADNOC', name: 'أدنوك للتوزيع', price: 3.76, exchange: 'ADX', currency: 'AED' },
+        { symbol: 'FAB', name: 'بنك أبوظبي الأول', price: 15.20, exchange: 'ADX', currency: 'AED' }
+      ];
+
+      // UAE Real Estate projects in AED
+      const uaeRealEstate = [
+        { 
+          name: 'Dubai Creek Harbour', 
+          developer: 'Emaar', 
+          startingPrice: 1200000, 
+          currency: 'AED',
+          location: 'Dubai',
+          type: 'Residential'
+        },
+        { 
+          name: 'Al Reem Island', 
+          developer: 'Aldar', 
+          startingPrice: 850000, 
+          currency: 'AED',
+          location: 'Abu Dhabi',
+          type: 'Residential'
+        }
+      ];
+
       res.json({
-        goldPrice: { pricePerGram: 246.68, currency: 'AED' },
-        timestamp: new Date().toISOString()
+        goldPrice: goldPriceAED,
+        activeStocks: uaeStocks,
+        newRealEstateProjects: uaeRealEstate,
+        lastUpdated: new Date().toISOString(),
+        market: 'UAE',
+        currency: 'AED'
       });
     } catch (error: any) {
       console.error("Market data error:", error);
