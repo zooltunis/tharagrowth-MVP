@@ -42,133 +42,76 @@ interface MarketData {
 }
 
 export default function MarketDashboard() {
-  const [selectedCurrency, setSelectedCurrency] = useState("SAR");
+  // Currency fixed to AED only for UAE markets
+  const currency = "AED";
 
   const { data: marketData, isLoading, refetch, error } = useQuery<MarketData>({
-    queryKey: ['/api/market-data', selectedCurrency],
+    queryKey: ['/api/market-data'],
     queryFn: async () => {
-      const response = await fetch(`/api/market-data?currency=${selectedCurrency}`);
+      const response = await fetch('/api/market-data');
       if (!response.ok) throw new Error('فشل في جلب بيانات السوق');
       const data = await response.json();
       
-      // Transform simple data to expected format
+      // Transform data from UAE-focused API
       return {
         goldPrice: {
-          pricePerGram: data.goldPrice?.pricePerGram || 246.68,
-          pricePerOunce: (data.goldPrice?.pricePerGram || 246.68) * 31.1035,
-          currency: data.goldPrice?.currency || 'AED',
-          lastUpdated: data.timestamp || new Date().toISOString(),
+          pricePerGram: data.goldPrice?.pricePerGram || 248.50,
+          pricePerOunce: (data.goldPrice?.pricePerGram || 248.50) * 31.1035,
+          currency: 'AED',
+          lastUpdated: data.lastUpdated || new Date().toISOString(),
           change24h: 2.45,
           changePercent24h: 1.0
         },
-        activeStocks: selectedCurrency === 'SAR' ? [
-          {
-            symbol: '2222',
-            name: 'أرامكو السعودية',
-            price: 28.45,
-            change: 0.55,
-            changePercent: 1.97,
-            volume: 2150000,
-            sector: 'طاقة',
-            lastUpdated: new Date().toISOString()
-          },
-          {
-            symbol: '1180',
-            name: 'الهيئة السعودية للكهرباء',
-            price: 23.20,
-            change: -0.45,
-            changePercent: -1.90,
-            volume: 875000,
-            sector: 'مرافق عامة',
-            lastUpdated: new Date().toISOString()
-          },
-          {
-            symbol: '1120',
-            name: 'الراجحي المصرفية',
-            price: 85.50,
-            change: 1.20,
-            changePercent: 1.42,
-            volume: 1100000,
-            sector: 'مصارف',
-            lastUpdated: new Date().toISOString()
-          },
-          {
-            symbol: '2010',
-            name: 'سابك',
-            price: 92.80,
-            change: -1.30,
-            changePercent: -1.38,
-            volume: 950000,
-            sector: 'كيماويات',
-            lastUpdated: new Date().toISOString()
-          }
-        ] : [
+        activeStocks: data.activeStocks || [
           {
             symbol: 'EMAAR',
             name: 'إعمار العقارية',
-            price: 4.85,
+            price: 5.45,
             change: 0.12,
-            changePercent: 2.5,
+            changePercent: 2.3,
             volume: 1250000,
             sector: 'عقارات',
             lastUpdated: new Date().toISOString()
           },
           {
-            symbol: 'ETISALAT',
-            name: 'اتصالات الإمارات',
-            price: 15.6,
-            change: -0.3,
-            changePercent: -1.9,
-            volume: 850000,
-            sector: 'اتصالات',
+            symbol: 'DIB',
+            name: 'بنك دبي الإسلامي',
+            price: 6.82,
+            change: 0.15,
+            changePercent: 2.2,
+            volume: 1100000,
+            sector: 'بنوك',
             lastUpdated: new Date().toISOString()
           },
           {
             symbol: 'ADNOC',
             name: 'أدنوك للتوزيع',
-            price: 3.95,
+            price: 3.76,
             change: 0.05,
             changePercent: 1.3,
             volume: 950000,
             sector: 'طاقة',
             lastUpdated: new Date().toISOString()
-          }
-        ],
-        newRealEstateProjects: selectedCurrency === 'SAR' ? [
-          {
-            id: '1',
-            name: 'مدينة الرياض الجديدة',
-            developer: 'شركة الراجحي للاستثمار العقاري',
-            location: 'الرياض',
-            propertyType: 'شقق سكنية',
-            startingPrice: 425000,
-            currency: 'SAR',
-            roi: 7.8,
-            paymentPlan: 'دفع 15% مقدم',
-            salesStatus: 'متوفر',
-            launchDate: '2024-03-01'
           },
           {
-            id: '2',
-            name: 'واحة جدة',
-            developer: 'دار الأركان',
-            location: 'جدة',
-            propertyType: 'فلل',
-            startingPrice: 850000,
-            currency: 'SAR',
-            roi: 6.5,
-            paymentPlan: 'دفع 20% مقدم',
-            salesStatus: 'متوفر',
-            launchDate: '2024-02-15'
+            symbol: 'FAB',
+            name: 'بنك أبوظبي الأول',
+            price: 15.20,
+            change: 0.30,
+            changePercent: 2.0,
+            volume: 800000,
+            sector: 'بنوك',
+            lastUpdated: new Date().toISOString()
           }
-        ] : [
+        ],
+        newRealEstateProjects: data.newRealEstateProjects || [
           {
             id: '1',
-            name: 'داون تاون دبي',
-            developer: 'إعمار العقارية',
-            location: 'دبي',
+            name: 'Dubai Creek Harbour',
+            developer: 'Emaar',
+            location: 'Dubai',
             propertyType: 'شقق سكنية',
-            startingPrice: 850000,
+            startingPrice: 1200000,
             currency: 'AED',
             roi: 8.5,
             paymentPlan: 'دفع 10% مقدم',
@@ -177,11 +120,11 @@ export default function MarketDashboard() {
           },
           {
             id: '2',
-            name: 'الريان الجديدة',
-            developer: 'بركة العقارية',
-            location: 'أبوظبي',
-            propertyType: 'فلل',
-            startingPrice: 1200000,
+            name: 'Al Reem Island',
+            developer: 'Aldar',
+            location: 'Abu Dhabi',
+            propertyType: 'شقق سكنية',
+            startingPrice: 850000,
             currency: 'AED',
             roi: 7.2,
             paymentPlan: 'دفع 15% مقدم',
@@ -189,7 +132,7 @@ export default function MarketDashboard() {
             launchDate: '2024-02-20'
           }
         ],
-        lastUpdated: data.timestamp || new Date().toISOString()
+        lastUpdated: data.lastUpdated || new Date().toISOString()
       };
     },
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -251,27 +194,22 @@ export default function MarketDashboard() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">لوحة السوق المباشرة</h1>
+            <h1 className="text-3xl font-bold text-gray-900">لوحة الأسواق الإماراتية المباشرة</h1>
             <p className="text-gray-600 mt-2">
               آخر تحديث: {marketData && formatDateTime(marketData.lastUpdated)}
+            </p>
+            <p className="text-sm text-blue-600 mt-1">
+              🇦🇪 أسواق دبي المالي وأبوظبي للأوراق المالية - جميع الأسعار بالدرهم الإماراتي
             </p>
           </div>
           
           <div className="flex items-center gap-4">
-            <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="العملة" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="SAR">ريال سعودي</SelectItem>
-                <SelectItem value="AED">درهم إماراتي</SelectItem>
-                <SelectItem value="USD">دولار أمريكي</SelectItem>
-                <SelectItem value="EUR">يورو</SelectItem>
-                <SelectItem value="GBP">جنيه إسترليني</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg">
+              <span className="text-sm font-medium text-blue-900">العملة:</span>
+              <span className="text-lg font-bold text-blue-700">AED</span>
+            </div>
             
-            <Button onClick={() => refetch()} variant="outline">
+            <Button onClick={() => refetch()} variant="outline" data-testid="button-refresh-market">
               <RefreshCw className="ml-2 h-4 w-4" />
               تحديث
             </Button>
@@ -292,13 +230,13 @@ export default function MarketDashboard() {
                 <div className="text-center">
                   <p className="text-sm text-yellow-700 mb-1">السعر للجرام</p>
                   <p className="text-2xl font-bold text-yellow-900">
-                    {formatPrice(marketData.goldPrice.pricePerGram, selectedCurrency)}
+                    {formatPrice(marketData.goldPrice.pricePerGram, "AED")}
                   </p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-yellow-700 mb-1">السعر للأونصة</p>
                   <p className="text-2xl font-bold text-yellow-900">
-                    {formatPrice(marketData.goldPrice.pricePerOunce, selectedCurrency)}
+                    {formatPrice(marketData.goldPrice.pricePerOunce, "AED")}
                   </p>
                 </div>
                 <div className="text-center">
