@@ -295,7 +295,7 @@ export default function DataCollectionPage() {
                         name="income"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t({ ar: "الراتب الشهري", en: "Monthly Income", fr: "Revenu Mensuel" })}</FormLabel>
+                            <FormLabel>{t({ ar: "الراتب الشهري (درهم إماراتي)", en: "Monthly Income (AED)", fr: "Revenu Mensuel (AED)" })}</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
@@ -303,11 +303,11 @@ export default function DataCollectionPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="0-5000">{t({ ar: "أقل من 5,000 ريال", en: "Less than 5,000", fr: "Moins de 5,000" })}</SelectItem>
-                                <SelectItem value="5000-15000">{t({ ar: "5,000 - 15,000 ريال", en: "5,000 - 15,000", fr: "5,000 - 15,000" })}</SelectItem>
-                                <SelectItem value="15000-30000">{t({ ar: "15,000 - 30,000 ريال", en: "15,000 - 30,000", fr: "15,000 - 30,000" })}</SelectItem>
-                                <SelectItem value="30000-50000">{t({ ar: "30,000 - 50,000 ريال", en: "30,000 - 50,000", fr: "30,000 - 50,000" })}</SelectItem>
-                                <SelectItem value="50000+">{t({ ar: "أكثر من 50,000 ريال", en: "More than 50,000", fr: "Plus de 50,000" })}</SelectItem>
+                                <SelectItem value="0-5000">{t({ ar: "أقل من 5,000 درهم", en: "Less than 5,000 AED", fr: "Moins de 5,000 AED" })}</SelectItem>
+                                <SelectItem value="5000-15000">{t({ ar: "5,000 - 15,000 درهم", en: "5,000 - 15,000 AED", fr: "5,000 - 15,000 AED" })}</SelectItem>
+                                <SelectItem value="15000-30000">{t({ ar: "15,000 - 30,000 درهم", en: "15,000 - 30,000 AED", fr: "15,000 - 30,000 AED" })}</SelectItem>
+                                <SelectItem value="30000-50000">{t({ ar: "30,000 - 50,000 درهم", en: "30,000 - 50,000 AED", fr: "30,000 - 50,000 AED" })}</SelectItem>
+                                <SelectItem value="50000+">{t({ ar: "أكثر من 50,000 درهم", en: "More than 50,000 AED", fr: "Plus de 50,000 AED" })}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -320,15 +320,24 @@ export default function DataCollectionPage() {
                         name="investmentBudget"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t({ ar: "مبلغ الاستثمار المخطط له", en: "Planned Investment Amount", fr: "Montant d'Investissement Prévu" })}</FormLabel>
+                            <FormLabel>{t({ ar: "مبلغ الاستثمار المخطط له (درهم إماراتي)", en: "Planned Investment Amount (AED)", fr: "Montant d'Investissement Prévu (AED)" })}</FormLabel>
                             <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) => field.onChange(e.target.value)}
-                                placeholder={t({ ar: "مثال: 50000", en: "Example: 50000", fr: "Exemple : 50000" })}
-                              />
+                              <div className="relative">
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                  placeholder={t({ ar: "مثال: 50000", en: "Example: 50000", fr: "Exemple : 50000" })}
+                                  data-testid="input-investment-budget"
+                                />
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+                                  AED
+                                </div>
+                              </div>
                             </FormControl>
+                            <p className="text-xs text-muted-foreground">
+                              {t({ ar: "جميع الاستثمارات بالدرهم الإماراتي (AED)", en: "All investments in UAE Dirham (AED)", fr: "Tous les investissements en Dirham des Émirats (AED)" })}
+                            </p>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -363,30 +372,20 @@ export default function DataCollectionPage() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="currency"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t({ ar: "العملة المفضلة", en: "Preferred Currency", fr: "Devise Préférée" })}</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="AED">🇦🇪 {t(commonTranslations.currencyAED)}</SelectItem>
-                                <SelectItem value="SAR">🇸🇦 {t(commonTranslations.currencySAR)}</SelectItem>
-                                <SelectItem value="USD">🇺🇸 {t(commonTranslations.currencyUSD)}</SelectItem>
-                                <SelectItem value="EUR">🇪🇺 {t(commonTranslations.currencyEUR)}</SelectItem>
-                                <SelectItem value="GBP">🇬🇧 {t(commonTranslations.currencyGBP)}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* Currency field removed - AED is forced */}
+                      <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">🇦🇪</span>
+                          <div>
+                            <h4 className="font-medium text-blue-900 dark:text-blue-100">
+                              {t({ ar: "العملة: الدرهم الإماراتي", en: "Currency: UAE Dirham", fr: "Devise: Dirham des Émirats" })}
+                            </h4>
+                            <p className="text-sm text-blue-700 dark:text-blue-300">
+                              {t({ ar: "جميع التوصيات والتحليلات بالدرهم الإماراتي (AED)", en: "All recommendations and analysis in UAE Dirham (AED)", fr: "Toutes les recommandations et analyses en Dirham des Émirats (AED)" })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
