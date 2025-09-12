@@ -359,9 +359,9 @@ export default function DataCollectionPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="one-time">💰 {t(commonTranslations.paymentOneTime)}</SelectItem>
-                                <SelectItem value="monthly">📅 {t(commonTranslations.paymentMonthly)}</SelectItem>
-                                <SelectItem value="annual">🗓️ {t(commonTranslations.paymentAnnual)}</SelectItem>
+                                <SelectItem value="One-time payment">💰 {t(commonTranslations.paymentOneTime)}</SelectItem>
+                                <SelectItem value="Monthly">📅 {t(commonTranslations.paymentMonthly)}</SelectItem>
+                                <SelectItem value="Yearly">🗓️ {t(commonTranslations.paymentAnnual)}</SelectItem>
                               </SelectContent>
                             </Select>
                             <p className="text-xs text-muted-foreground">

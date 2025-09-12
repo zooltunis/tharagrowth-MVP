@@ -126,10 +126,13 @@ export class SmartInvestmentEngine {
 
       const result = JSON.parse(rawResponse) as SmartRecommendationResult;
       
-      console.log('✅ تم توليد', result.recommendations.length, 'توصية ذكية');
-      console.log('💰 إجمالي المبلغ المخصص:', result.totalAllocated, 'درهم');
+      // Merge custom real estate payment calculations into AI recommendations
+      const enhancedResult = this.mergeRealEstatePaymentLogic(result, filteredData, profile);
+      
+      console.log('✅ تم توليد', enhancedResult.recommendations.length, 'توصية ذكية');
+      console.log('💰 إجمالي المبلغ المخصص:', enhancedResult.totalAllocated, 'درهم');
 
-      return result;
+      return enhancedResult;
 
     } catch (error: any) {
       console.error('❌ خطأ في توليد التوصيات الذكية:', error);
@@ -490,7 +493,7 @@ export class SmartInvestmentEngine {
     const DOWN_PAYMENT_PERCENTAGE = 0.20; // 20% down payment
     const FINANCING_PERIOD_YEARS = 5; // Default financing period
     
-    if (paymentMethod === 'one-time') {
+    if (paymentMethod === 'One-time payment') {
       // One-time payment logic
       if (budget < DIRECT_REAL_ESTATE_THRESHOLD) {
         // Recommend alternatives: REITs or crowdfunding
@@ -531,14 +534,14 @@ export class SmartInvestmentEngine {
               expectedReturn: property.expectedReturn || property.roi || 7,
               riskLevel: 'متوسط',
               downPayment: downPayment,
-              paymentMethod: 'one-time',
+              paymentMethod: 'One-time payment',
               location: property.location,
               developer: property.developer
             });
           }
         });
       }
-    } else if (paymentMethod === 'monthly') {
+    } else if (paymentMethod === 'Monthly') {
       // Monthly payment logic
       const suitableProperties = realEstateData.filter((property: any) => {
         const propertyPrice = property.price || property.startingPrice || 0;
@@ -568,13 +571,13 @@ export class SmartInvestmentEngine {
             downPayment: downPayment,
             monthlyInstallment: monthlyInstallment,
             financingPeriod: FINANCING_PERIOD_YEARS,
-            paymentMethod: 'monthly',
+            paymentMethod: 'Monthly',
             location: property.location,
             developer: property.developer
           });
         }
       });
-    } else if (paymentMethod === 'annual') {
+    } else if (paymentMethod === 'Yearly') {
       // Yearly payment logic
       const suitableProperties = realEstateData.filter((property: any) => {
         const propertyPrice = property.price || property.startingPrice || 0;
@@ -604,7 +607,7 @@ export class SmartInvestmentEngine {
             downPayment: downPayment,
             yearlyInstallment: yearlyInstallment,
             financingPeriod: FINANCING_PERIOD_YEARS,
-            paymentMethod: 'annual',
+            paymentMethod: 'Yearly',
             location: property.location,
             developer: property.developer
           });
@@ -615,6 +618,50 @@ export class SmartInvestmentEngine {
     return {
       recommendations: realEstateRecommendations,
       alternatives: alternatives
+    };
+  }
+
+  /**
+   * Merge custom real estate payment logic into AI-generated recommendations
+   */
+  private mergeRealEstatePaymentLogic(aiResult: SmartRecommendationResult, filteredData: any, profile: UserInvestmentProfile): SmartRecommendationResult {
+    console.log('🔄 Merging custom payment logic with AI recommendations...');
+    
+    const enhancedRecommendations = aiResult.recommendations.map((aiRec) => {
+      // If this is a real estate recommendation, merge with custom payment logic
+      if (aiRec.category === 'real-estate' && filteredData.realEstate && filteredData.realEstate.length > 0) {
+        // Find matching real estate data with payment calculations
+        const matchingRealEstate = filteredData.realEstate.find((reData: any) => 
+          reData.asset === aiRec.asset || 
+          (reData.asset && aiRec.asset && reData.asset.toLowerCase().includes(aiRec.asset.toLowerCase().substring(0, 10)))
+        );
+        
+        if (matchingRealEstate) {
+          console.log(`🏠 Merging payment details for ${aiRec.asset}`);
+          
+          return {
+            ...aiRec,
+            downPayment: matchingRealEstate.downPayment,
+            monthlyInstallment: matchingRealEstate.monthlyInstallment,
+            yearlyInstallment: matchingRealEstate.yearlyInstallment,
+            financingPeriod: matchingRealEstate.financingPeriod,
+            paymentMethod: matchingRealEstate.paymentMethod,
+            location: matchingRealEstate.location,
+            developer: matchingRealEstate.developer,
+            // Override amount if using installments
+            amount: matchingRealEstate.paymentMethod === 'One-time payment' 
+              ? matchingRealEstate.amount 
+              : matchingRealEstate.downPayment || matchingRealEstate.amount
+          };
+        }
+      }
+      
+      return aiRec;
+    });
+
+    return {
+      ...aiResult,
+      recommendations: enhancedRecommendations
     };
   }
 }

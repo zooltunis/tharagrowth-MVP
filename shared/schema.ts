@@ -72,6 +72,13 @@ export type DetailedRecommendation = {
   targetPrice?: string;
   minimumInvestment: string;
   features?: string[];
+  // Real estate payment fields
+  downPayment?: number;
+  monthlyInstallment?: number;
+  yearlyInstallment?: number;
+  financingPeriod?: number;
+  paymentMethod?: string;
+  developer?: string;
 };
 
 export const insertInvestmentAnalysisSchema = createInsertSchema(investmentAnalyses).omit({
@@ -95,7 +102,7 @@ export const userDataSchema = z.object({
   }),
   allowDiversification: z.boolean().default(false),
   islamicCompliance: z.boolean().default(false),
-  paymentFrequency: z.enum(["one-time", "monthly", "annual"], {
+  paymentFrequency: z.enum(["One-time payment", "Monthly", "Yearly"], {
     required_error: "يرجى اختيار تكرار الدفع"
   }),
   

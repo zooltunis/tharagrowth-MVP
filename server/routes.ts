@@ -120,27 +120,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userData,
         strategy: aiAnalysis.strategy,
         riskProfile: aiAnalysis.riskAssessment,
-        recommendations: aiAnalysis.recommendations.map((rec: any, index: number) => ({
-          id: rec.asset + '_' + (index + 1),
-          type: rec.category,
-          category: rec.category as any,
-          title: rec.asset,
-          asset: rec.asset,  // اسم الأصل المالي
-          description: rec.reason,
-          reason: rec.reason,  // سبب التوصية
-          price: rec.amount.toString(),
-          amount: rec.amount,  // المبلغ بصيغة رقمية
-          quantity: rec.quantity,  // الكمية
-          expectedReturn: typeof rec.expectedReturn === 'number' 
-            ? (rec.expectedReturn * 100).toFixed(1)  
-            : rec.expectedReturn.toString(),  // العائد المتوقع كنسبة مئوية
-          paymentPlan: 'N/A',
-          riskLevel: rec.riskLevel as any,
-          timeline: '1 year',
-          recommendation: 'شراء قوي' as any,
-          minimumInvestment: rec.amount.toString(),
-          features: [rec.reason]
-        })),
+        recommendations: aiAnalysis.recommendations.map((rec: any, index: number) => {
+          // Build payment plan description from enhanced payment data
+          let paymentPlan = 'N/A';
+          if (rec.category === 'real-estate' && rec.paymentMethod) {
+            if (rec.paymentMethod === 'One-time payment') {
+              paymentPlan = `دفعة واحدة: ${rec.amount?.toLocaleString()} درهم`;
+            } else if (rec.paymentMethod === 'Monthly' && rec.downPayment && rec.monthlyInstallment) {
+              paymentPlan = `دفعة مقدمة: ${rec.downPayment.toLocaleString()} درهم + ${rec.monthlyInstallment.toLocaleString()} درهم شهريًا لمدة ${rec.financingPeriod || 5} سنوات`;
+            } else if (rec.paymentMethod === 'Yearly' && rec.downPayment && rec.yearlyInstallment) {
+              paymentPlan = `دفعة مقدمة: ${rec.downPayment.toLocaleString()} درهم + ${rec.yearlyInstallment.toLocaleString()} درهم سنويًا لمدة ${rec.financingPeriod || 5} سنوات`;
+            }
+          }
+          
+          return {
+            id: rec.asset + '_' + (index + 1),
+            type: rec.category,
+            category: rec.category as any,
+            title: rec.asset,
+            asset: rec.asset,  // اسم الأصل المالي
+            description: rec.reason,
+            reason: rec.reason,  // سبب التوصية
+            price: rec.amount.toString(),
+            amount: rec.amount,  // المبلغ بصيغة رقمية
+            quantity: rec.quantity,  // الكمية
+            expectedReturn: typeof rec.expectedReturn === 'number' 
+              ? (rec.expectedReturn * 100).toFixed(1)  
+              : rec.expectedReturn.toString(),  // العائد المتوقع كنسبة مئوية
+            paymentPlan,
+            riskLevel: rec.riskLevel as any,
+            timeline: '1 year',
+            recommendation: 'شراء قوي' as any,
+            minimumInvestment: rec.amount.toString(),
+            features: [rec.reason],
+            // Preserve payment fields for real estate
+            downPayment: rec.downPayment,
+            monthlyInstallment: rec.monthlyInstallment,
+            yearlyInstallment: rec.yearlyInstallment,
+            financingPeriod: rec.financingPeriod,
+            paymentMethod: rec.paymentMethod,
+            location: rec.location,
+            developer: rec.developer
+          };
+        }),
         totalAllocated: aiAnalysis.totalAllocated,
         remainingAmount: parseInt(userData.investmentBudget.replace(/,/g, '')) - aiAnalysis.totalAllocated,
         analysis: aiAnalysis.analysis,
