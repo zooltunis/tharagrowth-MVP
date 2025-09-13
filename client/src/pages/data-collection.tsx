@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginModal from "@/components/LoginModal";
+import { auth, db } from './lib/firebase';
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);
