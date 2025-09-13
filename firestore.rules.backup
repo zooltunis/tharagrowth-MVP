@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read and write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Investment analyses - secure rules preventing privilege escalation
+    match /investment_analyses/{analysisId} {
+      // Allow create only if the user is creating their own document
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+      
+      // Allow read/update/delete only for own documents with userId immutability
+      allow read, update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.userId &&
+        // Ensure userId cannot be changed during updates
+        (!('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId);
+    }
+    
+    // Deny all other access by default (no global read)
+  }
+}
