@@ -6,6 +6,7 @@ import { Header } from "@/components/ui/header";
 import { TrendingUp, Shield, Coins, Brain, AlertTriangle, Sparkles, BarChart3, Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoPath from "@assets/TharaGrowth Logo - Emblem Style with Calligraphy Twist_20250803_194834_0000_1754247313539.png";
+import { auth, db } from './lib/firebase';
 
 export default function WelcomePage() {
   const { currentLanguage, isRTL } = useLanguage();
