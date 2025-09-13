@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { userDataSchema, type UserData } from "@shared/schema";
 import { analyzeInvestmentData } from "@/lib/openai";
 import { ArrowRight, ArrowLeft, Brain, Loader2, AlertTriangle, User, Target, Shield, Settings } from "lucide-react";
+import { auth, db } from './lib/firebase';
 
 export default function DataCollectionPage() {
   const [currentStep, setCurrentStep] = useState(1);

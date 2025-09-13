@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign, AlertTriangle } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { auth, db } from './lib/firebase';
 
 export default function ResultsPage() {
   const { id } = useParams();

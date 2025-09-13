@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrendingUp, TrendingDown, RefreshCw, Building2, Coins, BarChart3, Clock, AlertTriangle } from "lucide-react";
+import { auth, db } from './lib/firebase';
 
 interface MarketData {
   goldPrice: {

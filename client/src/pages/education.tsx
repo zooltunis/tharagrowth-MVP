@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
 import { BookOpen, TrendingUp, Shield, Globe, AlertTriangle, ExternalLink, Home } from "lucide-react";
+import { auth, db } from './lib/firebase';
 
 interface NewsArticle {
   title: string;
