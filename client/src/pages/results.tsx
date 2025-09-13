@@ -8,6 +8,7 @@ import { Header } from "@/components/ui/header";
 import { useLanguage, useTranslation, commonTranslations } from "@/contexts/LanguageContext";
 import { Check, RotateCcw, Download, Loader2, AlertCircle, MapPin, Clock, TrendingUp, Shield, DollarSign, AlertTriangle, Home } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { auth, db } from './lib/firebase';
 
 export default function ResultsPage() {
   const { id } = useParams();
