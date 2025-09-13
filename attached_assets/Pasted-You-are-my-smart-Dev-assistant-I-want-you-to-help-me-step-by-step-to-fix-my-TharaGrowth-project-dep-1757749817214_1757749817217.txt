@@ -1,0 +1,43 @@
+You are my smart Dev assistant. I want you to help me step by step to fix my TharaGrowth project deployment issues with Firebase Hosting and Firestore. Guide me interactively. 
+
+Current issues:
+1. Production shows blank page.
+2. Console errors: 
+   - Failed to load module script: MIME type "text/html"
+   - Firestore Listen 400 Bad Request
+   - Google sign-in returns to data collection page
+3. Some settings in firebase.json and vite.config.js might be wrong.
+4. Need to verify local build and hosting config.
+
+Steps I want you to do with me:
+
+1. Check `vite.config.js` for `build.outDir`. Make sure it points to `dist` (or `dist/public`) so Firebase can serve files correctly.
+2. Check `firebase.json`:
+   - `hosting.public` should point to the build output (`dist` or `dist/public`)
+   - SPA rewrites must redirect all paths to `index.html`.
+3. Build project locally:
+   - Run `npm run build`
+   - Confirm that JS, CSS, and index.html files are present in the build folder
+4. Verify environment variables for Firebase in `.env` or GitHub secrets:
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
+5. Test the app locally:
+   - Run `npm run dev`
+   - Open browser at http://localhost:5173
+   - Check console: no MIME errors, no Firestore 400 errors, Google sign-in works
+6. Deploy to Firebase from Replit:
+   - Use Firebase CLI: `npx firebase-tools deploy --only hosting`
+   - Ensure `FIREBASE_TOKEN` is set in Replit secrets
+7. Verify deployed app:
+   - Open https://tharagrowth-mvp.web.app in incognito mode
+   - Check console for errors
+   - Test Google sign-in and Firestore writes
+
+At each step:
+- If a problem is found, tell me exactly which file and line to fix, and provide the corrected code.
+- Wait for my confirmation before proceeding to the next step.
+- Explain why the fix is necessary for the app to load and Firestore to work.
