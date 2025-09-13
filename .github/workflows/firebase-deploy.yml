@@ -26,24 +26,14 @@ jobs:
         run: npx vite build && cp -r dist/public/* dist/ 2>/dev/null || echo "Build completed"
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-
-
-          VITE_FIREBASE_AUTH_DOMAIN: "tharagrowth-mvp.web.app"
-
+          VITE_FIREBASE_AUTH_DOMAIN: tharagrowth-mvp.web.app
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-
           
-
-
-      - name: Deploy to Firebase Hosting
-        run: npx firebase-tools deploy --only hosting --project tharagrowth-mvp
-
       - name: Deploy to Firebase Hosting and Firestore Rules
         run: npx firebase-tools deploy --only hosting,firestore:rules --project tharagrowth-mvp
-
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           
