@@ -96,7 +96,7 @@ export default function DataCollectionPage() {
       targetMarket: "UAE",
       allowDiversification: false,
       islamicCompliance: false,
-      paymentFrequency: "one-time",
+      paymentFrequency: "One-time payment",
     },
   });
 
