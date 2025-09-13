@@ -12,6 +12,7 @@ import ResultsPage from "@/pages/results";
 import MarketDashboardPage from "@/pages/market-dashboard";
 import EducationPage from "@/pages/education";
 import NotFound from "@/pages/not-found";
+import { auth, db } from './lib/firebase';
 
 function Router() {
   return (
